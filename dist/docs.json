@@ -1,0 +1,186 @@
+{
+  "api": {
+    "name": "OktaPlugin",
+    "slug": "oktaplugin",
+    "docs": "",
+    "tags": [],
+    "methods": [
+      {
+        "name": "signInWithBrowser",
+        "signature": "() => Promise<AuthStateDetails>",
+        "parameters": [],
+        "returns": "Promise<AuthStateDetails>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "AuthStateDetails"
+        ],
+        "slug": "signinwithbrowser"
+      },
+      {
+        "name": "signOut",
+        "signature": "() => Promise<AuthStateDetails>",
+        "parameters": [],
+        "returns": "Promise<AuthStateDetails>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "AuthStateDetails"
+        ],
+        "slug": "signout"
+      },
+      {
+        "name": "getUser",
+        "signature": "() => Promise<{ [key: string]: any; }>",
+        "parameters": [],
+        "returns": "Promise<{ [key: string]: any; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "getuser"
+      },
+      {
+        "name": "getAuthStateDetails",
+        "signature": "() => Promise<AuthStateDetails>",
+        "parameters": [],
+        "returns": "Promise<AuthStateDetails>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "AuthStateDetails"
+        ],
+        "slug": "getauthstatedetails"
+      },
+      {
+        "name": "addListener",
+        "signature": "(eventName: 'initSuccess', listenerFunc: (data: AuthStateDetails) => void) => PluginListenerHandle",
+        "parameters": [
+          {
+            "name": "eventName",
+            "docs": "",
+            "type": "'initSuccess'"
+          },
+          {
+            "name": "listenerFunc",
+            "docs": "",
+            "type": "(data: AuthStateDetails) => void"
+          }
+        ],
+        "returns": "PluginListenerHandle",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "PluginListenerHandle",
+          "AuthStateDetails"
+        ],
+        "slug": "addlistenerinitsuccess"
+      },
+      {
+        "name": "addListener",
+        "signature": "(eventName: 'initError', listenerFunc: (error: { description?: string; }) => void) => PluginListenerHandle",
+        "parameters": [
+          {
+            "name": "eventName",
+            "docs": "",
+            "type": "'initError'"
+          },
+          {
+            "name": "listenerFunc",
+            "docs": "",
+            "type": "(error: { description?: string | undefined; }) => void"
+          }
+        ],
+        "returns": "PluginListenerHandle",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "PluginListenerHandle"
+        ],
+        "slug": "addlisteneriniterror"
+      },
+      {
+        "name": "addListener",
+        "signature": "(eventName: 'authState', listenerFunc: (data: AuthStateDetails) => void) => PluginListenerHandle",
+        "parameters": [
+          {
+            "name": "eventName",
+            "docs": "",
+            "type": "'authState'"
+          },
+          {
+            "name": "listenerFunc",
+            "docs": "",
+            "type": "(data: AuthStateDetails) => void"
+          }
+        ],
+        "returns": "PluginListenerHandle",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "PluginListenerHandle",
+          "AuthStateDetails"
+        ],
+        "slug": "addlistenerauthstate"
+      }
+    ],
+    "properties": []
+  },
+  "interfaces": [
+    {
+      "name": "AuthStateDetails",
+      "slug": "authstatedetails",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "isAuthorized",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "boolean"
+        },
+        {
+          "name": "accessToken",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string | undefined"
+        },
+        {
+          "name": "refreshToken",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string | undefined"
+        },
+        {
+          "name": "idToken",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "PluginListenerHandle",
+      "slug": "pluginlistenerhandle",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "remove",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "() => Promise<void>"
+        }
+      ]
+    }
+  ],
+  "enums": [],
+  "typeAliases": [],
+  "pluginConfigs": []
+}

@@ -1,0 +1,34 @@
+PODS:
+  - Capacitor (3.4.3):
+    - CapacitorCordova
+  - CapacitorCordova (3.4.3)
+  - OktaOidc (3.11.1):
+    - OktaOidc/AppAuth (= 3.11.1)
+    - OktaOidc/Okta (= 3.11.1)
+  - OktaOidc/AppAuth (3.11.1)
+  - OktaOidc/Okta (3.11.1):
+    - OktaOidc/AppAuth
+
+DEPENDENCIES:
+  - "Capacitor (from `../node_modules/@capacitor/ios`)"
+  - "CapacitorCordova (from `../node_modules/@capacitor/ios`)"
+  - OktaOidc (= 3.11.1)
+
+SPEC REPOS:
+  trunk:
+    - OktaOidc
+
+EXTERNAL SOURCES:
+  Capacitor:
+    :path: "../node_modules/@capacitor/ios"
+  CapacitorCordova:
+    :path: "../node_modules/@capacitor/ios"
+
+SPEC CHECKSUMS:
+  Capacitor: a8d7fa9fb3b50adc610247bb8d0310e83424f746
+  CapacitorCordova: 687b7d3ef4872c03aa2a2eb052d23008be9ad76b
+  OktaOidc: 94d65a417fefbdd92441a6e8b8347e2db2ea885a
+
+PODFILE CHECKSUM: 38530f4e8303b8b275cc3d0a2c6cf9d5f2a786e2
+
+COCOAPODS: 1.11.2
