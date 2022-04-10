@@ -8,7 +8,7 @@ import OktaOidc
     private var authSession: OktaOidc? = nil
     private var authStateManager: OktaOidcStateManager? = nil
 
-    @objc public func configureSDK(callback: @escaping ((_ authDetails: [String:Any]?,_ error: Error?) -> Void)) -> Void {
+    @objc public func configureSDK(callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) -> Void {
         guard let config = try? OktaOidcConfig.default(),
           let oktaAuth = try? OktaOidc(configuration: config) else {
             // Fatal error as the configuration isn't editable in this app.
@@ -17,11 +17,11 @@ import OktaOidc
         self.authSession = oktaAuth
         // Check for an existing session
         self.authStateManager = OktaOidcStateManager.readFromSecureStorage(for: config)
-        callback(getAuthStateAsMap(), nil)
+        callback(self.authStateManager, nil)
         self.notifyAuthStateChange()
     }
 
-    @objc public func signInWithBrowser(vc: UIViewController?, callback: @escaping ((_ authDetails: [String:Any]?,_ error: Error?) -> Void)) {
+    @objc public func signInWithBrowser(vc: UIViewController?, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
         guard let vc = vc else {
             return callback(nil, NSError(domain: "com.okode.okta", code: 400, userInfo: [NSLocalizedDescriptionKey: "Not a valid view controller provided"]))
         }
@@ -36,12 +36,12 @@ import OktaOidc
             }
             self.authStateManager = authStateManager
             authStateManager?.writeToSecureStorage()
-            callback(self.getAuthStateAsMap(), nil)
+            callback(self.authStateManager, nil)
             self.notifyAuthStateChange()
         })
     }
 
-    @objc public func signOut(vc: UIViewController?, callback: @escaping ((_ authDetails: [String:Any]?, _ error: Error?) -> Void)) {
+    @objc public func signOut(vc: UIViewController?, callback: @escaping ((_ result: NSNumber?, _ error: Error?) -> Void)) {
         guard let vc = vc else {
             return callback(nil, NSError(domain: "com.okode.okta", code: 400, userInfo: [NSLocalizedDescriptionKey: "Not a valid view controller provided"]))
         }
@@ -61,7 +61,7 @@ import OktaOidc
                 return callback(nil, NSError(domain: "com.okode.okta", code: 500, userInfo: [NSLocalizedDescriptionKey: "Error signing out"]))
             }
             self.authStateManager = nil;
-            callback(self.getAuthStateAsMap(), nil)
+            callback(NSNumber(value: opts.rawValue), nil)
             self.notifyAuthStateChange()
         })
     }
@@ -72,23 +72,14 @@ import OktaOidc
         }
         return authStateManager.getUser(callback)
     }
-
-    @objc public func getAuthStateAsMap() -> [String:Any] {
-        guard let authStateManager = authStateManager else {
-            return [:]
-        }
-        let accessToken = !isTokenExpired(authStateManager.accessToken) ? authStateManager.accessToken : nil
-        return [
-            "isAuthorized": authStateManager.authState.isAuthorized,
-            "accessToken": accessToken ?? NSNull(),
-            "refreshToken": authStateManager.refreshToken ?? NSNull(),
-            "idToken": authStateManager.idToken ?? NSNull()
-        ]
+    
+    @objc public func getAuthState() ->  OktaOidcStateManager? {
+        return authStateManager;
     }
 
-    @objc public func isTokenExpired(_ tokenString: String?) -> Bool {
-      guard let accessToken = tokenString,
-      let tokenInfo = OKTIDToken.init(idTokenString: accessToken) else {
+    @objc public static func isTokenExpired(_ tokenString: String?) -> Bool {
+      guard let token = tokenString,
+      let tokenInfo = OKTIDToken.init(idTokenString: token) else {
         return false
       }
 
@@ -96,7 +87,7 @@ import OktaOidc
     }
 
     private func notifyAuthStateChange() {
-        self.authStateDelegate?.onOktaAuthStateChange(authState: getAuthStateAsMap())
+        self.authStateDelegate?.onOktaAuthStateChange(authState: getAuthState())
     }
 
 }

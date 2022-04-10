@@ -1,5 +1,6 @@
 import Foundation
 import Capacitor
+import OktaOidc
 
 /**
  * Please read the Capacitor iOS Plugin Development Guide
@@ -7,38 +8,38 @@ import Capacitor
  */
 @objc(OktaPlugin)
 public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
-    
+
     private let implementation = Okta()
-    
+
     override public func load() {
         super.load()
         implementation.authStateDelegate = self
-        implementation.configureSDK { authDetails, error in
+        implementation.configureSDK { authState, error in
             if error != nil {
                 return self.notifyListeners("initError", data: [
                     "description": error?.localizedDescription ?? NSNull(),
                 ], retainUntilConsumed: true)
             }
-            self.notifyListeners("initSuccess", data: authDetails, retainUntilConsumed: true)
+            self.notifyListeners("initSuccess", data: OktaConverterHelper.convertAuthState(authStateManager: authState), retainUntilConsumed: true)
         }
     }
-    
+
     @objc public func signInWithBrowser(_ call: CAPPluginCall) {
-        implementation.signInWithBrowser(vc: self.bridge?.viewController) { authDetails, error in
+        implementation.signInWithBrowser(vc: self.bridge?.viewController) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
-                call.resolve(authDetails ?? [:]);
+                call.resolve();
             }
         }
     }
-    
+
     @objc public func signOut(_ call: CAPPluginCall) {
-        implementation.signOut(vc: self.bridge?.viewController) { authDetails, error in
+        implementation.signOut(vc: self.bridge?.viewController) { result, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
-                call.resolve(authDetails ?? [:]);
+                call.resolve([ "value": result ?? NSNull() ]);
             }
         }
     }
@@ -50,11 +51,12 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
     }
 
     @objc public func getAuthStateDetails(_ call: CAPPluginCall) {
-        call.resolve(implementation.getAuthStateAsMap())
+        let state = implementation.getAuthState()
+        call.resolve(OktaConverterHelper.convertAuthState(authStateManager: state))
     }
-    
-    func onOktaAuthStateChange(authState: [String : Any]) {
-        self.notifyListeners("authState", data: implementation.getAuthStateAsMap(), retainUntilConsumed: true)
+
+    func onOktaAuthStateChange(authState: OktaOidcStateManager?) {
+        self.notifyListeners("authState", data: OktaConverterHelper.convertAuthState(authStateManager: authState), retainUntilConsumed: true)
     }
-    
+
 }

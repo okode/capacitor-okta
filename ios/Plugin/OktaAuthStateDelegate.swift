@@ -1,3 +1,5 @@
+import OktaOidc
+
 //
 //  OktaAuthStateDelegate.swift
 //  CapacitorOkta
@@ -6,5 +8,5 @@
 //
 
 protocol OktaAuthStateDelegate {
-    func onOktaAuthStateChange(authState: [String:Any])
+    func onOktaAuthStateChange(authState: OktaOidcStateManager?)
 }
