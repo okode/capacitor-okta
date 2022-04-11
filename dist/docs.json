@@ -7,26 +7,22 @@
     "methods": [
       {
         "name": "signInWithBrowser",
-        "signature": "() => Promise<AuthStateDetails>",
+        "signature": "() => Promise<void>",
         "parameters": [],
-        "returns": "Promise<AuthStateDetails>",
+        "returns": "Promise<void>",
         "tags": [],
         "docs": "",
-        "complexTypes": [
-          "AuthStateDetails"
-        ],
+        "complexTypes": [],
         "slug": "signinwithbrowser"
       },
       {
         "name": "signOut",
-        "signature": "() => Promise<AuthStateDetails>",
+        "signature": "() => Promise<{ value: number; }>",
         "parameters": [],
-        "returns": "Promise<AuthStateDetails>",
+        "returns": "Promise<{ value: number; }>",
         "tags": [],
         "docs": "",
-        "complexTypes": [
-          "AuthStateDetails"
-        ],
+        "complexTypes": [],
         "slug": "signout"
       },
       {
@@ -134,7 +130,7 @@
       "methods": [],
       "properties": [
         {
-          "name": "isAuthorized",
+          "name": "isAuthenticated",
           "tags": [],
           "docs": "",
           "complexTypes": [],

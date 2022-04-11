@@ -30,10 +30,8 @@ npx cap sync
 ### signInWithBrowser()
 
 ```typescript
-signInWithBrowser() => Promise<AuthStateDetails>
+signInWithBrowser() => Promise<void>
 ```
-
-**Returns:** <code>Promise&lt;<a href="#authstatedetails">AuthStateDetails</a>&gt;</code>
 
 --------------------
 
@@ -41,10 +39,10 @@ signInWithBrowser() => Promise<AuthStateDetails>
 ### signOut()
 
 ```typescript
-signOut() => Promise<AuthStateDetails>
+signOut() => Promise<{ value: number; }>
 ```
 
-**Returns:** <code>Promise&lt;<a href="#authstatedetails">AuthStateDetails</a>&gt;</code>
+**Returns:** <code>Promise&lt;{ value: number; }&gt;</code>
 
 --------------------
 
@@ -124,12 +122,12 @@ addListener(eventName: 'authState', listenerFunc: (data: AuthStateDetails) => vo
 
 #### AuthStateDetails
 
-| Prop               | Type                 |
-| ------------------ | -------------------- |
-| **`isAuthorized`** | <code>boolean</code> |
-| **`accessToken`**  | <code>string</code>  |
-| **`refreshToken`** | <code>string</code>  |
-| **`idToken`**      | <code>string</code>  |
+| Prop                  | Type                 |
+| --------------------- | -------------------- |
+| **`isAuthenticated`** | <code>boolean</code> |
+| **`accessToken`**     | <code>string</code>  |
+| **`refreshToken`**    | <code>string</code>  |
+| **`idToken`**         | <code>string</code>  |
 
 
 #### PluginListenerHandle

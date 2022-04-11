@@ -4,11 +4,11 @@ import type { AuthStateDetails, OktaPlugin } from './definitions';
 
 export class OktaWeb extends WebPlugin implements OktaPlugin {
 
-  signInWithBrowser(): Promise<AuthStateDetails> {
+  signInWithBrowser(): Promise<void> {
     return Promise.reject('Method not implemented.');
   }
 
-  signOut(): Promise<AuthStateDetails> {
+  signOut(): Promise<{ value: number }> {
     return Promise.reject('Method not implemented.');
   }
 
