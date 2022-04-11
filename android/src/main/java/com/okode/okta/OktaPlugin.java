@@ -18,7 +18,7 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
         super.load();
         implementation.setAuthStateChangeListener(this);
         SessionClient session = implementation.configureSDK(getActivity());
-        notifyListeners("initSuccess", OktaConverterHelper.convertAuthState(session));
+        notifyListeners("initSuccess", OktaConverterHelper.convertAuthState(session), true);
     }
 
     @PluginMethod
@@ -76,7 +76,7 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
 
     @Override
     public void onOktaAuthStateChange(SessionClient session) {
-        notifyListeners("authState", OktaConverterHelper.convertAuthState(session));
+        notifyListeners("authState", OktaConverterHelper.convertAuthState(session), true);
     }
 
 }

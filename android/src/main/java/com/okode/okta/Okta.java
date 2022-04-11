@@ -41,6 +41,7 @@ public class Okta {
                 .withStorage(new SharedPreferenceStorage(activity))
                 .withCallbackExecutor(Executors.newSingleThreadExecutor())
                 .supportedBrowsers(CHROME_BROWSER, FIRE_FOX)
+                .setRequireHardwareBackedKeyStore(false) // required for emulators
                 .create();
         setAuthCallback(activity);
         notifyAuthStateChange();
@@ -53,6 +54,7 @@ public class Okta {
             return;
         }
         webAuthClient.signIn(activity, null);
+        callback.onSuccess(null);
     }
 
     public void signOut(Activity activity, OktaRequestCallback<Integer> callback) {
@@ -61,17 +63,20 @@ public class Okta {
             return;
         }
         webAuthClient.signOut(activity, new RequestCallback<Integer, AuthorizationException>() {
-            @Override
-            public void onSuccess(@NonNull Integer result) {
-                callback.onSuccess(result);
-                notifyAuthStateChange();
-            }
+              @Override
+              public void onSuccess(@NonNull Integer result) {
+                  callback.onSuccess(result);
+                  if (webAuthClient.getSessionClient() != null) {
+                    webAuthClient.getSessionClient().clear();
+                  }
+                  notifyAuthStateChange();
+              }
 
-            @Override
-            public void onError(String error, AuthorizationException exception) {
-                callback.onError(error, exception);
-            }
-        });
+              @Override
+              public void onError(String error, AuthorizationException exception) {
+                  callback.onError(error, exception);
+              }
+          });
     }
 
     public void getUser(OktaRequestCallback<UserInfo> callback) {
@@ -101,14 +106,15 @@ public class Okta {
     }
 
     private void setAuthCallback(Activity activity) {
-        webAuthClient.registerCallback(new ResultCallback<AuthorizationStatus, AuthorizationException>() {
+        webAuthClient.registerCallback(
+          new ResultCallback<AuthorizationStatus, AuthorizationException>() {
             @Override
             public void onSuccess(@NonNull AuthorizationStatus status) {
                 if (status == AuthorizationStatus.AUTHORIZED) {
                     Log.i(TAG, "Auth success");
                     notifyAuthStateChange();
                 } else if (status == AuthorizationStatus.SIGNED_OUT) {
-                    Log.i(TAG, "Sign out success");
+                    Log.i(TAG, "Sign out from Okta success");
                     notifyAuthStateChange();
                 }
             }
