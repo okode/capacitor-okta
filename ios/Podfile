@@ -10,7 +10,7 @@ end
 
 target 'Plugin' do
   capacitor_pods
-  pod 'OktaOidc', '3.11.1'
+  pod 'OktaOidc', '3.11.2'
 end
 
 target 'PluginTests' do
