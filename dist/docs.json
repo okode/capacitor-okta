@@ -26,6 +26,16 @@
         "slug": "signout"
       },
       {
+        "name": "signInWithRefreshToken",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "signinwithrefreshtoken"
+      },
+      {
         "name": "getUser",
         "signature": "() => Promise<{ [key: string]: any; }>",
         "parameters": [],

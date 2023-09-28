@@ -4,6 +4,7 @@ export interface OktaPlugin {
     signOut(): Promise<{
         value: number;
     }>;
+    signInWithRefreshToken(): Promise<void>;
     getUser(): Promise<{
         [key: string]: any;
     }>;

@@ -15,6 +15,7 @@ npx cap sync
 
 * [`signInWithBrowser()`](#signinwithbrowser)
 * [`signOut()`](#signout)
+* [`signInWithRefreshToken()`](#signinwithrefreshtoken)
 * [`getUser()`](#getuser)
 * [`getAuthStateDetails()`](#getauthstatedetails)
 * [`addListener('initSuccess', ...)`](#addlistenerinitsuccess)
@@ -43,6 +44,15 @@ signOut() => Promise<{ value: number; }>
 ```
 
 **Returns:** <code>Promise&lt;{ value: number; }&gt;</code>
+
+--------------------
+
+
+### signInWithRefreshToken()
+
+```typescript
+signInWithRefreshToken() => Promise<void>
+```
 
 --------------------
 

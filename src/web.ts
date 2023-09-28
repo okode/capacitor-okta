@@ -8,6 +8,10 @@ export class OktaWeb extends WebPlugin implements OktaPlugin {
     return Promise.reject('Method not implemented.');
   }
 
+  signInWithRefreshToken(): Promise<void> {
+    return Promise.reject('Method not implemented.');
+  }
+
   signOut(): Promise<{ value: number }> {
     return Promise.reject('Method not implemented.');
   }

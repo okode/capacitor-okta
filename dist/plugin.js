@@ -9,6 +9,9 @@ var capacitorOkta = (function (exports, core) {
         signInWithBrowser() {
             return Promise.reject('Method not implemented.');
         }
+        signInWithRefreshToken() {
+            return Promise.reject('Method not implemented.');
+        }
         signOut() {
             return Promise.reject('Method not implemented.');
         }
