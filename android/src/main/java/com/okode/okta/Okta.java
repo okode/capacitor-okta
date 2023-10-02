@@ -17,6 +17,7 @@ import com.okta.oidc.clients.web.WebAuthClient;
 import com.okta.oidc.net.response.UserInfo;
 import com.okta.oidc.storage.SharedPreferenceStorage;
 import com.okta.oidc.util.AuthorizationException;
+import com.okta.oidc.Tokens;
 
 import java.util.concurrent.Executors;
 
@@ -55,6 +56,25 @@ public class Okta {
         }
         webAuthClient.signIn(activity, null);
         callback.onSuccess(null);
+    }
+
+    public void signInWithRefreshToken(Activity activity, OktaRequestCallback<Tokens> callback) {
+        if (webAuthClient == null) {
+            callback.onError("No auth client initialized", null);
+            return;
+        }
+        webAuthClient.getSessionClient().refreshToken(new RequestCallback<Tokens, AuthorizationException>() {
+            @Override
+            public void onSuccess(@NonNull Tokens result) {
+                notifyAuthStateChange();
+                callback.onSuccess(result);
+            }
+
+            @Override
+            public void onError(String error, AuthorizationException exception) {
+                callback.onError(error, exception);
+            }
+        });
     }
 
     public void signOut(Activity activity, OktaRequestCallback<Integer> callback) {

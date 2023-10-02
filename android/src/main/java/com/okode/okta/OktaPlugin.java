@@ -7,7 +7,6 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.okta.oidc.clients.sessions.SessionClient;
 import com.okta.oidc.net.response.UserInfo;
-import com.okta.oidc.util.AuthorizationException;
 import com.okta.oidc.Tokens;
 
 @CapacitorPlugin(name = "Okta")
@@ -40,9 +39,9 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
 
     @PluginMethod
     public void signInWithRefreshToken(PluginCall call) {
-        implementation.refreshToken(new RequestCallback<Tokens, AuthorizationException>() {
+        implementation.signInWithRefreshToken(getActivity(), new Okta.OktaRequestCallback<Tokens>() {
             @Override
-            public void onSuccess(@NonNull Tokens result) {
+            public void onSuccess(Tokens tokens) {
                 call.resolve();
             }
 
