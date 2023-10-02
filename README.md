@@ -14,8 +14,8 @@ npx cap sync
 <docgen-index>
 
 * [`signInWithBrowser()`](#signinwithbrowser)
-* [`signOut()`](#signout)
 * [`signInWithRefreshToken()`](#signinwithrefreshtoken)
+* [`signOut()`](#signout)
 * [`getUser()`](#getuser)
 * [`getAuthStateDetails()`](#getauthstatedetails)
 * [`addListener('initSuccess', ...)`](#addlistenerinitsuccess)
@@ -37,6 +37,15 @@ signInWithBrowser() => Promise<void>
 --------------------
 
 
+### signInWithRefreshToken()
+
+```typescript
+signInWithRefreshToken() => Promise<void>
+```
+
+--------------------
+
+
 ### signOut()
 
 ```typescript
@@ -44,15 +53,6 @@ signOut() => Promise<{ value: number; }>
 ```
 
 **Returns:** <code>Promise&lt;{ value: number; }&gt;</code>
-
---------------------
-
-
-### signInWithRefreshToken()
-
-```typescript
-signInWithRefreshToken() => Promise<void>
-```
 
 --------------------
 

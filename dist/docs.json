@@ -16,16 +16,6 @@
         "slug": "signinwithbrowser"
       },
       {
-        "name": "signOut",
-        "signature": "() => Promise<{ value: number; }>",
-        "parameters": [],
-        "returns": "Promise<{ value: number; }>",
-        "tags": [],
-        "docs": "",
-        "complexTypes": [],
-        "slug": "signout"
-      },
-      {
         "name": "signInWithRefreshToken",
         "signature": "() => Promise<void>",
         "parameters": [],
@@ -34,6 +24,16 @@
         "docs": "",
         "complexTypes": [],
         "slug": "signinwithrefreshtoken"
+      },
+      {
+        "name": "signOut",
+        "signature": "() => Promise<{ value: number; }>",
+        "parameters": [],
+        "returns": "Promise<{ value: number; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "signout"
       },
       {
         "name": "getUser",

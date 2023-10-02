@@ -1,10 +1,10 @@
 import type { PluginListenerHandle } from "@capacitor/core";
 export interface OktaPlugin {
     signInWithBrowser(): Promise<void>;
+    signInWithRefreshToken(): Promise<void>;
     signOut(): Promise<{
         value: number;
     }>;
-    signInWithRefreshToken(): Promise<void>;
     getUser(): Promise<{
         [key: string]: any;
     }>;
