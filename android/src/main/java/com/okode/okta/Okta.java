@@ -45,7 +45,6 @@ public class Okta {
                 .setRequireHardwareBackedKeyStore(false) // required for emulators
                 .create();
         setAuthCallback(activity);
-        notifyAuthStateChange();
         return webAuthClient.getSessionClient();
     }
 
