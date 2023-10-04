@@ -12,7 +12,7 @@ class OktaWeb extends core.WebPlugin {
     signInWithBrowser() {
         return Promise.reject('Method not implemented.');
     }
-    signInWithRefreshToken() {
+    refreshToken() {
         return Promise.reject('Method not implemented.');
     }
     signOut() {

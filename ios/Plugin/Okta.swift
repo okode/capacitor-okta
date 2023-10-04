@@ -41,21 +41,14 @@ import OktaOidc
         })
     }
 
-    @objc public func signInWithRefreshToken(vc: UIViewController?, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
-        guard let vc = vc else {
-            return callback(nil, NSError(domain: "com.okode.okta", code: 400, userInfo: [NSLocalizedDescriptionKey: "Not a valid view controller provided"]))
-        }
-
-        guard let authStateManager = authStateManager else {
-            return callback(nil, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth state manager initialized"]))
-        }
-
-        self.authStateManager?.renew { newAccessToken, error in
+    @objc public func refreshToken(vc: UIViewController?, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
+        self.authStateManager?.renew { authStateManager, error in
             if let error = error {
-                return callback(nil, NSError(domain: "com.okode.okta", code: 500, userInfo: [NSLocalizedDescriptionKey: "Error renew acces token"]))
+                return callback(nil, error)
             }
+            self.authStateManager = authStateManager
+            authStateManager?.writeToSecureStorage()
             callback(self.authStateManager, nil)
-            self.notifyAuthStateChange()
         }
     }
 

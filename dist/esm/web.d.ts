@@ -2,7 +2,7 @@ import { WebPlugin } from '@capacitor/core';
 import type { AuthStateDetails, OktaPlugin } from './definitions';
 export declare class OktaWeb extends WebPlugin implements OktaPlugin {
     signInWithBrowser(): Promise<void>;
-    signInWithRefreshToken(): Promise<void>;
+    refreshToken(): Promise<AuthStateDetails>;
     signOut(): Promise<{
         value: number;
     }>;

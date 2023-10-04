@@ -34,12 +34,17 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
         }
     }
 
-        @objc public func signInWithRefreshToken(_ call: CAPPluginCall) {
-        implementation.signInWithRefreshToken(vc: self.bridge?.viewController) { authState, error in
+        @objc public func refreshToken(_ call: CAPPluginCall) {
+        implementation.refreshToken(vc: self.bridge?.viewController) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
-                call.resolve();
+                let accessToken = !Okta.isTokenExpired(authState?.accessToken) ? authState?.accessToken : nil
+                call.resolve([
+                    "accessToken": accessToken ?? NSNull(),
+                    "refreshToken": authState?.refreshToken ?? NSNull(),
+                    "idToken": authState?.idToken ?? NSNull()
+                ]);
             }
         }
     }

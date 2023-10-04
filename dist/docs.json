@@ -16,14 +16,16 @@
         "slug": "signinwithbrowser"
       },
       {
-        "name": "signInWithRefreshToken",
-        "signature": "() => Promise<void>",
+        "name": "refreshToken",
+        "signature": "() => Promise<AuthStateDetails>",
         "parameters": [],
-        "returns": "Promise<void>",
+        "returns": "Promise<AuthStateDetails>",
         "tags": [],
         "docs": "",
-        "complexTypes": [],
-        "slug": "signinwithrefreshtoken"
+        "complexTypes": [
+          "AuthStateDetails"
+        ],
+        "slug": "refreshtoken"
       },
       {
         "name": "signOut",

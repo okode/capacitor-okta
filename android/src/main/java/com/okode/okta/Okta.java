@@ -57,7 +57,7 @@ public class Okta {
         callback.onSuccess(null);
     }
 
-    public void signInWithRefreshToken(Activity activity, OktaRequestCallback<Tokens> callback) {
+    public void refreshToken(Activity activity, OktaRequestCallback<Tokens> callback) {
         if (webAuthClient == null) {
             callback.onError("No auth client initialized", null);
             return;
@@ -65,7 +65,6 @@ public class Okta {
         webAuthClient.getSessionClient().refreshToken(new RequestCallback<Tokens, AuthorizationException>() {
             @Override
             public void onSuccess(@NonNull Tokens result) {
-                notifyAuthStateChange();
                 callback.onSuccess(result);
             }
 
