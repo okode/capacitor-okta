@@ -34,6 +34,16 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
         }
     }
 
+        @objc public func signInWithRefreshToken(_ call: CAPPluginCall) {
+        implementation.signInWithRefreshToken(vc: self.bridge?.viewController) { authState, error in
+            if error != nil {
+                call.reject(error!.localizedDescription, nil, error)
+            } else {
+                call.resolve();
+            }
+        }
+    }
+
     @objc public func signOut(_ call: CAPPluginCall) {
         implementation.signOut(vc: self.bridge?.viewController) { result, error in
             if error != nil {
