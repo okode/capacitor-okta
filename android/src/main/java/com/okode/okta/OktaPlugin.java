@@ -39,7 +39,7 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
 
     @PluginMethod
     public void refreshToken(PluginCall call) {
-        implementation.refreshToken(getActivity(), new Okta.OktaRequestCallback<Tokens>() {
+        implementation.refreshToken(new Okta.OktaRequestCallback<Tokens>() {
             @Override
             public void onSuccess(Tokens tokens) {
                 JSObject res = new JSObject();

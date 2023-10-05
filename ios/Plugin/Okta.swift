@@ -18,7 +18,7 @@ import OktaOidc
         // Check for an existing session
         self.authStateManager = OktaOidcStateManager.readFromSecureStorage(for: config)
         callback(self.authStateManager, nil)
-        self.notifyAuthStateChange()
+        self.refreshSesion()
     }
 
     @objc public func signInWithBrowser(vc: UIViewController?, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
@@ -41,7 +41,7 @@ import OktaOidc
         })
     }
 
-    @objc public func refreshToken(vc: UIViewController?, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
+    @objc public func refreshToken(callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
         self.authStateManager?.renew { authStateManager, error in
             if let error = error {
                 return callback(nil, error)
@@ -95,6 +95,23 @@ import OktaOidc
       }
 
       return Date() > tokenInfo.expiresAt
+    }
+
+    private func refreshSesion() {
+        guard let authStateManager = self.authStateManager else {
+            return
+        }
+        if (Okta.isTokenExpired(authStateManager.accessToken) && authStateManager.refreshToken != nil) {
+            self.refreshToken() { authState, error in
+                if error != nil {
+                    self.notifyAuthStateChange()
+                } else {
+                    self.notifyAuthStateChange()
+                }
+            }
+        } else {
+            self.notifyAuthStateChange()
+        }
     }
 
     private func notifyAuthStateChange() {

@@ -45,6 +45,7 @@ public class Okta {
                 .setRequireHardwareBackedKeyStore(false) // required for emulators
                 .create();
         setAuthCallback(activity);
+        refreshSesion();
         return webAuthClient.getSessionClient();
     }
 
@@ -57,7 +58,7 @@ public class Okta {
         callback.onSuccess(null);
     }
 
-    public void refreshToken(Activity activity, OktaRequestCallback<Tokens> callback) {
+    public void refreshToken(OktaRequestCallback<Tokens> callback) {
         if (webAuthClient == null) {
             callback.onError("No auth client initialized", null);
             return;
@@ -155,6 +156,29 @@ public class Okta {
 
     private void notifyAuthStateChange() {
         authStateChangeListener.onOktaAuthStateChange(getSession());
+    }
+
+    private void refreshSesion() {
+        if (webAuthClient == null) { return; }
+        try {
+            Tokens tokens = webAuthClient.getSessionClient().getTokens();
+            if (tokens.isAccessTokenExpired() && tokens.getRefreshToken() != null) {
+                refreshToken(new OktaRequestCallback<Tokens>() {
+                    @Override
+                    public void onSuccess(@NonNull Tokens result) {
+                        notifyAuthStateChange();
+                    }
+                    @Override
+                    public void onError(String error, Exception exception) {
+                        notifyAuthStateChange();
+                    }
+                });
+                return;
+            }
+            notifyAuthStateChange();
+        } catch (Exception e) {
+            notifyAuthStateChange();
+        }
     }
 
     public interface OktaRequestCallback<T> {

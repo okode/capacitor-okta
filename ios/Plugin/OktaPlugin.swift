@@ -35,7 +35,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
     }
 
         @objc public func refreshToken(_ call: CAPPluginCall) {
-        implementation.refreshToken(vc: self.bridge?.viewController) { authState, error in
+        implementation.refreshToken() { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
