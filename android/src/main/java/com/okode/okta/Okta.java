@@ -3,11 +3,13 @@ package com.okode.okta;
 import static android.content.ContentValues.TAG;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.okta.oidc.AuthenticationPayload;
 import com.okta.oidc.AuthorizationStatus;
 import com.okta.oidc.OIDCConfig;
 import com.okta.oidc.RequestCallback;
@@ -19,6 +21,11 @@ import com.okta.oidc.storage.SharedPreferenceStorage;
 import com.okta.oidc.util.AuthorizationException;
 import com.okta.oidc.Tokens;
 
+import com.getcapacitor.JSObject;
+
+import org.json.JSONException;
+
+import java.util.Iterator;
 import java.util.concurrent.Executors;
 
 public class Okta {
@@ -43,37 +50,28 @@ public class Okta {
                 .withCallbackExecutor(Executors.newSingleThreadExecutor())
                 .supportedBrowsers(CHROME_BROWSER, FIRE_FOX)
                 .setRequireHardwareBackedKeyStore(false) // required for emulators
+                .withTabColor(Color.parseColor("#FFFFFF"))
                 .create();
         setAuthCallback(activity);
-        refreshSesion();
         return webAuthClient.getSessionClient();
     }
 
-    public void signInWithBrowser(Activity activity, OktaRequestCallback<Void> callback) {
+    public void signIn(Activity activity, JSObject params, OktaRequestCallback<Void> callback) {
         if (webAuthClient == null) {
             callback.onError("No auth client initialized", null);
             return;
         }
-        webAuthClient.signIn(activity, null);
+        AuthenticationPayload.Builder payload = new AuthenticationPayload.Builder();
+        try {
+          Iterator<String> keys = params.keys();
+          while (keys.hasNext()) {
+            String key = keys.next();
+            Log.d(key, params.get(key).toString());
+            payload.addParameter(key, params.get(key).toString());
+          }
+        } catch (JSONException e) { callback.onError(e.getMessage(), e); }
+        webAuthClient.signIn(activity, payload.build());
         callback.onSuccess(null);
-    }
-
-    public void refreshToken(OktaRequestCallback<Tokens> callback) {
-        if (webAuthClient == null) {
-            callback.onError("No auth client initialized", null);
-            return;
-        }
-        webAuthClient.getSessionClient().refreshToken(new RequestCallback<Tokens, AuthorizationException>() {
-            @Override
-            public void onSuccess(@NonNull Tokens result) {
-                callback.onSuccess(result);
-            }
-
-            @Override
-            public void onError(String error, AuthorizationException exception) {
-                callback.onError(error, exception);
-            }
-        });
     }
 
     public void signOut(Activity activity, OktaRequestCallback<Integer> callback) {
@@ -124,6 +122,24 @@ public class Okta {
         this.authStateChangeListener = listener;
     }
 
+    private void refreshToken(Activity activity, OktaRequestCallback<Tokens> callback) {
+      if (webAuthClient == null) {
+        callback.onError("No auth client initialized", null);
+        return;
+      }
+      webAuthClient.getSessionClient().refreshToken(new RequestCallback<Tokens, AuthorizationException>() {
+        @Override
+        public void onSuccess(@NonNull Tokens result) {
+          callback.onSuccess(result);
+        }
+
+        @Override
+        public void onError(String error, AuthorizationException exception) {
+          callback.onError(error, exception);
+        }
+      });
+    }
+
     private void setAuthCallback(Activity activity) {
         webAuthClient.registerCallback(
           new ResultCallback<AuthorizationStatus, AuthorizationException>() {
@@ -156,29 +172,6 @@ public class Okta {
 
     private void notifyAuthStateChange() {
         authStateChangeListener.onOktaAuthStateChange(getSession());
-    }
-
-    private void refreshSesion() {
-        if (webAuthClient == null) { return; }
-        try {
-            Tokens tokens = webAuthClient.getSessionClient().getTokens();
-            if (tokens.isAccessTokenExpired() && tokens.getRefreshToken() != null) {
-                refreshToken(new OktaRequestCallback<Tokens>() {
-                    @Override
-                    public void onSuccess(@NonNull Tokens result) {
-                        notifyAuthStateChange();
-                    }
-                    @Override
-                    public void onError(String error, Exception exception) {
-                        notifyAuthStateChange();
-                    }
-                });
-                return;
-            }
-            notifyAuthStateChange();
-        } catch (Exception e) {
-            notifyAuthStateChange();
-        }
     }
 
     public interface OktaRequestCallback<T> {
