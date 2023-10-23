@@ -24,27 +24,12 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
         }
     }
 
-    @objc public func signInWithBrowser(_ call: CAPPluginCall) {
-        implementation.signInWithBrowser(vc: self.bridge?.viewController) { authState, error in
+    @objc public func signIn(_ call: CAPPluginCall) {
+        implementation.signIn(vc: self.bridge?.viewController, params: call.options) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
                 call.resolve();
-            }
-        }
-    }
-
-        @objc public func refreshToken(_ call: CAPPluginCall) {
-        implementation.refreshToken() { authState, error in
-            if error != nil {
-                call.reject(error!.localizedDescription, nil, error)
-            } else {
-                let accessToken = !Okta.isTokenExpired(authState?.accessToken) ? authState?.accessToken : nil
-                call.resolve([
-                    "accessToken": accessToken ?? NSNull(),
-                    "refreshToken": authState?.refreshToken ?? NSNull(),
-                    "idToken": authState?.idToken ?? NSNull()
-                ]);
             }
         }
     }
@@ -54,7 +39,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
-                call.resolve([ "value": result ?? NSNull() ]);
+                call.resolve();
             }
         }
     }
@@ -63,11 +48,6 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
         implementation.getUser { userData, error in
             call.resolve(userData ?? [:])
         }
-    }
-
-    @objc public func getAuthStateDetails(_ call: CAPPluginCall) {
-        let state = implementation.getAuthState()
-        call.resolve(OktaConverterHelper.convertAuthState(authStateManager: state))
     }
 
     func onOktaAuthStateChange(authState: OktaOidcStateManager?) {
