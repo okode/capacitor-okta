@@ -1,14 +1,10 @@
 import { WebPlugin } from '@capacitor/core';
 
-import type { AuthStateDetails, OktaPlugin } from './definitions';
+import type { OktaPlugin } from './definitions';
 
 export class OktaWeb extends WebPlugin implements OktaPlugin {
 
-  signInWithBrowser(): Promise<void> {
-    return Promise.reject('Method not implemented.');
-  }
-
-  refreshToken(): Promise<AuthStateDetails> {
+  signIn(): Promise<void> {
     return Promise.reject('Method not implemented.');
   }
 
@@ -17,10 +13,6 @@ export class OktaWeb extends WebPlugin implements OktaPlugin {
   }
 
   getUser(): Promise<{ [key: string]: any; }> {
-    return Promise.reject('Method not implemented.');
-  }
-
-  getAuthStateDetails(): Promise<AuthStateDetails> {
     return Promise.reject('Method not implemented.');
   }
 

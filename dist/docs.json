@@ -6,26 +6,22 @@
     "tags": [],
     "methods": [
       {
-        "name": "signInWithBrowser",
-        "signature": "() => Promise<void>",
-        "parameters": [],
+        "name": "signIn",
+        "signature": "(params: Record<string, string>) => Promise<void>",
+        "parameters": [
+          {
+            "name": "params",
+            "docs": "",
+            "type": "Record<string, string>"
+          }
+        ],
         "returns": "Promise<void>",
         "tags": [],
         "docs": "",
-        "complexTypes": [],
-        "slug": "signinwithbrowser"
-      },
-      {
-        "name": "refreshToken",
-        "signature": "() => Promise<AuthStateDetails>",
-        "parameters": [],
-        "returns": "Promise<AuthStateDetails>",
-        "tags": [],
-        "docs": "",
         "complexTypes": [
-          "AuthStateDetails"
+          "Record"
         ],
-        "slug": "refreshtoken"
+        "slug": "signin"
       },
       {
         "name": "signOut",
@@ -46,18 +42,6 @@
         "docs": "",
         "complexTypes": [],
         "slug": "getuser"
-      },
-      {
-        "name": "getAuthStateDetails",
-        "signature": "() => Promise<AuthStateDetails>",
-        "parameters": [],
-        "returns": "Promise<AuthStateDetails>",
-        "tags": [],
-        "docs": "",
-        "complexTypes": [
-          "AuthStateDetails"
-        ],
-        "slug": "getauthstatedetails"
       },
       {
         "name": "addListener",
@@ -135,6 +119,22 @@
   },
   "interfaces": [
     {
+      "name": "PluginListenerHandle",
+      "slug": "pluginlistenerhandle",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "remove",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "() => Promise<void>"
+        }
+      ]
+    },
+    {
       "name": "AuthStateDetails",
       "slug": "authstatedetails",
       "docs": "",
@@ -170,25 +170,24 @@
           "type": "string | undefined"
         }
       ]
-    },
+    }
+  ],
+  "enums": [],
+  "typeAliases": [
     {
-      "name": "PluginListenerHandle",
-      "slug": "pluginlistenerhandle",
-      "docs": "",
-      "tags": [],
-      "methods": [],
-      "properties": [
+      "name": "Record",
+      "slug": "record",
+      "docs": "Construct a type with a set of properties K of type T",
+      "types": [
         {
-          "name": "remove",
-          "tags": [],
-          "docs": "",
-          "complexTypes": [],
-          "type": "() => Promise<void>"
+          "text": "{\r\n    [P in K]: T;\r\n}",
+          "complexTypes": [
+            "K",
+            "T"
+          ]
         }
       ]
     }
   ],
-  "enums": [],
-  "typeAliases": [],
   "pluginConfigs": []
 }

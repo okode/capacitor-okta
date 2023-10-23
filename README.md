@@ -13,37 +13,29 @@ npx cap sync
 
 <docgen-index>
 
-* [`signInWithBrowser()`](#signinwithbrowser)
-* [`refreshToken()`](#refreshtoken)
+* [`signIn(...)`](#signin)
 * [`signOut()`](#signout)
 * [`getUser()`](#getuser)
-* [`getAuthStateDetails()`](#getauthstatedetails)
 * [`addListener('initSuccess', ...)`](#addlistenerinitsuccess)
 * [`addListener('initError', ...)`](#addlisteneriniterror)
 * [`addListener('authState', ...)`](#addlistenerauthstate)
 * [Interfaces](#interfaces)
+* [Type Aliases](#type-aliases)
 
 </docgen-index>
 
 <docgen-api>
 <!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
 
-### signInWithBrowser()
+### signIn(...)
 
 ```typescript
-signInWithBrowser() => Promise<void>
+signIn(params: Record<string, string>) => Promise<void>
 ```
 
---------------------
-
-
-### refreshToken()
-
-```typescript
-refreshToken() => Promise<AuthStateDetails>
-```
-
-**Returns:** <code>Promise&lt;<a href="#authstatedetails">AuthStateDetails</a>&gt;</code>
+| Param        | Type                                                            |
+| ------------ | --------------------------------------------------------------- |
+| **`params`** | <code><a href="#record">Record</a>&lt;string, string&gt;</code> |
 
 --------------------
 
@@ -66,17 +58,6 @@ getUser() => Promise<{ [key: string]: any; }>
 ```
 
 **Returns:** <code>Promise&lt;{ [key: string]: any; }&gt;</code>
-
---------------------
-
-
-### getAuthStateDetails()
-
-```typescript
-getAuthStateDetails() => Promise<AuthStateDetails>
-```
-
-**Returns:** <code>Promise&lt;<a href="#authstatedetails">AuthStateDetails</a>&gt;</code>
 
 --------------------
 
@@ -132,6 +113,13 @@ addListener(eventName: 'authState', listenerFunc: (data: AuthStateDetails) => vo
 ### Interfaces
 
 
+#### PluginListenerHandle
+
+| Prop         | Type                                      |
+| ------------ | ----------------------------------------- |
+| **`remove`** | <code>() =&gt; Promise&lt;void&gt;</code> |
+
+
 #### AuthStateDetails
 
 | Prop                  | Type                 |
@@ -142,10 +130,13 @@ addListener(eventName: 'authState', listenerFunc: (data: AuthStateDetails) => vo
 | **`idToken`**         | <code>string</code>  |
 
 
-#### PluginListenerHandle
+### Type Aliases
 
-| Prop         | Type                                      |
-| ------------ | ----------------------------------------- |
-| **`remove`** | <code>() =&gt; Promise&lt;void&gt;</code> |
+
+#### Record
+
+Construct a type with a set of properties K of type T
+
+<code>{ [P in K]: T; }</code>
 
 </docgen-api>
