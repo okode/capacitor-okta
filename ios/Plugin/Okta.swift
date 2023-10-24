@@ -5,6 +5,8 @@ import OktaStorage
 
 @objc public class Okta: NSObject {
 
+    private static let KEYCHAIN_GROUP_NAME = "secureshare"
+
     var authStateDelegate: OktaAuthStateDelegate?
 
     private var authSession: OktaOidc? = nil
@@ -34,11 +36,18 @@ import OktaStorage
             return (key as! String, value as! String)
         })
 
-        if (self.authStateManager?.refreshToken != nil && urlParams["prompt"] != "login") {
+        var hasDataStored: String? = nil
+
+        do {
+            try hasDataStored = secureStorage.get(key: "okta_user_biometric", accessGroup: self.getAccessGroup())
+        } catch _ {  }
+
+        if (hasDataStored != nil && urlParams["prompt"] != "login") {
             refreshToken { authState, error in
                 if error != nil {
                     do {
-                        try secureStorage.delete(key: "okta_user")
+                        try secureStorage.delete(key: "okta_user", accessGroup: self.getAccessGroup())
+                        try secureStorage.delete(key: "okta_user_biometric", accessGroup: self.getAccessGroup())
                     } catch _ {  }
                     urlParams["prompt"] = "login"
                     self.signInWithBrowser(vc: vc, params: urlParams) { authState, error in
@@ -88,7 +97,7 @@ import OktaStorage
                     return callback(nil, NSError(domain: "com.okode.okta", code: 500, userInfo: [NSLocalizedDescriptionKey: "Error signing out"]))
                 }
                 do {
-                    try secureStorage.delete(key: "okta_user")
+                    try secureStorage.delete(key: "okta_user", accessGroup: self.getAccessGroup())
                 } catch let error {
                     return callback(nil, error)
                 }
@@ -108,15 +117,6 @@ import OktaStorage
         return authStateManager;
     }
 
-    @objc public static func isTokenExpired(_ tokenString: String?) -> Bool {
-      guard let token = tokenString,
-      let tokenInfo = OKTIDToken.init(idTokenString: token) else {
-        return false
-      }
-
-      return Date() > tokenInfo.expiresAt
-    }
-
     private func refreshToken(callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
 
         guard let secureStorage = self.secureStorage else {
@@ -125,7 +125,7 @@ import OktaStorage
 
         DispatchQueue.global().async {
             do {
-                let authStateData = try secureStorage.getData(key: "okta_user")
+                let authStateData = try secureStorage.getData(key: "okta_user", accessGroup: self.getAccessGroup())
                 guard let stateManager = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(authStateData) as? OktaOidcStateManager else {
                     return
                 }
@@ -173,14 +173,18 @@ import OktaStorage
             do {
                 try secureStorage.set(data: authStateData,
                                       forKey: "okta_user",
-                                      behindBiometrics: secureStorage.isTouchIDSupported() || secureStorage.isFaceIDSupported())
-            } catch let error as NSError {
-                return callback(nil, error)
-            }
+                                      behindBiometrics: secureStorage.isTouchIDSupported() || secureStorage.isFaceIDSupported(), accessGroup: self.getAccessGroup())
+                try secureStorage.set("true", forKey: "okta_user_biometric", behindBiometrics: false, accessGroup: self.getAccessGroup())
+            } catch _ { }
             self.authStateManager = authStateManager
             authStateManager?.writeToSecureStorage()
             callback(self.authStateManager, nil)
         })
+    }
+
+    private func getAccessGroup() -> String {
+        let appIdentifierPrefix = Bundle.main.infoDictionary?["AppIdentifierPrefix"] as? String ?? ""
+        return "\(appIdentifierPrefix)\(Okta.KEYCHAIN_GROUP_NAME)"
     }
 
 }
