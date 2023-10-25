@@ -58,6 +58,8 @@ import OktaStorage
             return
         }
 
+        urlParams["prompt"] = "login"
+
         self.signInWithBrowser(vc: vc, params: urlParams) { authState, error in
             if error != nil {
                 return callback(nil, error)
@@ -118,13 +120,10 @@ import OktaStorage
                 guard let stateManager = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(authStateData) as? OktaOidcStateManager else {
                     return
                 }
-                print("refreshToken", stateManager.refreshToken)
-                print("stateManager", stateManager.accessToken)
                 stateManager.renew { authStateManager, error in
                     if let error = error {
                         return callback(nil, error)
                     }
-
                     self.authStateManager = authStateManager
                     authStateManager?.writeToSecureStorage()
                     callback(self.authStateManager, nil)
@@ -135,6 +134,7 @@ import OktaStorage
         }
 
     }
+
 
     private func signInWithBrowser(vc: UIViewController?, params: [String:String], callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
         guard let vc = vc else {
