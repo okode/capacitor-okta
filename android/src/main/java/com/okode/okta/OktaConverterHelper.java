@@ -27,10 +27,7 @@ public class OktaConverterHelper {
             Tokens tokens = session.getTokens();
             if (tokens == null) { return state; }
 
-            String accessToken = !tokens.isAccessTokenExpired() ? tokens.getAccessToken() : null;
-            state.put("accessToken", accessToken);
-            state.put("refreshToken", tokens.getRefreshToken());
-            state.put("idToken", tokens.getIdToken());
+            state.put("accessToken", tokens.getAccessToken());
         } catch (AuthorizationException e) {
             Log.w(TAG, "Error converting session: ", e);
             return state;

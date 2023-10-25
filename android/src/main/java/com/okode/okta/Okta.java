@@ -1,14 +1,19 @@
 package com.okode.okta;
 
+import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
 
 import android.app.Activity;
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 
+import androidx.activity.result.ActivityResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.getcapacitor.PluginCall;
 import com.okta.oidc.AuthenticationPayload;
 import com.okta.oidc.AuthorizationStatus;
 import com.okta.oidc.OIDCConfig;
@@ -18,6 +23,7 @@ import com.okta.oidc.clients.sessions.SessionClient;
 import com.okta.oidc.clients.web.WebAuthClient;
 import com.okta.oidc.net.response.UserInfo;
 import com.okta.oidc.storage.SharedPreferenceStorage;
+import com.okta.oidc.storage.security.GuardedEncryptionManager;
 import com.okta.oidc.util.AuthorizationException;
 import com.okta.oidc.Tokens;
 
@@ -26,6 +32,7 @@ import com.getcapacitor.JSObject;
 import org.json.JSONException;
 
 import java.util.Iterator;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
 public class Okta {
@@ -33,9 +40,11 @@ public class Okta {
     private final static String FIRE_FOX = "org.mozilla.firefox";
     private final static String CHROME_BROWSER = "com.android.chrome";
     private final static String CONFIG_FILE_NAME = "okta_oidc_config";
+    protected static final int REQUEST_CODE_CREDENTIALS = 1000;
 
     private WebAuthClient webAuthClient;
     private OktaAuthStateChangeListener authStateChangeListener;
+    private GuardedEncryptionManager keyguardEncryptionManager;
 
     public SessionClient configureSDK(Activity activity) {
         int configFile = activity.getResources().getIdentifier(
@@ -43,17 +52,22 @@ public class Okta {
         OIDCConfig config = new OIDCConfig.Builder()
                 .withJsonFile(activity, configFile)
                 .create();
-        webAuthClient = new com.okta.oidc.Okta.WebAuthBuilder()
-                .withConfig(config)
-                .withContext(activity)
-                .withStorage(new SharedPreferenceStorage(activity))
-                .withCallbackExecutor(Executors.newSingleThreadExecutor())
-                .supportedBrowsers(CHROME_BROWSER, FIRE_FOX)
-                .setRequireHardwareBackedKeyStore(false) // required for emulators
-                .withTabColor(Color.parseColor("#FFFFFF"))
-                .create();
+        com.okta.oidc.Okta.WebAuthBuilder webBuilder = new com.okta.oidc.Okta.WebAuthBuilder();
+        webBuilder
+          .withConfig(config)
+          .withContext(activity)
+          .withCallbackExecutor(Executors.newSingleThreadExecutor())
+          .supportedBrowsers(CHROME_BROWSER, FIRE_FOX)
+          .setRequireHardwareBackedKeyStore(false) // required for emulators
+          .withTabColor(Color.parseColor("#FFFFFF"));
+        if (this.isKeyguardSecure(activity)) {
+          keyguardEncryptionManager = new GuardedEncryptionManager(activity, Integer.MAX_VALUE);
+          if (keyguardEncryptionManager.getCipher() == null) { keyguardEncryptionManager.recreateCipher(); }
+          webBuilder.withEncryptionManager(keyguardEncryptionManager);
+        }
+        webAuthClient = webBuilder.create();
         setAuthCallback(activity);
-        return webAuthClient.getSessionClient();
+      return webAuthClient.getSessionClient();
     }
 
     public void signIn(Activity activity, JSObject params, OktaRequestCallback<Void> callback) {
@@ -61,15 +75,21 @@ public class Okta {
             callback.onError("No auth client initialized", null);
             return;
         }
+
+        Boolean hasPromptParam = false;
+
         AuthenticationPayload.Builder payload = new AuthenticationPayload.Builder();
         try {
           Iterator<String> keys = params.keys();
           while (keys.hasNext()) {
             String key = keys.next();
-            Log.d(key, params.get(key).toString());
+            if (key.equals("prompt")) { hasPromptParam = true; }
             payload.addParameter(key, params.get(key).toString());
           }
         } catch (JSONException e) { callback.onError(e.getMessage(), e); }
+
+        if (!hasPromptParam) { payload.addParameter("prompt", "true"); }
+
         webAuthClient.signIn(activity, payload.build());
         callback.onSuccess(null);
     }
@@ -86,7 +106,6 @@ public class Okta {
                   if (webAuthClient.getSessionClient() != null) {
                     webAuthClient.getSessionClient().clear();
                   }
-                  notifyAuthStateChange();
               }
 
               @Override
@@ -122,7 +141,31 @@ public class Okta {
         this.authStateChangeListener = listener;
     }
 
-    private void refreshToken(Activity activity, OktaRequestCallback<Tokens> callback) {
+  public void signInWithBiometric(PluginCall call, Activity activity, ActivityResult result, OktaRequestCallback<Void> callback) {
+    if (result.getResultCode() != RESULT_OK) {
+      webAuthClient.getSessionClient().clear();
+      this.webAuthClient.handleActivityResult(Okta.REQUEST_CODE_CREDENTIALS, result.getResultCode(), null);
+      this.signIn(activity, call.getData(), callback);
+      return;
+    }
+    if (keyguardEncryptionManager.getCipher() == null) {
+      keyguardEncryptionManager.recreateCipher();
+    }
+    this.refreshToken(new OktaRequestCallback<Tokens>() {
+      @Override
+      public void onSuccess(@NonNull Tokens result) {
+        notifyAuthStateChange();
+        call.resolve();
+      }
+      @Override
+      public void onError(String error, Exception exception) {
+        notifyAuthStateChange();
+        call.reject(error, exception);
+      }
+    });
+  }
+
+    private void refreshToken(OktaRequestCallback<Tokens> callback) {
       if (webAuthClient == null) {
         callback.onError("No auth client initialized", null);
         return;
@@ -172,6 +215,12 @@ public class Okta {
 
     private void notifyAuthStateChange() {
         authStateChangeListener.onOktaAuthStateChange(getSession());
+    }
+
+    protected boolean isKeyguardSecure(Activity activity) {
+      KeyguardManager keyguardManager =
+        (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
+      return keyguardManager.isKeyguardSecure();
     }
 
     public interface OktaRequestCallback<T> {
