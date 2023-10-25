@@ -5,7 +5,9 @@ import OktaStorage
 
 @objc public class Okta: NSObject {
 
-    private static let KEYCHAIN_GROUP_NAME = "secureshare"
+    private static let KEYCHAIN_GROUP_KEY = "secureshare"
+    private static let KEYCHAIN_DATA_KEY = "okta_user"
+    private static let KEYCHAIN_BEHIND_BIOMETRIC_KEY = "okta_user_biometric"
 
     var authStateDelegate: OktaAuthStateDelegate?
 
@@ -36,19 +38,10 @@ import OktaStorage
             return (key as! String, value as! String)
         })
 
-        var hasDataStored: String? = nil
-
-        do {
-            try hasDataStored = secureStorage.get(key: "okta_user_biometric", accessGroup: self.getAccessGroup())
-        } catch _ {  }
-
-        if (hasDataStored != nil && urlParams["prompt"] != "login") {
+        if (self.hasSecureStoredData(secureStorage: secureStorage) && urlParams["prompt"] != "login") {
             refreshToken { authState, error in
                 if error != nil {
-                    do {
-                        try secureStorage.delete(key: "okta_user", accessGroup: self.getAccessGroup())
-                        try secureStorage.delete(key: "okta_user_biometric", accessGroup: self.getAccessGroup())
-                    } catch _ {  }
+                    self.clearSecureStorage(secureStorage: secureStorage)
                     urlParams["prompt"] = "login"
                     self.signInWithBrowser(vc: vc, params: urlParams) { authState, error in
                         if error != nil {
@@ -96,11 +89,7 @@ import OktaStorage
                 if (!success) {
                     return callback(nil, NSError(domain: "com.okode.okta", code: 500, userInfo: [NSLocalizedDescriptionKey: "Error signing out"]))
                 }
-                do {
-                    try secureStorage.delete(key: "okta_user", accessGroup: self.getAccessGroup())
-                } catch let error {
-                    return callback(nil, error)
-                }
+                self.clearSecureStorage(secureStorage: secureStorage)
                 self.authStateManager = nil;
                 callback(NSNumber(value: opts.rawValue), nil)
             })
@@ -125,14 +114,17 @@ import OktaStorage
 
         DispatchQueue.global().async {
             do {
-                let authStateData = try secureStorage.getData(key: "okta_user", accessGroup: self.getAccessGroup())
+                let authStateData = try secureStorage.getData(key: Okta.KEYCHAIN_DATA_KEY, accessGroup: self.getAccessGroup())
                 guard let stateManager = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(authStateData) as? OktaOidcStateManager else {
                     return
                 }
+                print("refreshToken", stateManager.refreshToken)
+                print("stateManager", stateManager.accessToken)
                 stateManager.renew { authStateManager, error in
                     if let error = error {
                         return callback(nil, error)
                     }
+
                     self.authStateManager = authStateManager
                     authStateManager?.writeToSecureStorage()
                     callback(self.authStateManager, nil)
@@ -142,10 +134,6 @@ import OktaStorage
             }
         }
 
-    }
-
-    private func notifyAuthStateChange() {
-        self.authStateDelegate?.onOktaAuthStateChange(authState: getAuthState())
     }
 
     private func signInWithBrowser(vc: UIViewController?, params: [String:String], callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
@@ -165,26 +153,51 @@ import OktaStorage
             if error != nil {
                 return callback(nil, error)
             }
-            let authStateData = try? NSKeyedArchiver.archivedData(withRootObject: authStateManager, requiringSecureCoding: false)
-            guard let authStateData = authStateData else {
-                return callback(nil, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth data initialized"]))
-            }
 
-            do {
-                try secureStorage.set(data: authStateData,
-                                      forKey: "okta_user",
-                                      behindBiometrics: secureStorage.isTouchIDSupported() || secureStorage.isFaceIDSupported(), accessGroup: self.getAccessGroup())
-                try secureStorage.set("true", forKey: "okta_user_biometric", behindBiometrics: false, accessGroup: self.getAccessGroup())
-            } catch _ { }
+            self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
             self.authStateManager = authStateManager
             authStateManager?.writeToSecureStorage()
             callback(self.authStateManager, nil)
         })
     }
 
+    private func notifyAuthStateChange() {
+        self.authStateDelegate?.onOktaAuthStateChange(authState: getAuthState())
+    }
+
     private func getAccessGroup() -> String {
         let appIdentifierPrefix = Bundle.main.infoDictionary?["AppIdentifierPrefix"] as? String ?? ""
-        return "\(appIdentifierPrefix)\(Okta.KEYCHAIN_GROUP_NAME)"
+        return "\(appIdentifierPrefix)\(Okta.KEYCHAIN_GROUP_KEY)"
+    }
+
+    private func clearSecureStorage(secureStorage: OktaSecureStorage) {
+        do {
+            try secureStorage.delete(key: Okta.KEYCHAIN_DATA_KEY, accessGroup: self.getAccessGroup())
+            try secureStorage.delete(key: Okta.KEYCHAIN_BEHIND_BIOMETRIC_KEY, accessGroup: self.getAccessGroup())
+        } catch _ { }
+    }
+
+    private func writeToSecureStorage(secureStorage: OktaSecureStorage, authStateManager: OktaOidcStateManager?) {
+        let authStateData = try? NSKeyedArchiver.archivedData(withRootObject: authStateManager, requiringSecureCoding: false)
+        guard let authStateData = authStateData else {
+            return
+        }
+
+        do {
+            try secureStorage.set(data: authStateData,
+                                  forKey: Okta.KEYCHAIN_DATA_KEY,
+                                  behindBiometrics: secureStorage.isTouchIDSupported() || secureStorage.isFaceIDSupported(), accessGroup: self.getAccessGroup())
+            try secureStorage.set("true", forKey: Okta.KEYCHAIN_BEHIND_BIOMETRIC_KEY, behindBiometrics: false, accessGroup: self.getAccessGroup())
+        } catch _ { }
+    }
+
+    private func hasSecureStoredData(secureStorage: OktaSecureStorage) -> Bool {
+        do {
+            let hasStoredData = try secureStorage.get(key: Okta.KEYCHAIN_BEHIND_BIOMETRIC_KEY, accessGroup: self.getAccessGroup())
+            return true
+        } catch _ {
+            return false
+        }
     }
 
 }
