@@ -32,6 +32,8 @@ import com.getcapacitor.JSObject;
 
 import org.json.JSONException;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Iterator;
 import java.util.concurrent.Executors;
 
@@ -46,7 +48,7 @@ public class Okta {
   private OktaAuthStateChangeListener authStateChangeListener;
   private GuardedEncryptionManager keyguardEncryptionManager;
 
-  public SessionClient configureSDK(Activity activity) {
+  public SessionClient configureSDK(Activity activity) throws GeneralSecurityException, IOException {
     int configFile = activity.getResources().getIdentifier(
       CONFIG_FILE_NAME, "raw", activity.getPackageName());
     OIDCConfig config = new OIDCConfig.Builder()
@@ -57,6 +59,7 @@ public class Okta {
       .withConfig(config)
       .withContext(activity)
       .withCallbackExecutor(Executors.newSingleThreadExecutor())
+      .withStorage(new SecureShareStorage(activity))
       .supportedBrowsers(CHROME_BROWSER, FIRE_FOX)
       .setRequireHardwareBackedKeyStore(false) // required for emulators
       .withTabColor(Color.parseColor("#FFFFFF"));

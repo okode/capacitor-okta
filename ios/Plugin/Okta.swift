@@ -7,7 +7,6 @@ import OktaStorage
 
     private static let KEYCHAIN_GROUP_KEY = "secureshare"
     private static let KEYCHAIN_DATA_KEY = "okta_user"
-    private static let KEYCHAIN_BEHIND_BIOMETRIC_KEY = "okta_user_biometric"
 
     var authStateDelegate: OktaAuthStateDelegate?
 
@@ -38,7 +37,7 @@ import OktaStorage
             return (key as! String, value as! String)
         })
 
-        if (self.hasSecureStoredData(secureStorage: secureStorage) && urlParams["prompt"] != "login") {
+        if (secureStorage.isFaceIDSupported() || secureStorage.isTouchIDSupported() && urlParams["prompt"] != "login") {
             refreshToken { authState, error in
                 if error != nil {
                     self.clearSecureStorage(secureStorage: secureStorage)
@@ -170,7 +169,6 @@ import OktaStorage
     private func clearSecureStorage(secureStorage: OktaSecureStorage) {
         do {
             try secureStorage.delete(key: Okta.KEYCHAIN_DATA_KEY, accessGroup: self.getAccessGroup())
-            try secureStorage.delete(key: Okta.KEYCHAIN_BEHIND_BIOMETRIC_KEY, accessGroup: self.getAccessGroup())
         } catch _ { }
     }
 
@@ -183,18 +181,8 @@ import OktaStorage
         do {
             try secureStorage.set(data: authStateData,
                                   forKey: Okta.KEYCHAIN_DATA_KEY,
-                                  behindBiometrics: secureStorage.isTouchIDSupported() || secureStorage.isFaceIDSupported(), accessGroup: self.getAccessGroup())
-            try secureStorage.set("true", forKey: Okta.KEYCHAIN_BEHIND_BIOMETRIC_KEY, behindBiometrics: false, accessGroup: self.getAccessGroup())
+                                  behindBiometrics: true, accessGroup: self.getAccessGroup())
         } catch _ { }
-    }
-
-    private func hasSecureStoredData(secureStorage: OktaSecureStorage) -> Bool {
-        do {
-            let hasStoredData = try secureStorage.get(key: Okta.KEYCHAIN_BEHIND_BIOMETRIC_KEY, accessGroup: self.getAccessGroup())
-            return true
-        } catch _ {
-            return false
-        }
     }
 
 }

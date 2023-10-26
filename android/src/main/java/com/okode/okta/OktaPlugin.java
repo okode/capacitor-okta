@@ -19,6 +19,9 @@ import com.okta.oidc.clients.sessions.SessionClient;
 import com.okta.oidc.net.response.UserInfo;
 import com.okta.oidc.Tokens;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 @CapacitorPlugin(name = "Okta")
 
 public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
@@ -28,7 +31,13 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
     public void load() {
         super.load();
         implementation.setAuthStateChangeListener(this);
-        session = implementation.configureSDK(getActivity());
+        try {
+            session = implementation.configureSDK(getActivity());
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         notifyListeners("initSuccess", OktaConverterHelper.convertAuthState(session), true);
     }
 
