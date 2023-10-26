@@ -42,7 +42,6 @@ import OktaStorage
             refreshToken { authState, error in
                 if error != nil {
                     self.clearSecureStorage(secureStorage: secureStorage)
-                    if (urlParams["prompt"] == nil) { urlParams["prompt"] = "login" }
                     self.signInWithBrowser(vc: vc, params: urlParams) { authState, error in
                         if error != nil {
                             return callback(nil, error)
@@ -57,8 +56,6 @@ import OktaStorage
             }
             return
         }
-
-        if (urlParams["prompt"] == nil) { urlParams["prompt"] = "login" }
 
         self.signInWithBrowser(vc: vc, params: urlParams) { authState, error in
             if error != nil {
