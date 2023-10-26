@@ -35,7 +35,17 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
     @ActivityCallback
     protected void biometricResult(PluginCall call, ActivityResult result) {
       if (call == null) { return; }
-      implementation.signInWithBiometric(call, getActivity(), result);
+      implementation.signInWithBiometric(call, getActivity(), result, new Okta.OktaRequestCallback<Void>() {
+        @Override
+        public void onSuccess(Void data) {
+          call.resolve();
+        }
+
+        @Override
+        public void onError(String error, Exception e) {
+          call.reject(error, e);
+        }
+      });
     }
 
     @PluginMethod
