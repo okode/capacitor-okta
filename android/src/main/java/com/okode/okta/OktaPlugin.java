@@ -50,7 +50,7 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
 
     @PluginMethod
     public void signIn(PluginCall call) {
-        if (implementation.isKeyguardSecure(getActivity())) {
+        if (session.isAuthenticated() && implementation.isKeyguardSecure(getActivity())) {
           this.showKeyguard(call);
         }
         implementation.signIn(getActivity(), call.getData(), new Okta.OktaRequestCallback<Void>() {
