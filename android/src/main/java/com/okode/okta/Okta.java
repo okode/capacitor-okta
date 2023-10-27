@@ -59,7 +59,6 @@ public class Okta {
       .withConfig(config)
       .withContext(activity)
       .withCallbackExecutor(Executors.newSingleThreadExecutor())
-      .withStorage(new SecureShareStorage(activity))
       .supportedBrowsers(CHROME_BROWSER, FIRE_FOX)
       .setRequireHardwareBackedKeyStore(false) // required for emulators
       .withTabColor(Color.parseColor("#FFFFFF"));
