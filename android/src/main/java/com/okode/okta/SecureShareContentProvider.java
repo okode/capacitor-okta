@@ -13,13 +13,12 @@ import androidx.annotation.Nullable;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class SecureShareContentProvider extends ContentProvider {
 
-    private static final String TAG = SecureShareContentProvider.class.getSimpleName();
-    private static final String AUTHORITY_SUFFIX = ".providers.secureshare";
+    private static final String TAG = "OKTA SECURESHARE";
+    private static final String AUTHORITY_SUFFIX = ".providers.securesharestorage";
     private static final int SEC_SHARE_ID = 1;
 
     private String authority;

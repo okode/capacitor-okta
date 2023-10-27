@@ -1,4 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.okode.okta">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <permission android:name="com.okode.permission.SECURE_SHARE" android:protectionLevel="signature" />
+    <uses-permission android:name="com.okode.permission.SECURE_SHARE"/>
+    <application>
+        <provider
+            android:authorities="${applicationId}.providers.securesharestorage"
+            android:name="com.okode.okta.SecureShareContentProvider"
+            android:exported="true"
+            android:permission="com.okode.permission.SECURE_SHARE">
+        </provider>
+    </application>
 </manifest>

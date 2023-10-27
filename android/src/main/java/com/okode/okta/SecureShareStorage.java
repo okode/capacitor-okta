@@ -17,15 +17,10 @@ import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * A sample on how to replace the default SharedPreferenceStorage with the encrypted version
- * from the androidx library. If the storage is already encrypting the data, make sure to disable
- * encryption by providing a empty encryption manager like {@link NoEncryption} and set this storage
- * in {@link com.okta.oidc.Okta.WebAuthBuilder#withStorage(OktaStorage)}
- */
+
 public class SecureShareStorage implements OktaStorage {
 
-    private static final String PROVIDER_URI_SUFFIX = ".providers.secureshare/secshare";
+    private static final String PROVIDER_URI_SUFFIX = ".providers.securesharestorage/secshare";
     private static final String PROTOCOL = "content://";
     private static final String FILENAME = "secshare";
     private Context context;
