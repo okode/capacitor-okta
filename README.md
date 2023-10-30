@@ -30,13 +30,12 @@ npx cap sync
 ### signIn(...)
 
 ```typescript
-signIn(params: Record<string, string>, biometric?: boolean | undefined) => Promise<void>
+signIn(options: { params?: Record<string, string>; biometric?: boolean; }) => Promise<void>
 ```
 
-| Param           | Type                                                            |
-| --------------- | --------------------------------------------------------------- |
-| **`params`**    | <code><a href="#record">Record</a>&lt;string, string&gt;</code> |
-| **`biometric`** | <code>boolean</code>                                            |
+| Param         | Type                                                                                               |
+| ------------- | -------------------------------------------------------------------------------------------------- |
+| **`options`** | <code>{ params?: <a href="#record">Record</a>&lt;string, string&gt;; biometric?: boolean; }</code> |
 
 --------------------
 
