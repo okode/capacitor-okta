@@ -38,7 +38,7 @@ import OktaStorage
         })
 
 
-        if (biometric && (secureStorage.isFaceIDSupported() || secureStorage.isTouchIDSupported()) && urlParams["prompt"] != "login") {
+        if (biometric && (secureStorage.isFaceIDSupported() || secureStorage.isTouchIDSupported())) {
             refreshToken { authState, error in
                 if error != nil {
                     urlParams["prompt"] = "login"

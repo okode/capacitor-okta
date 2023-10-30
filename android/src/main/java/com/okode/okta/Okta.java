@@ -87,7 +87,7 @@ public class Okta {
         String key = keys.next();
         payload.addParameter(key, params.get(key).toString());
       }
-    } catch (JSONException e) { callback.onError(e.getMessage(), e); }
+    } catch (JSONException e) { }
 
     webAuthClient.signIn(activity, payload.build());
     callback.onSuccess(null);

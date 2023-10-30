@@ -62,12 +62,11 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
 
     @PluginMethod
     public void signIn(PluginCall call) {
-        Boolean biometric = false;
-        biometric = call.getBoolean("biometric", false);
+        Boolean biometric = call.getBoolean("biometric", false);
         if (biometric && session.isAuthenticated() && implementation.isKeyguardSecure(getActivity())) {
           this.showKeyguard(call);
         }
-        implementation.signIn(getActivity(), call.getData(), new Okta.OktaRequestCallback<Void>() {
+        implementation.signIn(getActivity(), call.getObject("params", null), new Okta.OktaRequestCallback<Void>() {
             @Override
             public void onSuccess(Void data) {
                 call.resolve();
