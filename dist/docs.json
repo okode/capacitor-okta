@@ -7,7 +7,7 @@
     "methods": [
       {
         "name": "signIn",
-        "signature": "(params: Record<string, string>, biometric: boolean) => Promise<void>",
+        "signature": "(params: Record<string, string>, biometric?: boolean | undefined) => Promise<void>",
         "parameters": [
           {
             "name": "params",
@@ -17,7 +17,7 @@
           {
             "name": "biometric",
             "docs": "",
-            "type": "boolean"
+            "type": "boolean | undefined"
           }
         ],
         "returns": "Promise<void>",
