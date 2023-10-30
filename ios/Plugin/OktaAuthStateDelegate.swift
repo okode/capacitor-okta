@@ -1,12 +1,6 @@
 import OktaOidc
-
-//
-//  OktaAuthStateDelegate.swift
-//  CapacitorOkta
-//
-//  Created by Rubén Panadero Navarrete on 6/4/22.
-//
+import OktaStorage
 
 protocol OktaAuthStateDelegate {
-    func onOktaAuthStateChange(authState: OktaOidcStateManager?)
+    func onOktaAuthStateChange(authState: OktaOidcStateManager?, secureStorage: OktaSecureStorage?)
 }

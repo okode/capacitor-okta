@@ -40,7 +40,7 @@ import OktaStorage
         if (secureStorage.isFaceIDSupported() || secureStorage.isTouchIDSupported() && urlParams["prompt"] != "login") {
             refreshToken { authState, error in
                 if error != nil {
-                    self.clearSecureStorage(secureStorage: secureStorage)
+                    urlParams["prompt"] = "login"
                     self.signInWithBrowser(vc: vc, params: urlParams) { authState, error in
                         if error != nil {
                             return callback(nil, error)
@@ -158,7 +158,7 @@ import OktaStorage
     }
 
     private func notifyAuthStateChange() {
-        self.authStateDelegate?.onOktaAuthStateChange(authState: getAuthState())
+        self.authStateDelegate?.onOktaAuthStateChange(authState: getAuthState(), secureStorage: self.secureStorage)
     }
 
     private func getAccessGroup() -> String {

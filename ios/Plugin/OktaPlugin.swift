@@ -1,4 +1,5 @@
 import Foundation
+import OktaStorage
 import Capacitor
 import OktaOidc
 
@@ -20,7 +21,6 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
                     "description": error?.localizedDescription ?? NSNull(),
                 ], retainUntilConsumed: true)
             }
-            self.notifyListeners("initSuccess", data: OktaConverterHelper.convertAuthState(authStateManager: authState), retainUntilConsumed: true)
         }
     }
 
@@ -50,8 +50,8 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
         }
     }
 
-    func onOktaAuthStateChange(authState: OktaOidcStateManager?) {
-        self.notifyListeners("authState", data: OktaConverterHelper.convertAuthState(authStateManager: authState), retainUntilConsumed: true)
+    func onOktaAuthStateChange(authState: OktaOidcStateManager?, secureStorage: OktaSecureStorage?) {
+        self.notifyListeners("authState", data: OktaConverterHelper.convertAuthState(authStateManager: authState, secureStorage: secureStorage), retainUntilConsumed: true)
     }
 
 }
