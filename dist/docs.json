@@ -7,12 +7,17 @@
     "methods": [
       {
         "name": "signIn",
-        "signature": "(params: Record<string, string>) => Promise<void>",
+        "signature": "(params: Record<string, string>, biometric: boolean) => Promise<void>",
         "parameters": [
           {
             "name": "params",
             "docs": "",
             "type": "Record<string, string>"
+          },
+          {
+            "name": "biometric",
+            "docs": "",
+            "type": "boolean"
           }
         ],
         "returns": "Promise<void>",
@@ -142,13 +147,6 @@
       "methods": [],
       "properties": [
         {
-          "name": "isAuthenticated",
-          "tags": [],
-          "docs": "",
-          "complexTypes": [],
-          "type": "boolean"
-        },
-        {
           "name": "accessToken",
           "tags": [],
           "docs": "",
@@ -156,18 +154,11 @@
           "type": "string | undefined"
         },
         {
-          "name": "refreshToken",
+          "name": "isBiometricSupported",
           "tags": [],
           "docs": "",
           "complexTypes": [],
-          "type": "string | undefined"
-        },
-        {
-          "name": "idToken",
-          "tags": [],
-          "docs": "",
-          "complexTypes": [],
-          "type": "string | undefined"
+          "type": "boolean"
         }
       ]
     }

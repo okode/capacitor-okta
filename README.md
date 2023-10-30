@@ -30,12 +30,13 @@ npx cap sync
 ### signIn(...)
 
 ```typescript
-signIn(params: Record<string, string>) => Promise<void>
+signIn(params: Record<string, string>, biometric: boolean) => Promise<void>
 ```
 
-| Param        | Type                                                            |
-| ------------ | --------------------------------------------------------------- |
-| **`params`** | <code><a href="#record">Record</a>&lt;string, string&gt;</code> |
+| Param           | Type                                                            |
+| --------------- | --------------------------------------------------------------- |
+| **`params`**    | <code><a href="#record">Record</a>&lt;string, string&gt;</code> |
+| **`biometric`** | <code>boolean</code>                                            |
 
 --------------------
 
@@ -122,12 +123,10 @@ addListener(eventName: 'authState', listenerFunc: (data: AuthStateDetails) => vo
 
 #### AuthStateDetails
 
-| Prop                  | Type                 |
-| --------------------- | -------------------- |
-| **`isAuthenticated`** | <code>boolean</code> |
-| **`accessToken`**     | <code>string</code>  |
-| **`refreshToken`**    | <code>string</code>  |
-| **`idToken`**         | <code>string</code>  |
+| Prop                       | Type                 |
+| -------------------------- | -------------------- |
+| **`accessToken`**          | <code>string</code>  |
+| **`isBiometricSupported`** | <code>boolean</code> |
 
 
 ### Type Aliases
