@@ -27,7 +27,7 @@ import OktaStorage
         callback(self.authStateManager, nil)
     }
 
-    @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
+    @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], biometric: Bool, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
 
         guard let secureStorage = self.secureStorage else {
             return callback(nil, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
@@ -37,7 +37,8 @@ import OktaStorage
             return (key as! String, value as! String)
         })
 
-        if (secureStorage.isFaceIDSupported() || secureStorage.isTouchIDSupported() && urlParams["prompt"] != "login") {
+
+        if (biometric && (secureStorage.isFaceIDSupported() || secureStorage.isTouchIDSupported()) && urlParams["prompt"] != "login") {
             refreshToken { authState, error in
                 if error != nil {
                     urlParams["prompt"] = "login"

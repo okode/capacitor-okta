@@ -1,12 +1,16 @@
 package com.okode.okta;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.activity.result.ActivityResult;
+import androidx.core.app.ActivityCompat;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
@@ -38,7 +42,6 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        notifyListeners("initSuccess", OktaConverterHelper.convertAuthState(session), true);
     }
 
     @ActivityCallback
@@ -59,7 +62,9 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
 
     @PluginMethod
     public void signIn(PluginCall call) {
-        if (session.isAuthenticated() && implementation.isKeyguardSecure(getActivity())) {
+        Boolean biometric = false;
+        biometric = call.getBoolean("biometric", false);
+        if (biometric && session.isAuthenticated() && implementation.isKeyguardSecure(getActivity())) {
           this.showKeyguard(call);
         }
         implementation.signIn(getActivity(), call.getData(), new Okta.OktaRequestCallback<Void>() {
@@ -109,7 +114,7 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
 
     @Override
     public void onOktaAuthStateChange(SessionClient session) {
-        notifyListeners("authState", OktaConverterHelper.convertAuthState(session), true);
+        notifyListeners("authState", OktaConverterHelper.convertAuthState(session, checkBiometricSupport()), true);
     }
 
     private void showKeyguard(PluginCall call) {
@@ -124,5 +129,27 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
         startActivityForResult(call, intent, "biometricResult");
       }
     }
+
+  private Boolean checkBiometricSupport() {
+    KeyguardManager keyguardManager =
+      (KeyguardManager) getActivity().getSystemService(Context.KEYGUARD_SERVICE);
+    PackageManager packageManager = getActivity().getPackageManager();
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      return false;
+    }
+    if(!packageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT))
+    {
+      return false;
+    }
+    if (!keyguardManager.isKeyguardSecure()) {
+      return false;
+    }
+    if (ActivityCompat.checkSelfPermission(getActivity(),
+      Manifest.permission.USE_BIOMETRIC) !=
+      PackageManager.PERMISSION_GRANTED) {
+      return false;
+    }
+    return true;
+  }
 
 }
