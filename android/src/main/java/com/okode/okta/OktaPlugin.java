@@ -10,6 +10,8 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.activity.result.ActivityResult;
+
+import androidx.biometric.BiometricManager;
 import androidx.core.app.ActivityCompat;
 
 import com.getcapacitor.JSObject;
@@ -129,26 +131,9 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
       }
     }
 
-  private Boolean checkBiometricSupport() {
-    KeyguardManager keyguardManager =
-      (KeyguardManager) getActivity().getSystemService(Context.KEYGUARD_SERVICE);
-    PackageManager packageManager = getActivity().getPackageManager();
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      return false;
+    private Boolean checkBiometricSupport() {
+        BiometricManager biometricManager = BiometricManager.from(getActivity());
+        return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS;
     }
-    if(!packageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT))
-    {
-      return false;
-    }
-    if (!keyguardManager.isKeyguardSecure()) {
-      return false;
-    }
-    if (ActivityCompat.checkSelfPermission(getActivity(),
-      Manifest.permission.USE_BIOMETRIC) !=
-      PackageManager.PERMISSION_GRANTED) {
-      return false;
-    }
-    return true;
-  }
 
 }
