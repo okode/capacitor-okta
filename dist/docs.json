@@ -7,12 +7,12 @@
     "methods": [
       {
         "name": "signIn",
-        "signature": "(params: Record<string, string>) => Promise<void>",
+        "signature": "(params?: Record<string, string> | undefined) => Promise<void>",
         "parameters": [
           {
             "name": "params",
             "docs": "",
-            "type": "Record<string, string>"
+            "type": "Record<string, string> | undefined"
           }
         ],
         "returns": "Promise<void>",
@@ -35,12 +35,12 @@
       },
       {
         "name": "register",
-        "signature": "(params: Record<string, string>) => Promise<void>",
+        "signature": "(params?: Record<string, string> | undefined) => Promise<void>",
         "parameters": [
           {
             "name": "params",
             "docs": "",
-            "type": "Record<string, string>"
+            "type": "Record<string, string> | undefined"
           }
         ],
         "returns": "Promise<void>",
@@ -53,12 +53,12 @@
       },
       {
         "name": "recoveryPassword",
-        "signature": "(params: Record<string, string>) => Promise<void>",
+        "signature": "(params?: Record<string, string> | undefined) => Promise<void>",
         "parameters": [
           {
             "name": "params",
             "docs": "",
-            "type": "Record<string, string>"
+            "type": "Record<string, string> | undefined"
           }
         ],
         "returns": "Promise<void>",

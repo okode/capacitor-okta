@@ -33,7 +33,7 @@ npx cap sync
 ### signIn(...)
 
 ```typescript
-signIn(params: Record<string, string>) => Promise<void>
+signIn(params?: Record<string, string> | undefined) => Promise<void>
 ```
 
 | Param        | Type                                                            |
@@ -55,7 +55,7 @@ signOut() => Promise<void>
 ### register(...)
 
 ```typescript
-register(params: Record<string, string>) => Promise<void>
+register(params?: Record<string, string> | undefined) => Promise<void>
 ```
 
 | Param        | Type                                                            |
@@ -68,7 +68,7 @@ register(params: Record<string, string>) => Promise<void>
 ### recoveryPassword(...)
 
 ```typescript
-recoveryPassword(params: Record<string, string>) => Promise<void>
+recoveryPassword(params?: Record<string, string> | undefined) => Promise<void>
 ```
 
 | Param        | Type                                                            |

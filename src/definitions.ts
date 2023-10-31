@@ -1,10 +1,10 @@
 import type { PluginListenerHandle } from "@capacitor/core";
 
 export interface OktaPlugin {
-  signIn(params: Record<string, string>): Promise<void>;
+  signIn(params?: Record<string, string>): Promise<void>;
   signOut(): Promise<void>;
-  register(params: Record<string, string>): Promise<void>;
-  recoveryPassword(params: Record<string, string>): Promise<void>;
+  register(params?: Record<string, string>): Promise<void>;
+  recoveryPassword(params?: Record<string, string>): Promise<void>;
   enableBiometric(): Promise<void>;
   disabledBiometric(): Promise<void>;
   restartBiometric(): Promise<void>;
