@@ -112,6 +112,7 @@ public class Okta {
         if (webAuthClient.getSessionClient() != null) {
           webAuthClient.getSessionClient().clear();
         }
+        resetBiometric();
       }
 
       @Override
