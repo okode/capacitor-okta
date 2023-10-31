@@ -25,8 +25,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
     }
 
     @objc public func signIn(_ call: CAPPluginCall) {
-        let params = call.getAny("params") ?? ["":""]
-        implementation.signIn(vc: self.bridge?.viewController, params: params as! [AnyHashable : Any], biometric: true) { authState, error in
+        implementation.signIn(vc: self.bridge?.viewController, params: call.options, biometric: true) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
@@ -69,8 +68,38 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
         }
     }
 
-    func onOktaAuthStateChange(authState: OktaOidcStateManager?, secureStorage: OktaSecureStorage?) {
-        self.notifyListeners("authState", data: OktaConverterHelper.convertAuthState(authStateManager: authState, secureStorage: secureStorage), retainUntilConsumed: true)
+    @objc public func enableBiometric(_ call: CAPPluginCall) {
+        implementation.enableBiometric { result, error in
+            if error != nil {
+                call.reject(error!.localizedDescription, nil, error)
+            } else {
+                call.resolve();
+            }
+        }
+    }
+
+    @objc public func disabledBiometric(_ call: CAPPluginCall) {
+        implementation.disabledBiometric { result, error in
+            if error != nil {
+                call.reject(error!.localizedDescription, nil, error)
+            } else {
+                call.resolve();
+            }
+        }
+    }
+
+    @objc public func restartBiometric(_ call: CAPPluginCall) {
+        implementation.restartBiometric { result, error in
+            if error != nil {
+                call.reject(error!.localizedDescription, nil, error)
+            } else {
+                call.resolve();
+            }
+        }
+    }
+
+    func onOktaAuthStateChange(authState: OktaOidcStateManager?) {
+        self.notifyListeners("authState", data: OktaConverterHelper.convertAuthState(authStateManager: authState), retainUntilConsumed: true)
     }
 
 }

@@ -38,7 +38,7 @@ import OktaStorage
             return (key as! String, value as! String)
         })
 
-        if (self.hasBiometricEnabled(secureStorage: secureStorage) && biometric) {
+        if (self.isBiometricEnabled(secureStorage: secureStorage) && biometric) {
             refreshToken { authState, error in
                 if error != nil {
                     urlParams["prompt"] = "login"
@@ -94,11 +94,46 @@ import OktaStorage
             })
         }
 
-    @objc public func getUser(_ callback: @escaping ([String: Any]?, Error?) -> Void) {
-        guard let authStateManager = authStateManager else {
-            return callback(nil, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth state manager initialized"]))
+    @objc public func enableBiometric(callback: @escaping ((_ success: Bool, _ error: Error?) -> Void)) {
+
+        guard let secureStorage = self.secureStorage else {
+            return callback(false, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
         }
-        return authStateManager.getUser(callback)
+        guard let authStateManager = self.authStateManager else {
+            return callback(false, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth state manager"]))
+        }
+
+        do {
+            try secureStorage.set("true", forKey: Okta.KEYCHAIN_BIOMETRIC_KEY)
+            self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
+            callback(true, nil)
+        } catch let error {
+            return callback(false, error)
+        }
+    }
+
+    @objc public func disabledBiometric(callback: @escaping ((Bool, _ error: Error?) -> Void)) {
+
+        guard let secureStorage = self.secureStorage else {
+            return callback(false, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
+        }
+
+        do {
+            clearSecureStorage(secureStorage: secureStorage)
+            try secureStorage.set("false", forKey: Okta.KEYCHAIN_BIOMETRIC_KEY)
+            callback(true, nil)
+        } catch let error {
+            return callback(false, error)
+        }
+    }
+
+    @objc public func restartBiometric(callback: @escaping ((Bool, _ error: Error?) -> Void)) {
+
+        guard let secureStorage = self.secureStorage else {
+            return callback(false, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
+        }
+
+        clearSecureStorage(secureStorage: secureStorage)
     }
 
     @objc public func getAuthState() ->  OktaOidcStateManager? {
@@ -149,7 +184,7 @@ import OktaStorage
             if error != nil {
                 return callback(nil, error)
             }
-            if (!self.isBiometricPreferenceConfigured(secureStorage: secureStorage) && self.isBiometricSupported(secureStorage: secureStorage)) {
+            if (!self.isBiometricConfigured(secureStorage: secureStorage) && self.isBiometricSupported(secureStorage: secureStorage)) {
                 self.showBiometricDialog(vc: vc, secureStorage: secureStorage, authStateManager: authStateManager)
             }
             self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
@@ -160,20 +195,17 @@ import OktaStorage
     }
 
     private func notifyAuthStateChange() {
-        self.authStateDelegate?.onOktaAuthStateChange(authState: getAuthState(), secureStorage: self.secureStorage)
-    }
-
-    private func enabledBiometric(secureStorage: OktaSecureStorage) {
-        do {
-            try secureStorage.set("true", forKey: Okta.KEYCHAIN_BIOMETRIC_KEY)
-        } catch _ { }
+        guard let secureStorage = self.secureStorage else {
+            return
+        }
+        self.authStateDelegate?.onOktaAuthStateChange(authState: getAuthState())
     }
 
     private func isBiometricSupported(secureStorage: OktaSecureStorage) -> Bool {
         return secureStorage.isFaceIDSupported() || secureStorage.isTouchIDSupported()
     }
 
-    private func hasBiometricEnabled(secureStorage: OktaSecureStorage) -> Bool {
+    private func isBiometricEnabled(secureStorage: OktaSecureStorage) -> Bool {
         do {
             let biometric = try secureStorage.get(key: Okta.KEYCHAIN_BIOMETRIC_KEY)
             return isBiometricSupported(secureStorage: secureStorage)
@@ -183,7 +215,7 @@ import OktaStorage
         }
     }
 
-    private func isBiometricPreferenceConfigured(secureStorage: OktaSecureStorage) -> Bool {
+    private func isBiometricConfigured(secureStorage: OktaSecureStorage) -> Bool {
         do {
             try secureStorage.get(key: Okta.KEYCHAIN_BIOMETRIC_KEY)
             return true
@@ -191,13 +223,14 @@ import OktaStorage
             return false
         }
     }
+
     private func writeToSecureStorage(secureStorage: OktaSecureStorage, authStateManager: OktaOidcStateManager?) {
         let authStateData = try? NSKeyedArchiver.archivedData(withRootObject: authStateManager, requiringSecureCoding: false)
         guard let authStateData = authStateData else {
             return
         }
 
-        if (!self.hasBiometricEnabled(secureStorage: secureStorage)) { return }
+        if (!self.isBiometricEnabled(secureStorage: secureStorage)) { return }
 
         do {
             try secureStorage.set(data: authStateData,
@@ -226,8 +259,7 @@ import OktaStorage
             let alert = UIAlertController(title: "Acceso biométrico", message: "¿Quieres utilizar el biométrico para futuros accesos?", preferredStyle: UIAlertController.Style.alert)
 
             alert.addAction(UIAlertAction(title: "Aceptar", style: .default, handler: { (action: UIAlertAction!) in
-                self.enabledBiometric(secureStorage: secureStorage)
-                self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
+                self.enableBiometric { success, error in }
             }))
 
             alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: { (action: UIAlertAction!) in
