@@ -232,9 +232,13 @@ public class Okta {
   }
 
   protected boolean isBiometricEnabled(Activity activity) {
-    return sharedPreferences.get(BIOMETRIC_KEY).equals("true")
+    try {
+      return sharedPreferences.get(BIOMETRIC_KEY).equals("true")
         && isBiometricSupported(activity)
         && isKeyguardSecure(activity);
+    } catch (Exception e){
+      return false;
+    }
   }
 
   protected boolean isBiometricConfigured() {
