@@ -6,7 +6,7 @@ export declare class OktaWeb extends WebPlugin implements OktaPlugin {
     register(): Promise<void>;
     recoveryPassword(): Promise<void>;
     enableBiometric(): Promise<void>;
-    disabledBiometric(): Promise<void>;
+    disableBiometric(): Promise<void>;
     restartBiometric(): Promise<void>;
     getBiometricStatus(): Promise<{
         isBiometricSupported: boolean;

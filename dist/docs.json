@@ -80,14 +80,14 @@
         "slug": "enablebiometric"
       },
       {
-        "name": "disabledBiometric",
+        "name": "disableBiometric",
         "signature": "() => Promise<void>",
         "parameters": [],
         "returns": "Promise<void>",
         "tags": [],
         "docs": "",
         "complexTypes": [],
-        "slug": "disabledbiometric"
+        "slug": "disablebiometric"
       },
       {
         "name": "restartBiometric",

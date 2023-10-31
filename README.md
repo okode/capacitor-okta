@@ -18,7 +18,7 @@ npx cap sync
 * [`register(...)`](#register)
 * [`recoveryPassword(...)`](#recoverypassword)
 * [`enableBiometric()`](#enablebiometric)
-* [`disabledBiometric()`](#disabledbiometric)
+* [`disableBiometric()`](#disablebiometric)
 * [`restartBiometric()`](#restartbiometric)
 * [`getBiometricStatus()`](#getbiometricstatus)
 * [`addListener('authState', ...)`](#addlistenerauthstate)
@@ -87,10 +87,10 @@ enableBiometric() => Promise<void>
 --------------------
 
 
-### disabledBiometric()
+### disableBiometric()
 
 ```typescript
-disabledBiometric() => Promise<void>
+disableBiometric() => Promise<void>
 ```
 
 --------------------

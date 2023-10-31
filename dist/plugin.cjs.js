@@ -24,7 +24,7 @@ class OktaWeb extends core.WebPlugin {
     enableBiometric() {
         return Promise.reject('Method not implemented.');
     }
-    disabledBiometric() {
+    disableBiometric() {
         return Promise.reject('Method not implemented.');
     }
     restartBiometric() {
