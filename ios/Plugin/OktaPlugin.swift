@@ -25,7 +25,32 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
     }
 
     @objc public func signIn(_ call: CAPPluginCall) {
-        implementation.signIn(vc: self.bridge?.viewController, params: call.getAny("params") as! [AnyHashable : Any], biometric: call.getBool("biometric", false)) { authState, error in
+        let params = call.getAny("params") ?? ["":""]
+        implementation.signIn(vc: self.bridge?.viewController, params: params as! [AnyHashable : Any], biometric: call.getBool("biometric", false)) { authState, error in
+            if error != nil {
+                call.reject(error!.localizedDescription, nil, error)
+            } else {
+                call.resolve();
+            }
+        }
+    }
+
+    @objc public func register(_ call: CAPPluginCall) {
+        call.options["prompt"] = "login";
+        call.options["t"] = "register";
+        implementation.signIn(vc: self.bridge?.viewController, params: call.options, biometric: false) { authState, error in
+            if error != nil {
+                call.reject(error!.localizedDescription, nil, error)
+            } else {
+                call.resolve();
+            }
+        }
+    }
+
+    @objc public func recoveryPassword(_ call: CAPPluginCall) {
+        call.options["prompt"] = "login";
+        call.options["t"] = "resetPassWidget";
+        implementation.signIn(vc: self.bridge?.viewController, params: call.options, biometric: false) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
@@ -41,12 +66,6 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
             } else {
                 call.resolve();
             }
-        }
-    }
-
-    @objc public func getUser(_ call: CAPPluginCall) {
-        implementation.getUser { userData, error in
-            call.resolve(userData ?? [:])
         }
     }
 

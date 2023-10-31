@@ -6,5 +6,6 @@
 CAP_PLUGIN(OktaPlugin, "Okta",
            CAP_PLUGIN_METHOD(signIn, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(signOut, CAPPluginReturnPromise);
-           CAP_PLUGIN_METHOD(getUser, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(register, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(recoveryPassword, CAPPluginReturnPromise);
 )
