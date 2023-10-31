@@ -1,21 +1,14 @@
 package com.okode.okta;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.util.Log;
 
 import androidx.activity.result.ActivityResult;
 
 import androidx.biometric.BiometricManager;
-import androidx.core.app.ActivityCompat;
 
 import com.getcapacitor.JSObject;
-import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
@@ -23,7 +16,6 @@ import com.getcapacitor.annotation.ActivityCallback;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.okta.oidc.clients.sessions.SessionClient;
 import com.okta.oidc.net.response.UserInfo;
-import com.okta.oidc.Tokens;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -68,7 +60,7 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
         if (biometric && session.isAuthenticated() && implementation.isKeyguardSecure(getActivity())) {
           this.showKeyguard(call);
         }
-        implementation.signIn(getActivity(), call.getObject("params", null), new Okta.OktaRequestCallback<Void>() {
+        implementation.signIn(getActivity(), call.getObject("params", new JSObject()), new Okta.OktaRequestCallback<Void>() {
             @Override
             public void onSuccess(Void data) {
                 call.resolve();

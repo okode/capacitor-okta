@@ -15,9 +15,8 @@ npx cap sync
 
 * [`signIn(...)`](#signin)
 * [`signOut()`](#signout)
-* [`getUser()`](#getuser)
-* [`addListener('initSuccess', ...)`](#addlistenerinitsuccess)
-* [`addListener('initError', ...)`](#addlisteneriniterror)
+* [`register(...)`](#register)
+* [`recoveryPassword(...)`](#recoverypassword)
 * [`addListener('authState', ...)`](#addlistenerauthstate)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
@@ -43,53 +42,34 @@ signIn(options: { params?: Record<string, string>; biometric?: boolean; }) => Pr
 ### signOut()
 
 ```typescript
-signOut() => Promise<{ value: number; }>
+signOut() => Promise<void>
 ```
-
-**Returns:** <code>Promise&lt;{ value: number; }&gt;</code>
 
 --------------------
 
 
-### getUser()
+### register(...)
 
 ```typescript
-getUser() => Promise<{ [key: string]: any; }>
+register(params: Record<string, string>) => Promise<void>
 ```
 
-**Returns:** <code>Promise&lt;{ [key: string]: any; }&gt;</code>
+| Param        | Type                                                            |
+| ------------ | --------------------------------------------------------------- |
+| **`params`** | <code><a href="#record">Record</a>&lt;string, string&gt;</code> |
 
 --------------------
 
 
-### addListener('initSuccess', ...)
+### recoveryPassword(...)
 
 ```typescript
-addListener(eventName: 'initSuccess', listenerFunc: (data: AuthStateDetails) => void) => PluginListenerHandle
+recoveryPassword(params: Record<string, string>) => Promise<void>
 ```
 
-| Param              | Type                                                                             |
-| ------------------ | -------------------------------------------------------------------------------- |
-| **`eventName`**    | <code>'initSuccess'</code>                                                       |
-| **`listenerFunc`** | <code>(data: <a href="#authstatedetails">AuthStateDetails</a>) =&gt; void</code> |
-
-**Returns:** <code><a href="#pluginlistenerhandle">PluginListenerHandle</a></code>
-
---------------------
-
-
-### addListener('initError', ...)
-
-```typescript
-addListener(eventName: 'initError', listenerFunc: (error: { description?: string; }) => void) => PluginListenerHandle
-```
-
-| Param              | Type                                                       |
-| ------------------ | ---------------------------------------------------------- |
-| **`eventName`**    | <code>'initError'</code>                                   |
-| **`listenerFunc`** | <code>(error: { description?: string; }) =&gt; void</code> |
-
-**Returns:** <code><a href="#pluginlistenerhandle">PluginListenerHandle</a></code>
+| Param        | Type                                                            |
+| ------------ | --------------------------------------------------------------- |
+| **`params`** | <code><a href="#record">Record</a>&lt;string, string&gt;</code> |
 
 --------------------
 
@@ -97,13 +77,13 @@ addListener(eventName: 'initError', listenerFunc: (error: { description?: string
 ### addListener('authState', ...)
 
 ```typescript
-addListener(eventName: 'authState', listenerFunc: (data: AuthStateDetails) => void) => PluginListenerHandle
+addListener(eventName: 'authState', listenerFunc: (data: AuthState) => void) => PluginListenerHandle
 ```
 
-| Param              | Type                                                                             |
-| ------------------ | -------------------------------------------------------------------------------- |
-| **`eventName`**    | <code>'authState'</code>                                                         |
-| **`listenerFunc`** | <code>(data: <a href="#authstatedetails">AuthStateDetails</a>) =&gt; void</code> |
+| Param              | Type                                                               |
+| ------------------ | ------------------------------------------------------------------ |
+| **`eventName`**    | <code>'authState'</code>                                           |
+| **`listenerFunc`** | <code>(data: <a href="#authstate">AuthState</a>) =&gt; void</code> |
 
 **Returns:** <code><a href="#pluginlistenerhandle">PluginListenerHandle</a></code>
 
@@ -120,12 +100,13 @@ addListener(eventName: 'authState', listenerFunc: (data: AuthStateDetails) => vo
 | **`remove`** | <code>() =&gt; Promise&lt;void&gt;</code> |
 
 
-#### AuthStateDetails
+#### AuthState
 
 | Prop                       | Type                 |
 | -------------------------- | -------------------- |
 | **`accessToken`**          | <code>string</code>  |
 | **`isBiometricSupported`** | <code>boolean</code> |
+| **`isBiometricEnabled`**   | <code>boolean</code> |
 
 
 ### Type Aliases

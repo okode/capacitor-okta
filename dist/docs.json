@@ -25,74 +25,53 @@
       },
       {
         "name": "signOut",
-        "signature": "() => Promise<{ value: number; }>",
+        "signature": "() => Promise<void>",
         "parameters": [],
-        "returns": "Promise<{ value: number; }>",
+        "returns": "Promise<void>",
         "tags": [],
         "docs": "",
         "complexTypes": [],
         "slug": "signout"
       },
       {
-        "name": "getUser",
-        "signature": "() => Promise<{ [key: string]: any; }>",
-        "parameters": [],
-        "returns": "Promise<{ [key: string]: any; }>",
-        "tags": [],
-        "docs": "",
-        "complexTypes": [],
-        "slug": "getuser"
-      },
-      {
-        "name": "addListener",
-        "signature": "(eventName: 'initSuccess', listenerFunc: (data: AuthStateDetails) => void) => PluginListenerHandle",
+        "name": "register",
+        "signature": "(params: Record<string, string>) => Promise<void>",
         "parameters": [
           {
-            "name": "eventName",
+            "name": "params",
             "docs": "",
-            "type": "'initSuccess'"
-          },
-          {
-            "name": "listenerFunc",
-            "docs": "",
-            "type": "(data: AuthStateDetails) => void"
+            "type": "Record<string, string>"
           }
         ],
-        "returns": "PluginListenerHandle",
+        "returns": "Promise<void>",
         "tags": [],
         "docs": "",
         "complexTypes": [
-          "PluginListenerHandle",
-          "AuthStateDetails"
+          "Record"
         ],
-        "slug": "addlistenerinitsuccess"
+        "slug": "register"
       },
       {
-        "name": "addListener",
-        "signature": "(eventName: 'initError', listenerFunc: (error: { description?: string; }) => void) => PluginListenerHandle",
+        "name": "recoveryPassword",
+        "signature": "(params: Record<string, string>) => Promise<void>",
         "parameters": [
           {
-            "name": "eventName",
+            "name": "params",
             "docs": "",
-            "type": "'initError'"
-          },
-          {
-            "name": "listenerFunc",
-            "docs": "",
-            "type": "(error: { description?: string | undefined; }) => void"
+            "type": "Record<string, string>"
           }
         ],
-        "returns": "PluginListenerHandle",
+        "returns": "Promise<void>",
         "tags": [],
         "docs": "",
         "complexTypes": [
-          "PluginListenerHandle"
+          "Record"
         ],
-        "slug": "addlisteneriniterror"
+        "slug": "recoverypassword"
       },
       {
         "name": "addListener",
-        "signature": "(eventName: 'authState', listenerFunc: (data: AuthStateDetails) => void) => PluginListenerHandle",
+        "signature": "(eventName: 'authState', listenerFunc: (data: AuthState) => void) => PluginListenerHandle",
         "parameters": [
           {
             "name": "eventName",
@@ -102,7 +81,7 @@
           {
             "name": "listenerFunc",
             "docs": "",
-            "type": "(data: AuthStateDetails) => void"
+            "type": "(data: AuthState) => void"
           }
         ],
         "returns": "PluginListenerHandle",
@@ -110,7 +89,7 @@
         "docs": "",
         "complexTypes": [
           "PluginListenerHandle",
-          "AuthStateDetails"
+          "AuthState"
         ],
         "slug": "addlistenerauthstate"
       }
@@ -135,8 +114,8 @@
       ]
     },
     {
-      "name": "AuthStateDetails",
-      "slug": "authstatedetails",
+      "name": "AuthState",
+      "slug": "authstate",
       "docs": "",
       "tags": [],
       "methods": [],
@@ -150,6 +129,13 @@
         },
         {
           "name": "isBiometricSupported",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "boolean"
+        },
+        {
+          "name": "isBiometricEnabled",
           "tags": [],
           "docs": "",
           "complexTypes": [],

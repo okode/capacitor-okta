@@ -15,8 +15,11 @@ class OktaWeb extends core.WebPlugin {
     signOut() {
         return Promise.reject('Method not implemented.');
     }
-    getUser() {
+    register() {
         return Promise.reject('Method not implemented.');
+    }
+    recoveryPassword() {
+        throw new Error('Method not implemented.');
     }
 }
 

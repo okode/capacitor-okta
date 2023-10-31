@@ -8,12 +8,16 @@ export class OktaWeb extends WebPlugin implements OktaPlugin {
     return Promise.reject('Method not implemented.');
   }
 
-  signOut(): Promise<{ value: number }> {
+  signOut(): Promise<void> {
     return Promise.reject('Method not implemented.');
   }
 
-  getUser(): Promise<{ [key: string]: any; }> {
+  register(): Promise<void> {
     return Promise.reject('Method not implemented.');
+  }
+
+  recoveryPassword(): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
 }

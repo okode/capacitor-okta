@@ -4,19 +4,13 @@ export interface OktaPlugin {
         params?: Record<string, string>;
         biometric?: boolean;
     }): Promise<void>;
-    signOut(): Promise<{
-        value: number;
-    }>;
-    getUser(): Promise<{
-        [key: string]: any;
-    }>;
-    addListener(eventName: 'initSuccess', listenerFunc: (data: AuthStateDetails) => void): PluginListenerHandle;
-    addListener(eventName: 'initError', listenerFunc: (error: {
-        description?: string;
-    }) => void): PluginListenerHandle;
-    addListener(eventName: 'authState', listenerFunc: (data: AuthStateDetails) => void): PluginListenerHandle;
+    signOut(): Promise<void>;
+    register(params: Record<string, string>): Promise<void>;
+    recoveryPassword(params: Record<string, string>): Promise<void>;
+    addListener(eventName: 'authState', listenerFunc: (data: AuthState) => void): PluginListenerHandle;
 }
-export interface AuthStateDetails {
+export interface AuthState {
     accessToken?: string;
     isBiometricSupported: boolean;
+    isBiometricEnabled: boolean;
 }

@@ -142,9 +142,10 @@ public class Okta {
 
   public void signInWithBiometric(PluginCall call, Activity activity, ActivityResult result, OktaRequestCallback<Void> callback) {
     if (result.getResultCode() != RESULT_OK) {
-      webAuthClient.getSessionClient().clear();
       this.webAuthClient.handleActivityResult(Okta.REQUEST_CODE_CREDENTIALS, result.getResultCode(), null);
-      signIn(activity, call.getData(), callback);
+      JSObject params = call.getObject("params", new JSObject());
+      params.put("prompt", "login");
+      signIn(activity, params, callback);
       return;
     }
     if (keyguardEncryptionManager.getCipher() == null) {
