@@ -6,8 +6,6 @@ import android.content.Intent;
 
 import androidx.activity.result.ActivityResult;
 
-import androidx.biometric.BiometricManager;
-
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -15,7 +13,6 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.ActivityCallback;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.okta.oidc.clients.sessions.SessionClient;
-import com.okta.oidc.net.response.UserInfo;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -56,8 +53,7 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
 
     @PluginMethod
     public void signIn(PluginCall call) {
-        Boolean biometric = call.getBoolean("biometric", false);
-        if (biometric && session.isAuthenticated() && implementation.isKeyguardSecure(getActivity())) {
+        if (implementation.isBiometricEnabled(getActivity()) && session.isAuthenticated()) {
           this.showKeyguard(call);
         }
         implementation.signIn(getActivity(), call.getObject("params", new JSObject()), new Okta.OktaRequestCallback<Void>() {
@@ -125,9 +121,36 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
         }
       });
     }
+
+    @PluginMethod
+    public void enableBiometric(PluginCall call) {
+      implementation.enableBiometric();
+      call.resolve();
+    }
+
+    @PluginMethod
+    public void disableBiometric(PluginCall call) {
+      implementation.disableBiometric();
+      call.resolve();
+    }
+
+    @PluginMethod
+    public void resetBiometric(PluginCall call) {
+      implementation.resetBiometric();
+      call.resolve();
+    }
+
+  @PluginMethod
+  public void getBiometricStatus(PluginCall call) {
+    JSObject res = new JSObject();
+    res.put("isBiometricEnabled", implementation.isBiometricEnabled(getActivity()));
+    res.put("isBiometricSupported", implementation.isBiometricSupported(getActivity()));
+    call.resolve(res);
+  }
+
     @Override
     public void onOktaAuthStateChange(SessionClient session) {
-        notifyListeners("authState", OktaConverterHelper.convertAuthState(session, checkBiometricSupport()), true);
+        notifyListeners("authState", OktaConverterHelper.convertAuthState(session), true);
     }
 
     private void showKeyguard(PluginCall call) {
@@ -142,10 +165,4 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
         startActivityForResult(call, intent, "biometricResult");
       }
     }
-
-    private Boolean checkBiometricSupport() {
-        BiometricManager biometricManager = BiometricManager.from(getActivity());
-        return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS;
-    }
-
 }

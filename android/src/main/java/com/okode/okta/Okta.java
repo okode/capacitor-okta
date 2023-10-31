@@ -3,17 +3,19 @@ package com.okode.okta;
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
 
-import static com.okta.oidc.util.AuthorizationException.EncryptionErrors.ILLEGAL_BLOCK_SIZE;
-
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.util.Log;
 
 import androidx.activity.result.ActivityResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.biometric.BiometricManager;
 
 import com.getcapacitor.PluginCall;
 import com.okta.oidc.AuthenticationPayload;
@@ -24,6 +26,7 @@ import com.okta.oidc.ResultCallback;
 import com.okta.oidc.clients.sessions.SessionClient;
 import com.okta.oidc.clients.web.WebAuthClient;
 import com.okta.oidc.net.response.UserInfo;
+import com.okta.oidc.storage.SharedPreferenceStorage;
 import com.okta.oidc.storage.security.GuardedEncryptionManager;
 import com.okta.oidc.util.AuthorizationException;
 import com.okta.oidc.Tokens;
@@ -42,13 +45,16 @@ public class Okta {
   private final static String FIRE_FOX = "org.mozilla.firefox";
   private final static String CHROME_BROWSER = "com.android.chrome";
   private final static String CONFIG_FILE_NAME = "okta_oidc_config";
+  private final static String BIOMETRIC_KEY = "okta_biometric";
   protected static final int REQUEST_CODE_CREDENTIALS = 1000;
 
   private WebAuthClient webAuthClient;
   private OktaAuthStateChangeListener authStateChangeListener;
   private GuardedEncryptionManager keyguardEncryptionManager;
+  private SharedPreferenceStorage sharedPreferences;
 
   public SessionClient configureSDK(Activity activity) throws GeneralSecurityException, IOException {
+    sharedPreferences = new SharedPreferenceStorage(activity);
     int configFile = activity.getResources().getIdentifier(
       CONFIG_FILE_NAME, "raw", activity.getPackageName());
     OIDCConfig config = new OIDCConfig.Builder()
@@ -59,6 +65,7 @@ public class Okta {
       .withConfig(config)
       .withContext(activity)
       .withCallbackExecutor(Executors.newSingleThreadExecutor())
+      .withStorage(sharedPreferences)
       .supportedBrowsers(CHROME_BROWSER, FIRE_FOX)
       .setRequireHardwareBackedKeyStore(false) // required for emulators
       .withTabColor(Color.parseColor("#FFFFFF"));
@@ -114,22 +121,16 @@ public class Okta {
     });
   }
 
-  public void getUser(OktaRequestCallback<UserInfo> callback) {
-    if (getSession() == null) {
-      callback.onError("No auth session initialized", null);
-      return;
-    }
-    getSession().getUserProfile(new RequestCallback<UserInfo, AuthorizationException>() {
-      @Override
-      public void onSuccess(@NonNull UserInfo user) {
-        callback.onSuccess(user);
-      }
+  public void enableBiometric() {
+    sharedPreferences.save(BIOMETRIC_KEY, "true");
+  }
 
-      @Override
-      public void onError(String error, AuthorizationException exception) {
-        callback.onError(error, exception);
-      }
-    });
+  public void disableBiometric() {
+    sharedPreferences.save(BIOMETRIC_KEY, "false");
+  }
+
+  public void resetBiometric() {
+    sharedPreferences.delete(BIOMETRIC_KEY);
   }
 
   public SessionClient getAuthState() {
@@ -190,10 +191,15 @@ public class Okta {
         @Override
         public void onSuccess(@NonNull AuthorizationStatus status) {
           if (status == AuthorizationStatus.AUTHORIZED) {
-            Log.i(TAG, "Auth success");
+            if (!isBiometricConfigured()) {
+              activity.runOnUiThread(new Runnable() {
+                public void run() {
+                  showBiometricDialog(activity);
+                }
+              });
+            }
             notifyAuthStateChange();
           } else if (status == AuthorizationStatus.SIGNED_OUT) {
-            Log.i(TAG, "Sign out from Okta success");
             notifyAuthStateChange();
           }
         }
@@ -222,6 +228,40 @@ public class Okta {
     KeyguardManager keyguardManager =
       (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
     return keyguardManager.isKeyguardSecure();
+  }
+
+  protected boolean isBiometricEnabled(Activity activity) {
+    return sharedPreferences.get(BIOMETRIC_KEY).equals("true")
+        && isBiometricSupported(activity)
+        && isKeyguardSecure(activity);
+  }
+
+  protected boolean isBiometricConfigured() {
+    return sharedPreferences.get(BIOMETRIC_KEY) != null;
+  }
+
+  protected Boolean isBiometricSupported(Activity activity) {
+    BiometricManager biometricManager = BiometricManager.from(activity);
+    return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS;
+  }
+
+  private void showBiometricDialog(Activity activity) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+    builder.setTitle("Acceso biométrico");
+    builder.setMessage("¿Quieres utilizar el biométrico para futuros accesos?")
+      .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int id) {
+          enableBiometric();
+          dialog.dismiss();
+        }
+      })
+      .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int id) {
+          disableBiometric();
+          dialog.dismiss();
+        }
+      });
+    builder.create().show();
   }
 
   public interface OktaRequestCallback<T> {

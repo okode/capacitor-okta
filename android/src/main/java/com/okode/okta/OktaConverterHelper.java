@@ -16,14 +16,13 @@ public class OktaConverterHelper {
 
     private OktaConverterHelper() {}
 
-    public static JSObject convertAuthState(SessionClient session, Boolean isBiometricSupported) {
+    public static JSObject convertAuthState(SessionClient session) {
         JSObject state = new JSObject();
         if (session == null) { return state; }
         try {
             Tokens tokens = session.getTokens();
             if (tokens == null) { return state; }
             state.put("accessToken", tokens.getAccessToken());
-            state.put("isBiometricSupported", isBiometricSupported);
         } catch (AuthorizationException e) {
             Log.w(TAG, "Error converting session: ", e);
             return state;
