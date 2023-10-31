@@ -78,8 +78,8 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
         }
     }
 
-    @objc public func disabledBiometric(_ call: CAPPluginCall) {
-        implementation.disabledBiometric { result, error in
+    @objc public func disableBiometric(_ call: CAPPluginCall) {
+        implementation.disableBiometric { result, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {

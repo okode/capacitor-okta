@@ -112,7 +112,7 @@ import OktaStorage
         }
     }
 
-    @objc public func disabledBiometric(callback: @escaping ((Bool, _ error: Error?) -> Void)) {
+    @objc public func disableBiometric(callback: @escaping ((Bool, _ error: Error?) -> Void)) {
 
         guard let secureStorage = self.secureStorage else {
             return callback(false, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
