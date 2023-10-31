@@ -26,7 +26,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
 
     @objc public func signIn(_ call: CAPPluginCall) {
         let params = call.getAny("params") ?? ["":""]
-        implementation.signIn(vc: self.bridge?.viewController, params: params as! [AnyHashable : Any], biometric: call.getBool("biometric", false)) { authState, error in
+        implementation.signIn(vc: self.bridge?.viewController, params: params as! [AnyHashable : Any], biometric: true) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {

@@ -17,6 +17,10 @@ npx cap sync
 * [`signOut()`](#signout)
 * [`register(...)`](#register)
 * [`recoveryPassword(...)`](#recoverypassword)
+* [`enableBiometric()`](#enablebiometric)
+* [`disabledBiometric()`](#disabledbiometric)
+* [`restartBiometric()`](#restartbiometric)
+* [`getBiometricStatus()`](#getbiometricstatus)
 * [`addListener('authState', ...)`](#addlistenerauthstate)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
@@ -29,12 +33,12 @@ npx cap sync
 ### signIn(...)
 
 ```typescript
-signIn(options: { params?: Record<string, string>; biometric?: boolean; }) => Promise<void>
+signIn(params: Record<string, string>) => Promise<void>
 ```
 
-| Param         | Type                                                                                               |
-| ------------- | -------------------------------------------------------------------------------------------------- |
-| **`options`** | <code>{ params?: <a href="#record">Record</a>&lt;string, string&gt;; biometric?: boolean; }</code> |
+| Param        | Type                                                            |
+| ------------ | --------------------------------------------------------------- |
+| **`params`** | <code><a href="#record">Record</a>&lt;string, string&gt;</code> |
 
 --------------------
 
@@ -70,6 +74,44 @@ recoveryPassword(params: Record<string, string>) => Promise<void>
 | Param        | Type                                                            |
 | ------------ | --------------------------------------------------------------- |
 | **`params`** | <code><a href="#record">Record</a>&lt;string, string&gt;</code> |
+
+--------------------
+
+
+### enableBiometric()
+
+```typescript
+enableBiometric() => Promise<void>
+```
+
+--------------------
+
+
+### disabledBiometric()
+
+```typescript
+disabledBiometric() => Promise<void>
+```
+
+--------------------
+
+
+### restartBiometric()
+
+```typescript
+restartBiometric() => Promise<void>
+```
+
+--------------------
+
+
+### getBiometricStatus()
+
+```typescript
+getBiometricStatus() => Promise<{ isBiometricSupported: boolean; isBiometricEnabled: boolean; }>
+```
+
+**Returns:** <code>Promise&lt;{ isBiometricSupported: boolean; isBiometricEnabled: boolean; }&gt;</code>
 
 --------------------
 

@@ -16,7 +16,19 @@ var capacitorOkta = (function (exports, core) {
             return Promise.reject('Method not implemented.');
         }
         recoveryPassword() {
-            throw new Error('Method not implemented.');
+            return Promise.reject('Method not implemented.');
+        }
+        enableBiometric() {
+            return Promise.reject('Method not implemented.');
+        }
+        disabledBiometric() {
+            return Promise.reject('Method not implemented.');
+        }
+        restartBiometric() {
+            return Promise.reject('Method not implemented.');
+        }
+        getBiometricStatus() {
+            return Promise.reject('Method not implemented.');
         }
     }
 

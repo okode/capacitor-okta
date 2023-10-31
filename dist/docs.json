@@ -7,12 +7,12 @@
     "methods": [
       {
         "name": "signIn",
-        "signature": "(options: { params?: Record<string, string>; biometric?: boolean; }) => Promise<void>",
+        "signature": "(params: Record<string, string>) => Promise<void>",
         "parameters": [
           {
-            "name": "options",
+            "name": "params",
             "docs": "",
-            "type": "{ params?: Record<string, string> | undefined; biometric?: boolean | undefined; }"
+            "type": "Record<string, string>"
           }
         ],
         "returns": "Promise<void>",
@@ -68,6 +68,46 @@
           "Record"
         ],
         "slug": "recoverypassword"
+      },
+      {
+        "name": "enableBiometric",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "enablebiometric"
+      },
+      {
+        "name": "disabledBiometric",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "disabledbiometric"
+      },
+      {
+        "name": "restartBiometric",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "restartbiometric"
+      },
+      {
+        "name": "getBiometricStatus",
+        "signature": "() => Promise<{ isBiometricSupported: boolean; isBiometricEnabled: boolean; }>",
+        "parameters": [],
+        "returns": "Promise<{ isBiometricSupported: boolean; isBiometricEnabled: boolean; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "getbiometricstatus"
       },
       {
         "name": "addListener",

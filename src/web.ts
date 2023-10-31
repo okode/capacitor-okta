@@ -17,7 +17,23 @@ export class OktaWeb extends WebPlugin implements OktaPlugin {
   }
 
   recoveryPassword(): Promise<void> {
-    throw new Error('Method not implemented.');
+    return Promise.reject('Method not implemented.');
+  }
+
+  enableBiometric(): Promise<void> {
+    return Promise.reject('Method not implemented.');
+  }
+
+  disabledBiometric(): Promise<void> {
+    return Promise.reject('Method not implemented.');
+  }
+
+  restartBiometric(): Promise<void> {
+    return Promise.reject('Method not implemented.');
+  }
+
+  getBiometricStatus(): Promise<{ isBiometricSupported: boolean; isBiometricEnabled: boolean; }> {
+    return Promise.reject('Method not implemented.');
   }
 
 }
