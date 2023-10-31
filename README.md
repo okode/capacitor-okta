@@ -144,11 +144,9 @@ addListener(eventName: 'authState', listenerFunc: (data: AuthState) => void) => 
 
 #### AuthState
 
-| Prop                       | Type                 |
-| -------------------------- | -------------------- |
-| **`accessToken`**          | <code>string</code>  |
-| **`isBiometricSupported`** | <code>boolean</code> |
-| **`isBiometricEnabled`**   | <code>boolean</code> |
+| Prop              | Type                |
+| ----------------- | ------------------- |
+| **`accessToken`** | <code>string</code> |
 
 
 ### Type Aliases

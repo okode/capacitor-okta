@@ -14,6 +14,4 @@ export interface OktaPlugin {
 
 export interface AuthState {
   accessToken?: string;
-  isBiometricSupported: boolean;
-  isBiometricEnabled: boolean;
 }

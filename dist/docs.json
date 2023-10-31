@@ -166,20 +166,6 @@
           "docs": "",
           "complexTypes": [],
           "type": "string | undefined"
-        },
-        {
-          "name": "isBiometricSupported",
-          "tags": [],
-          "docs": "",
-          "complexTypes": [],
-          "type": "boolean"
-        },
-        {
-          "name": "isBiometricEnabled",
-          "tags": [],
-          "docs": "",
-          "complexTypes": [],
-          "type": "boolean"
         }
       ]
     }
