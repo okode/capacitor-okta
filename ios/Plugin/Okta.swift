@@ -136,6 +136,20 @@ import OktaStorage
         clearSecureStorage(secureStorage: secureStorage)
     }
 
+    @objc public func getBiometricStatus(callback: @escaping (([String:Bool], _ error: Error?) -> Void)) {
+
+        guard let secureStorage = self.secureStorage else {
+            return callback(["":false], NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
+        }
+
+        let res = [
+            "isBiometricEnabled":self.isBiometricEnabled(secureStorage: secureStorage),
+            "isBiometricSupported":self.isBiometricSupported(secureStorage: secureStorage)
+        ]
+        callback(res,nil)
+    }
+
+
     @objc public func getAuthState() ->  OktaOidcStateManager? {
         return authStateManager;
     }

@@ -98,6 +98,16 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
         }
     }
 
+    @objc public func getBiometricStatus(_ call: CAPPluginCall) {
+        implementation.getBiometricStatus { result, error in
+            if error != nil {
+                call.reject(error!.localizedDescription, nil, error)
+            } else {
+                call.resolve(result);
+            }
+        }
+    }
+
     func onOktaAuthStateChange(authState: OktaOidcStateManager?) {
         self.notifyListeners("authState", data: OktaConverterHelper.convertAuthState(authStateManager: authState), retainUntilConsumed: true)
     }
