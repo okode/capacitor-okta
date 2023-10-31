@@ -263,7 +263,7 @@ import OktaStorage
             }))
 
             alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: { (action: UIAlertAction!) in
-                self.disabledBiometric { success, error in }
+                self.disableBiometric { success, error in }
             }))
 
             vc?.present(alert, animated: true, completion: nil)
