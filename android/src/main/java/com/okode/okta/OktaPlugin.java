@@ -91,20 +91,40 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
     }
 
     @PluginMethod
-    public void getUser(PluginCall call) {
-        implementation.getUser(new Okta.OktaRequestCallback<UserInfo>() {
-            @Override
-            public void onSuccess(UserInfo user) {
-                call.resolve(OktaConverterHelper.convertUser(user));
-            }
+    public void register(PluginCall call) {
+      JSObject params = call.getData();
+      params.put("prompt", "login");
+      params.put("t", "register");
+      implementation.signIn(getActivity(), params, new Okta.OktaRequestCallback<Void>() {
+        @Override
+        public void onSuccess(Void data) {
+          call.resolve();
+        }
 
-            @Override
-            public void onError(String error, Exception e) {
-                call.reject(error, e);
-            }
-        });
+        @Override
+        public void onError(String error, Exception e) {
+          call.reject(error, e);
+        }
+      });
     }
 
+    @PluginMethod
+    public void recoveryPassword(PluginCall call) {
+      JSObject params = call.getData();
+      params.put("prompt", "login");
+      params.put("t", "resetPassWidget");
+      implementation.signIn(getActivity(), params, new Okta.OktaRequestCallback<Void>() {
+        @Override
+        public void onSuccess(Void data) {
+          call.resolve();
+        }
+
+        @Override
+        public void onError(String error, Exception e) {
+          call.reject(error, e);
+        }
+      });
+    }
     @Override
     public void onOktaAuthStateChange(SessionClient session) {
         notifyListeners("authState", OktaConverterHelper.convertAuthState(session, checkBiometricSupport()), true);
