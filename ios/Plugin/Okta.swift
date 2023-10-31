@@ -7,6 +7,7 @@ import OktaStorage
 
     private static let KEYCHAIN_GROUP_KEY = "secureshare"
     private static let KEYCHAIN_DATA_KEY = "okta_user"
+    private static let KEYCHAIN_BIOMETRIC_KEY = "okta_user_biometric"
 
     var authStateDelegate: OktaAuthStateDelegate?
 
@@ -37,8 +38,7 @@ import OktaStorage
             return (key as! String, value as! String)
         })
 
-
-        if (biometric && (secureStorage.isFaceIDSupported() || secureStorage.isTouchIDSupported())) {
+        if (self.hasBiometricEnabled(secureStorage: secureStorage)) {
             refreshToken { authState, error in
                 if error != nil {
                     urlParams["prompt"] = "login"
@@ -166,10 +166,18 @@ import OktaStorage
         return "\(appIdentifierPrefix)\(Okta.KEYCHAIN_GROUP_KEY)"
     }
 
-    private func clearSecureStorage(secureStorage: OktaSecureStorage) {
+    private func isBiometricSupported(secureStorage: OktaSecureStorage) -> Bool {
+        return secureStorage.isFaceIDSupported() || secureStorage.isTouchIDSupported()
+    }
+
+    private func hasBiometricEnabled(secureStorage: OktaSecureStorage) -> Bool {
         do {
-            try secureStorage.delete(key: Okta.KEYCHAIN_DATA_KEY, accessGroup: self.getAccessGroup())
-        } catch _ { }
+            let biometric = try secureStorage.get(key: Okta.KEYCHAIN_BIOMETRIC_KEY)
+            return isBiometricSupported(secureStorage: secureStorage)
+                    && biometric == "true"
+        } catch _ {
+            return false;
+        }
     }
 
     private func writeToSecureStorage(secureStorage: OktaSecureStorage, authStateManager: OktaOidcStateManager?) {
@@ -182,6 +190,22 @@ import OktaStorage
             try secureStorage.set(data: authStateData,
                                   forKey: Okta.KEYCHAIN_DATA_KEY,
                                   behindBiometrics: true, accessGroup: self.getAccessGroup())
+            try secureStorage.set("true",
+                                  forKey: Okta.KEYCHAIN_BIOMETRIC_KEY,
+                                  behindBiometrics: false, accessGroup: self.getAccessGroup())
+        } catch _ {
+            do {
+                try secureStorage.set("false",
+                                      forKey: Okta.KEYCHAIN_BIOMETRIC_KEY,
+                                      behindBiometrics: false, accessGroup: self.getAccessGroup())
+            } catch _ { }
+        }
+    }
+
+    private func clearSecureStorage(secureStorage: OktaSecureStorage) {
+        do {
+            try secureStorage.delete(key: Okta.KEYCHAIN_DATA_KEY, accessGroup: self.getAccessGroup())
+            try secureStorage.delete(key: Okta.KEYCHAIN_BIOMETRIC_KEY, accessGroup: self.getAccessGroup())
         } catch _ { }
     }
 
