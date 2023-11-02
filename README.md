@@ -33,12 +33,12 @@ npx cap sync
 ### signIn(...)
 
 ```typescript
-signIn(params?: Record<string, string> | undefined) => Promise<void>
+signIn(options?: { params?: Record<string, string> | undefined; promptLogin?: boolean | undefined; } | undefined) => Promise<void>
 ```
 
-| Param        | Type                                                            |
-| ------------ | --------------------------------------------------------------- |
-| **`params`** | <code><a href="#record">Record</a>&lt;string, string&gt;</code> |
+| Param         | Type                                                                                                 |
+| ------------- | ---------------------------------------------------------------------------------------------------- |
+| **`options`** | <code>{ params?: <a href="#record">Record</a>&lt;string, string&gt;; promptLogin?: boolean; }</code> |
 
 --------------------
 

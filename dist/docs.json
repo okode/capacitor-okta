@@ -7,12 +7,12 @@
     "methods": [
       {
         "name": "signIn",
-        "signature": "(params?: Record<string, string> | undefined) => Promise<void>",
+        "signature": "(options?: { params?: Record<string, string> | undefined; promptLogin?: boolean | undefined; } | undefined) => Promise<void>",
         "parameters": [
           {
-            "name": "params",
+            "name": "options",
             "docs": "",
-            "type": "Record<string, string> | undefined"
+            "type": "{ params?: Record<string, string> | undefined; promptLogin?: boolean | undefined; } | undefined"
           }
         ],
         "returns": "Promise<void>",

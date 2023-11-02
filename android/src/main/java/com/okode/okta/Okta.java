@@ -69,14 +69,14 @@ public class Okta {
     return webAuthClient.getSessionClient();
   }
 
-  public void signIn(Activity activity, JSObject params, OktaRequestCallback<Void> callback) {
+  public void signIn(Activity activity, JSObject params, Boolean promptLogin, OktaRequestCallback<Void> callback) {
     if (webAuthClient == null) {
       callback.onError("No auth client initialized", null);
       return;
     }
 
     try {
-      if (!isBiometricEnabled(activity) && !this.getAuthState().getTokens().isAccessTokenExpired()) {
+      if (!promptLogin && !isBiometricEnabled(activity) && !this.getAuthState().getTokens().isAccessTokenExpired()) {
         notifyAuthStateChange();
         return;
       }
@@ -142,7 +142,7 @@ public class Okta {
       this.webAuthClient.handleActivityResult(Okta.REQUEST_CODE_CREDENTIALS, result.getResultCode(), null);
       JSObject params = call.getObject("params", new JSObject());
       params.put("prompt", "login");
-      signIn(activity, params, callback);
+      signIn(activity, params, false, callback);
       return;
     }
     this.refreshToken(new OktaRequestCallback<Tokens>() {
@@ -153,8 +153,7 @@ public class Okta {
       }
       @Override
       public void onError(String error, Exception exception) {
-        webAuthClient.getSessionClient().clear();
-        signIn(activity, call.getData(), callback);
+        signIn(activity, call.getData(), false, callback);
         call.reject(error, exception);
       }
     });

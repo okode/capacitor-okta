@@ -53,10 +53,13 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
 
     @PluginMethod
     public void signIn(PluginCall call) {
-        if (implementation.isBiometricEnabled(getActivity()) && session.isAuthenticated()) {
-          this.showKeyguard(call);
-        }
-        implementation.signIn(getActivity(), call.getObject("params", new JSObject()), new Okta.OktaRequestCallback<Void>() {
+      Boolean promptLogin = call.getBoolean("promptLogin", false);
+      if (!promptLogin && implementation.isBiometricEnabled(getActivity()) && session.isAuthenticated()) {
+        this.showKeyguard(call);
+      }
+      JSObject params = call.getObject("params", new JSObject());
+      if (promptLogin) { params.put("prompt", "login"); }
+      implementation.signIn(getActivity(), params, promptLogin, new Okta.OktaRequestCallback<Void>() {
             @Override
             public void onSuccess(Void data) {
                 call.resolve();
@@ -91,7 +94,7 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
       JSObject params = call.getData();
       params.put("prompt", "login");
       params.put("t", "register");
-      implementation.signIn(getActivity(), params, new Okta.OktaRequestCallback<Void>() {
+      implementation.signIn(getActivity(), params, true, new Okta.OktaRequestCallback<Void>() {
         @Override
         public void onSuccess(Void data) {
           call.resolve();
@@ -109,7 +112,7 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
       JSObject params = call.getData();
       params.put("prompt", "login");
       params.put("t", "resetPassWidget");
-      implementation.signIn(getActivity(), params, new Okta.OktaRequestCallback<Void>() {
+      implementation.signIn(getActivity(), params, true, new Okta.OktaRequestCallback<Void>() {
         @Override
         public void onSuccess(Void data) {
           call.resolve();

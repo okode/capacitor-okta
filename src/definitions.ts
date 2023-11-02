@@ -1,7 +1,7 @@
 import type { PluginListenerHandle } from "@capacitor/core";
 
 export interface OktaPlugin {
-  signIn(params?: Record<string, string>): Promise<void>;
+  signIn(options?: { params?: Record<string, string>, promptLogin?: boolean }): Promise<void>;
   signOut(): Promise<void>;
   register(params?: Record<string, string>): Promise<void>;
   recoveryPassword(params?: Record<string, string>): Promise<void>;

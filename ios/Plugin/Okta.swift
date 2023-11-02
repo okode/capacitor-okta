@@ -29,11 +29,11 @@ import OktaStorage
         checkBiometric()
     }
 
-    @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], biometric: Bool, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
+    @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], promptLogin: Bool, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
 
         let accessToken = !Okta.isTokenExpired(authStateManager?.accessToken) ? authStateManager?.accessToken : nil
 
-        if (!self.isBiometricEnabled() && accessToken != nil) {
+        if (!promptLogin && self.isBiometricEnabled() && accessToken != nil) {
             self.notifyAuthStateChange()
             return
         }
@@ -42,7 +42,7 @@ import OktaStorage
             return (key as! String, value as! String)
         })
 
-        if (self.isBiometricEnabled() && biometric) {
+        if (!promptLogin && self.isBiometricEnabled()) {
             refreshToken { authState, error in
                 if error != nil {
                     urlParams["prompt"] = "login"
