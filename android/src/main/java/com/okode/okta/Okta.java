@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.util.Log;
 
@@ -16,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.biometric.BiometricManager;
-import androidx.security.crypto.EncryptedSharedPreferences;
 
 import com.getcapacitor.PluginCall;
 import com.okta.oidc.AuthenticationPayload;
@@ -26,9 +24,6 @@ import com.okta.oidc.RequestCallback;
 import com.okta.oidc.ResultCallback;
 import com.okta.oidc.clients.sessions.SessionClient;
 import com.okta.oidc.clients.web.WebAuthClient;
-import com.okta.oidc.net.response.UserInfo;
-import com.okta.oidc.storage.SharedPreferenceStorage;
-import com.okta.oidc.storage.security.GuardedEncryptionManager;
 import com.okta.oidc.util.AuthorizationException;
 import com.okta.oidc.Tokens;
 
@@ -51,7 +46,6 @@ public class Okta {
 
   private WebAuthClient webAuthClient;
   private OktaAuthStateChangeListener authStateChangeListener;
-  private GuardedEncryptionManager keyguardEncryptionManager;
   private EncryptedSharedPreferenceStorage sharedPreferences;
 
   public SessionClient configureSDK(Activity activity) throws GeneralSecurityException, IOException {
@@ -61,26 +55,17 @@ public class Okta {
     OIDCConfig config = new OIDCConfig.Builder()
       .withJsonFile(activity, configFile)
       .create();
-    com.okta.oidc.Okta.WebAuthBuilder webBuilder = new com.okta.oidc.Okta.WebAuthBuilder();
-    webBuilder
+    webAuthClient = new com.okta.oidc.Okta.WebAuthBuilder()
       .withConfig(config)
       .withContext(activity)
       .withCallbackExecutor(Executors.newSingleThreadExecutor())
       .withStorage(sharedPreferences)
       .supportedBrowsers(CHROME_BROWSER, FIRE_FOX)
       .setRequireHardwareBackedKeyStore(false) // required for emulators
-      .withTabColor(Color.parseColor("#FFFFFF"));
-    if (this.isBiometricSupported(activity)) {
-      keyguardEncryptionManager = new GuardedEncryptionManager(activity, Integer.MAX_VALUE);
-      if (keyguardEncryptionManager.getCipher() == null) { keyguardEncryptionManager.recreateCipher(); }
-      webBuilder.withEncryptionManager(keyguardEncryptionManager);
-    } else {
-      webBuilder.withEncryptionManager(new NoEncryption());
-    }
-    webAuthClient = webBuilder.create();
+      .withTabColor(Color.parseColor("#FFFFFF"))
+      .create();
     setAuthCallback(activity);
     resumeSession(activity);
-    checkBiometric(activity);
     return webAuthClient.getSessionClient();
   }
 
@@ -152,9 +137,6 @@ public class Okta {
       params.put("prompt", "login");
       signIn(activity, params, callback);
       return;
-    }
-    if (keyguardEncryptionManager.getCipher() == null) {
-      keyguardEncryptionManager.recreateCipher();
     }
     this.refreshToken(new OktaRequestCallback<Tokens>() {
       @Override
@@ -282,10 +264,13 @@ public class Okta {
   }
 
   private void checkBiometric(Activity activity) {
-    Boolean biometricEnabled = sharedPreferences.get(BIOMETRIC_KEY) == "true";
-    if (!isBiometricSupported(activity) && biometricEnabled) {
-      resetBiometric();
-    }
+    checkBiometric(activity);
+    try {
+      Boolean biometricEnabled = sharedPreferences.get(BIOMETRIC_KEY).equals("true");
+      if (!isBiometricSupported(activity) && biometricEnabled) {
+        resetBiometric();
+      }
+    } catch (Exception e) { }
   }
 
   public interface OktaRequestCallback<T> {
