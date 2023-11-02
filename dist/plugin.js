@@ -24,7 +24,7 @@ var capacitorOkta = (function (exports, core) {
         disableBiometric() {
             return Promise.reject('Method not implemented.');
         }
-        restartBiometric() {
+        resetBiometric() {
             return Promise.reject('Method not implemented.');
         }
         getBiometricStatus() {

@@ -19,7 +19,7 @@ npx cap sync
 * [`recoveryPassword(...)`](#recoverypassword)
 * [`enableBiometric()`](#enablebiometric)
 * [`disableBiometric()`](#disablebiometric)
-* [`restartBiometric()`](#restartbiometric)
+* [`resetBiometric()`](#resetbiometric)
 * [`getBiometricStatus()`](#getbiometricstatus)
 * [`addListener('authState', ...)`](#addlistenerauthstate)
 * [Interfaces](#interfaces)
@@ -100,10 +100,10 @@ disableBiometric() => Promise<BiometricState>
 --------------------
 
 
-### restartBiometric()
+### resetBiometric()
 
 ```typescript
-restartBiometric() => Promise<BiometricState>
+resetBiometric() => Promise<BiometricState>
 ```
 
 **Returns:** <code>Promise&lt;<a href="#biometricstate">BiometricState</a>&gt;</code>

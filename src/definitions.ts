@@ -7,7 +7,7 @@ export interface OktaPlugin {
   recoveryPassword(params?: Record<string, string>): Promise<void>;
   enableBiometric(): Promise<BiometricState>;
   disableBiometric(): Promise<BiometricState>;
-  restartBiometric(): Promise<BiometricState>;
+  resetBiometric(): Promise<BiometricState>;
   getBiometricStatus(): Promise<BiometricState>;
   addListener(eventName: 'authState', listenerFunc: (data: AuthState) => void): PluginListenerHandle;
 }

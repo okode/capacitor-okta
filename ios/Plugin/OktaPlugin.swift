@@ -88,8 +88,8 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
         }
     }
 
-    @objc public func restartBiometric(_ call: CAPPluginCall) {
-        implementation.restartBiometric { result, error in
+    @objc public func resetBiometric(_ call: CAPPluginCall) {
+        implementation.resetBiometric { result, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {

@@ -28,7 +28,7 @@ export class OktaWeb extends WebPlugin implements OktaPlugin {
     return Promise.reject('Method not implemented.');
   }
 
-  restartBiometric(): Promise<BiometricState> {
+  resetBiometric(): Promise<BiometricState> {
     return Promise.reject('Method not implemented.');
   }
 

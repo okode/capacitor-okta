@@ -10,6 +10,6 @@ CAP_PLUGIN(OktaPlugin, "Okta",
            CAP_PLUGIN_METHOD(recoveryPassword, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(enableBiometric, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(disableBiometric, CAPPluginReturnPromise);
-           CAP_PLUGIN_METHOD(restartBiometric, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(resetBiometric, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(getBiometricStatus, CAPPluginReturnPromise);
 )

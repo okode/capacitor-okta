@@ -94,7 +94,7 @@
         "slug": "disablebiometric"
       },
       {
-        "name": "restartBiometric",
+        "name": "resetBiometric",
         "signature": "() => Promise<BiometricState>",
         "parameters": [],
         "returns": "Promise<BiometricState>",
@@ -103,7 +103,7 @@
         "complexTypes": [
           "BiometricState"
         ],
-        "slug": "restartbiometric"
+        "slug": "resetbiometric"
       },
       {
         "name": "getBiometricStatus",
