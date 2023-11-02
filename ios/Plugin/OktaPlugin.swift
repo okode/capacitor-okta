@@ -73,7 +73,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
-                call.resolve();
+                call.resolve(result);
             }
         }
     }
@@ -83,7 +83,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
-                call.resolve();
+                call.resolve(result);
             }
         }
     }
@@ -93,7 +93,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
-                call.resolve();
+                call.resolve(result);
             }
         }
     }

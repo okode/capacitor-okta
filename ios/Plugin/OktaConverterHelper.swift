@@ -8,8 +8,9 @@ import OktaOidc
         guard let authStateManager = authStateManager else {
             return [:]
         }
+        let accessToken = !Okta.isTokenExpired(authStateManager.accessToken) ? authStateManager.accessToken : nil
         return [
-            "accessToken": authStateManager.accessToken ?? NSNull()
+            "accessToken": accessToken ?? NSNull()
         ]
     }
 

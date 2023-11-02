@@ -26,19 +26,16 @@ import OktaStorage
         // Check for an existing session
         self.authStateManager = OktaOidcStateManager.readFromSecureStorage(for: config)
         callback(self.authStateManager, nil)
+        self.restartSession()
     }
 
     @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], biometric: Bool, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
-
-        guard let secureStorage = self.secureStorage else {
-            return callback(nil, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
-        }
 
         var urlParams = Dictionary(uniqueKeysWithValues: params.compactMap { (key: AnyHashable, value: Any) in
             return (key as! String, value as! String)
         })
 
-        if (self.isBiometricEnabled(secureStorage: secureStorage) && biometric) {
+        if (self.isBiometricEnabled() && biometric) {
             refreshToken { authState, error in
                 if error != nil {
                     urlParams["prompt"] = "login"
@@ -79,79 +76,73 @@ import OktaStorage
                 return callback(nil, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth state manager"]))
             }
 
-            guard let secureStorage = self.secureStorage else {
-                return callback(nil, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
-            }
-
             authSession.signOut(authStateManager: authStateManager, from: vc, progressHandler: { options in
             }, completionHandler: { success, opts in
                 if (!success) {
                     return callback(nil, NSError(domain: "com.okode.okta", code: 500, userInfo: [NSLocalizedDescriptionKey: "Error signing out"]))
                 }
-                self.clearSecureStorage(secureStorage: secureStorage)
-                self.authStateManager = nil;
+                self.clearSecureStorage()
+                self.authStateManager = nil
                 callback(NSNumber(value: opts.rawValue), nil)
             })
         }
 
-    @objc public func enableBiometric(callback: @escaping ((_ success: Bool, _ error: Error?) -> Void)) {
-
-        guard let secureStorage = self.secureStorage else {
-            return callback(false, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
-        }
-        guard let authStateManager = self.authStateManager else {
-            return callback(false, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth state manager"]))
-        }
-
-        do {
-            try secureStorage.set("true", forKey: Okta.KEYCHAIN_BIOMETRIC_KEY)
-            self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
-            callback(true, nil)
-        } catch let error {
-            return callback(false, error)
-        }
-    }
-
-    @objc public func disableBiometric(callback: @escaping ((Bool, _ error: Error?) -> Void)) {
-
-        guard let secureStorage = self.secureStorage else {
-            return callback(false, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
-        }
-
-        do {
-            clearSecureStorage(secureStorage: secureStorage)
-            try secureStorage.set("false", forKey: Okta.KEYCHAIN_BIOMETRIC_KEY)
-            callback(true, nil)
-        } catch let error {
-            return callback(false, error)
-        }
-    }
-
-    @objc public func restartBiometric(callback: @escaping ((Bool, _ error: Error?) -> Void)) {
-
-        guard let secureStorage = self.secureStorage else {
-            return callback(false, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
-        }
-
-        clearSecureStorage(secureStorage: secureStorage)
-    }
-
-    @objc public func getBiometricStatus(callback: @escaping (([String:Bool], _ error: Error?) -> Void)) {
+    @objc public func enableBiometric(callback: @escaping (([String:Bool], _ error: Error?) -> Void)) {
 
         guard let secureStorage = self.secureStorage else {
             return callback(["":false], NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No secure storage initialized"]))
         }
 
-        let res = [
-            "isBiometricEnabled":self.isBiometricEnabled(secureStorage: secureStorage),
-            "isBiometricSupported":self.isBiometricSupported(secureStorage: secureStorage)
-        ]
-        callback(res,nil)
+        guard let authStateManager = self.authStateManager else {
+            return callback(["":false], NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth state manager"]))
+        }
+
+        do {
+            try secureStorage.set("true", forKey: Okta.KEYCHAIN_BIOMETRIC_KEY)
+            self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
+            callback(self.getBiometricStatus(), nil)
+        } catch let error {
+            return callback(["": false], error)
+        }
+    }
+
+    @objc public func disableBiometric(callback: @escaping (([String:Bool], _ error: Error?) -> Void)) {
+
+        guard let authStateManager = self.authStateManager else {
+            return callback(["":false], NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth state manager"]))
+        }
+
+        clearSecureStorage()
+        setBiometric(value: false)
+        callback(getBiometricStatus(), nil)
+    }
+
+    @objc public func restartBiometric(callback: @escaping (([String:Bool], _ error: Error?) -> Void)) {
+
+        guard let authStateManager = self.authStateManager else {
+            return callback(["":false], NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth state manager"]))
+        }
+
+        clearSecureStorage()
+        callback(self.getBiometricStatus(), nil)
+    }
+
+    @objc public func getBiometricStatus(callback: @escaping (([String:Bool], _ error: Error?) -> Void)) {
+        callback(self.getBiometricStatus(), nil)
     }
 
 
     @objc public func getAuthState() ->  OktaOidcStateManager? {
         return authStateManager;
+    }
+
+    @objc public static func isTokenExpired(_ tokenString: String?) -> Bool {
+      guard let token = tokenString,
+      let tokenInfo = OKTIDToken.init(idTokenString: token) else {
+        return false
+      }
+
+      return Date() > tokenInfo.expiresAt
     }
 
     private func refreshToken(callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
@@ -198,7 +189,7 @@ import OktaStorage
             if error != nil {
                 return callback(nil, error)
             }
-            if (!self.isBiometricConfigured(secureStorage: secureStorage) && self.isBiometricSupported(secureStorage: secureStorage)) {
+            if (!self.isBiometricConfigured() && self.isBiometricSupported()) {
                 self.showBiometricDialog(vc: vc, secureStorage: secureStorage, authStateManager: authStateManager)
             }
             self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
@@ -209,27 +200,36 @@ import OktaStorage
     }
 
     private func notifyAuthStateChange() {
-        guard let secureStorage = self.secureStorage else {
-            return
-        }
         self.authStateDelegate?.onOktaAuthStateChange(authState: getAuthState())
     }
 
-    private func isBiometricSupported(secureStorage: OktaSecureStorage) -> Bool {
+    private func isBiometricSupported() -> Bool {
+        guard let secureStorage = self.secureStorage else {
+            return false
+        }
+
         return secureStorage.isFaceIDSupported() || secureStorage.isTouchIDSupported()
     }
 
-    private func isBiometricEnabled(secureStorage: OktaSecureStorage) -> Bool {
+    private func isBiometricEnabled() -> Bool {
+        guard let secureStorage = self.secureStorage else {
+            return false
+        }
+
         do {
             let biometric = try secureStorage.get(key: Okta.KEYCHAIN_BIOMETRIC_KEY)
-            return isBiometricSupported(secureStorage: secureStorage)
+            return isBiometricSupported()
                     && biometric == "true"
         } catch _ {
             return false
         }
     }
 
-    private func isBiometricConfigured(secureStorage: OktaSecureStorage) -> Bool {
+    private func isBiometricConfigured() -> Bool {
+        guard let secureStorage = self.secureStorage else {
+            return true
+        }
+
         do {
             try secureStorage.get(key: Okta.KEYCHAIN_BIOMETRIC_KEY)
             return true
@@ -244,7 +244,7 @@ import OktaStorage
             return
         }
 
-        if (!self.isBiometricEnabled(secureStorage: secureStorage)) { return }
+        if (!self.isBiometricEnabled()) { return }
 
         do {
             try secureStorage.set(data: authStateData,
@@ -262,7 +262,11 @@ import OktaStorage
         }
     }
 
-    private func clearSecureStorage(secureStorage: OktaSecureStorage) {
+    private func clearSecureStorage() {
+        guard let secureStorage = self.secureStorage else {
+            return
+        }
+
         do {
             try secureStorage.delete(key: Okta.KEYCHAIN_DATA_KEY)
             try secureStorage.delete(key: Okta.KEYCHAIN_BIOMETRIC_KEY)
@@ -281,6 +285,32 @@ import OktaStorage
             }))
 
             vc?.present(alert, animated: true, completion: nil)
+    }
+
+    private func restartSession() {
+        if (self.isBiometricEnabled() || self.authStateManager?.accessToken == nil) { return }
+        self.notifyAuthStateChange()
+    }
+
+    private func getBiometricStatus() -> [String:Bool] {
+        guard let secureStorage = self.secureStorage else {
+            return ["": false]
+        }
+
+        return [
+            "isBiometricEnabled":self.isBiometricEnabled(),
+            "isBiometricSupported":self.isBiometricSupported()
+        ]
+    }
+
+    private func setBiometric(value: Bool) {
+        guard let secureStorage = self.secureStorage else {
+            return
+        }
+
+        do {
+            try secureStorage.set(String(value), forKey: Okta.KEYCHAIN_BIOMETRIC_KEY)
+        } catch _ { }
     }
 
 }
