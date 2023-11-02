@@ -1,6 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 
-import type { OktaPlugin } from './definitions';
+import type { BiometricState, OktaPlugin } from './definitions';
 
 export class OktaWeb extends WebPlugin implements OktaPlugin {
 
@@ -20,19 +20,19 @@ export class OktaWeb extends WebPlugin implements OktaPlugin {
     return Promise.reject('Method not implemented.');
   }
 
-  enableBiometric(): Promise<void> {
+  enableBiometric(): Promise<BiometricState> {
     return Promise.reject('Method not implemented.');
   }
 
-  disableBiometric(): Promise<void> {
+  disableBiometric(): Promise<BiometricState> {
     return Promise.reject('Method not implemented.');
   }
 
-  restartBiometric(): Promise<void> {
+  restartBiometric(): Promise<BiometricState> {
     return Promise.reject('Method not implemented.');
   }
 
-  getBiometricStatus(): Promise<{ isBiometricSupported: boolean; isBiometricEnabled: boolean; }> {
+  getBiometricStatus(): Promise<BiometricState> {
     return Promise.reject('Method not implemented.');
   }
 

@@ -81,8 +81,10 @@ recoveryPassword(params?: Record<string, string> | undefined) => Promise<void>
 ### enableBiometric()
 
 ```typescript
-enableBiometric() => Promise<void>
+enableBiometric() => Promise<BiometricState>
 ```
+
+**Returns:** <code>Promise&lt;<a href="#biometricstate">BiometricState</a>&gt;</code>
 
 --------------------
 
@@ -90,8 +92,10 @@ enableBiometric() => Promise<void>
 ### disableBiometric()
 
 ```typescript
-disableBiometric() => Promise<void>
+disableBiometric() => Promise<BiometricState>
 ```
+
+**Returns:** <code>Promise&lt;<a href="#biometricstate">BiometricState</a>&gt;</code>
 
 --------------------
 
@@ -99,8 +103,10 @@ disableBiometric() => Promise<void>
 ### restartBiometric()
 
 ```typescript
-restartBiometric() => Promise<void>
+restartBiometric() => Promise<BiometricState>
 ```
+
+**Returns:** <code>Promise&lt;<a href="#biometricstate">BiometricState</a>&gt;</code>
 
 --------------------
 
@@ -108,10 +114,10 @@ restartBiometric() => Promise<void>
 ### getBiometricStatus()
 
 ```typescript
-getBiometricStatus() => Promise<{ isBiometricSupported: boolean; isBiometricEnabled: boolean; }>
+getBiometricStatus() => Promise<BiometricState>
 ```
 
-**Returns:** <code>Promise&lt;{ isBiometricSupported: boolean; isBiometricEnabled: boolean; }&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#biometricstate">BiometricState</a>&gt;</code>
 
 --------------------
 
@@ -133,6 +139,14 @@ addListener(eventName: 'authState', listenerFunc: (data: AuthState) => void) => 
 
 
 ### Interfaces
+
+
+#### BiometricState
+
+| Prop                       | Type                 |
+| -------------------------- | -------------------- |
+| **`isBiometricSupported`** | <code>boolean</code> |
+| **`isBiometricEnabled`**   | <code>boolean</code> |
 
 
 #### PluginListenerHandle

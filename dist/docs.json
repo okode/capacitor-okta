@@ -71,42 +71,50 @@
       },
       {
         "name": "enableBiometric",
-        "signature": "() => Promise<void>",
+        "signature": "() => Promise<BiometricState>",
         "parameters": [],
-        "returns": "Promise<void>",
+        "returns": "Promise<BiometricState>",
         "tags": [],
         "docs": "",
-        "complexTypes": [],
+        "complexTypes": [
+          "BiometricState"
+        ],
         "slug": "enablebiometric"
       },
       {
         "name": "disableBiometric",
-        "signature": "() => Promise<void>",
+        "signature": "() => Promise<BiometricState>",
         "parameters": [],
-        "returns": "Promise<void>",
+        "returns": "Promise<BiometricState>",
         "tags": [],
         "docs": "",
-        "complexTypes": [],
+        "complexTypes": [
+          "BiometricState"
+        ],
         "slug": "disablebiometric"
       },
       {
         "name": "restartBiometric",
-        "signature": "() => Promise<void>",
+        "signature": "() => Promise<BiometricState>",
         "parameters": [],
-        "returns": "Promise<void>",
+        "returns": "Promise<BiometricState>",
         "tags": [],
         "docs": "",
-        "complexTypes": [],
+        "complexTypes": [
+          "BiometricState"
+        ],
         "slug": "restartbiometric"
       },
       {
         "name": "getBiometricStatus",
-        "signature": "() => Promise<{ isBiometricSupported: boolean; isBiometricEnabled: boolean; }>",
+        "signature": "() => Promise<BiometricState>",
         "parameters": [],
-        "returns": "Promise<{ isBiometricSupported: boolean; isBiometricEnabled: boolean; }>",
+        "returns": "Promise<BiometricState>",
         "tags": [],
         "docs": "",
-        "complexTypes": [],
+        "complexTypes": [
+          "BiometricState"
+        ],
         "slug": "getbiometricstatus"
       },
       {
@@ -137,6 +145,29 @@
     "properties": []
   },
   "interfaces": [
+    {
+      "name": "BiometricState",
+      "slug": "biometricstate",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "isBiometricSupported",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "boolean"
+        },
+        {
+          "name": "isBiometricEnabled",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "boolean"
+        }
+      ]
+    },
     {
       "name": "PluginListenerHandle",
       "slug": "pluginlistenerhandle",
