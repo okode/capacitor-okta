@@ -80,7 +80,7 @@ public class Okta {
         notifyAuthStateChange();
         return;
       }
-    } catch (AuthorizationException e) { }
+    } catch (Exception e) { }
 
     AuthenticationPayload.Builder payload = new AuthenticationPayload.Builder();
     try {

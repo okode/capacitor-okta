@@ -31,11 +31,7 @@ import OktaStorage
 
     @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], biometric: Bool, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
 
-        guard let authStateManager = self.authStateManager else {
-            return callback(nil, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth state manager"]))
-        }
-
-        let accessToken = !Okta.isTokenExpired(authStateManager.accessToken) ? authStateManager.accessToken : nil
+        let accessToken = !Okta.isTokenExpired(authStateManager?.accessToken) ? authStateManager?.accessToken : nil
 
         if (!self.isBiometricEnabled() && accessToken != nil) {
             self.notifyAuthStateChange()
