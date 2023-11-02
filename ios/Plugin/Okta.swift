@@ -26,10 +26,21 @@ import OktaStorage
         // Check for an existing session
         self.authStateManager = OktaOidcStateManager.readFromSecureStorage(for: config)
         callback(self.authStateManager, nil)
-        resumeSession()
+        checkBiometric()
     }
 
     @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], biometric: Bool, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
+
+        guard let authStateManager = self.authStateManager else {
+            return callback(nil, NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth state manager"]))
+        }
+
+        let accessToken = !Okta.isTokenExpired(authStateManager.accessToken) ? authStateManager.accessToken : nil
+
+        if (!self.isBiometricEnabled() && accessToken != nil) {
+            self.notifyAuthStateChange()
+            return
+        }
 
         var urlParams = Dictionary(uniqueKeysWithValues: params.compactMap { (key: AnyHashable, value: Any) in
             return (key as! String, value as! String)
@@ -267,12 +278,6 @@ import OktaStorage
             }))
 
             vc?.present(alert, animated: true, completion: nil)
-    }
-
-    private func resumeSession() {
-        checkBiometric()
-        if (self.isBiometricEnabled() || self.authStateManager?.accessToken == nil) { return }
-        self.notifyAuthStateChange()
     }
 
     private func getBiometricStatus() -> [String:Bool] {

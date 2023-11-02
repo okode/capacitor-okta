@@ -65,7 +65,7 @@ public class Okta {
       .withTabColor(Color.parseColor("#FFFFFF"))
       .create();
     setAuthCallback(activity);
-    resumeSession(activity);
+    checkBiometric(activity);
     return webAuthClient.getSessionClient();
   }
 
@@ -74,6 +74,13 @@ public class Okta {
       callback.onError("No auth client initialized", null);
       return;
     }
+
+    try {
+      if (!isBiometricEnabled(activity) && !this.getAuthState().getTokens().isAccessTokenExpired()) {
+        notifyAuthStateChange();
+        return;
+      }
+    } catch (AuthorizationException e) { }
 
     AuthenticationPayload.Builder payload = new AuthenticationPayload.Builder();
     try {
@@ -254,17 +261,7 @@ public class Okta {
     builder.create().show();
   }
 
-  private void resumeSession(Activity activity) {
-    try {
-      if (isBiometricEnabled(activity)
-          || (this.getAuthState().isAuthenticated()
-          && this.getAuthState().getTokens().isAccessTokenExpired())) { return; }
-      notifyAuthStateChange();
-    } catch (AuthorizationException e) { }
-  }
-
   private void checkBiometric(Activity activity) {
-    checkBiometric(activity);
     try {
       Boolean biometricEnabled = sharedPreferences.get(BIOMETRIC_KEY).equals("true");
       if (!isBiometricSupported(activity) && biometricEnabled) {
