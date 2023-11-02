@@ -33,7 +33,7 @@ import OktaStorage
 
         let accessToken = !Okta.isTokenExpired(authStateManager?.accessToken) ? authStateManager?.accessToken : nil
 
-        if (!promptLogin && self.isBiometricEnabled() && accessToken != nil) {
+        if (!promptLogin && !self.isBiometricEnabled() && accessToken != nil) {
             self.notifyAuthStateChange()
             return
         }
