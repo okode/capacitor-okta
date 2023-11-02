@@ -78,6 +78,7 @@ public class Okta {
     }
     webAuthClient = webBuilder.create();
     setAuthCallback(activity);
+    resumeSession(activity);
     return webAuthClient.getSessionClient();
   }
 
@@ -267,6 +268,15 @@ public class Okta {
         }
       });
     builder.create().show();
+  }
+
+  private void resumeSession(Activity activity) {
+    try {
+      if (isBiometricEnabled(activity)
+          || (this.getAuthState().isAuthenticated()
+          && this.getAuthState().getTokens().isAccessTokenExpired())) { return; }
+      notifyAuthStateChange();
+    } catch (AuthorizationException e) { }
   }
 
   public interface OktaRequestCallback<T> {

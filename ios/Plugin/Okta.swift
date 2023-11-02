@@ -26,7 +26,7 @@ import OktaStorage
         // Check for an existing session
         self.authStateManager = OktaOidcStateManager.readFromSecureStorage(for: config)
         callback(self.authStateManager, nil)
-        self.restartSession()
+        resumeSession()
     }
 
     @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], biometric: Bool, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
@@ -287,7 +287,7 @@ import OktaStorage
             vc?.present(alert, animated: true, completion: nil)
     }
 
-    private func restartSession() {
+    private func resumeSession() {
         if (self.isBiometricEnabled() || self.authStateManager?.accessToken == nil) { return }
         self.notifyAuthStateChange()
     }

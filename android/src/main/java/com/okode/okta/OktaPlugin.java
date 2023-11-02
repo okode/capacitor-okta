@@ -125,27 +125,24 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
     @PluginMethod
     public void enableBiometric(PluginCall call) {
       implementation.enableBiometric();
-      call.resolve();
+      call.resolve(getBiometricStatus());
     }
 
     @PluginMethod
     public void disableBiometric(PluginCall call) {
       implementation.disableBiometric();
-      call.resolve();
+      call.resolve(getBiometricStatus());
     }
 
     @PluginMethod
     public void resetBiometric(PluginCall call) {
       implementation.resetBiometric();
-      call.resolve();
+      call.resolve(getBiometricStatus());
     }
 
   @PluginMethod
   public void getBiometricStatus(PluginCall call) {
-    JSObject res = new JSObject();
-    res.put("isBiometricEnabled", implementation.isBiometricEnabled(getActivity()));
-    res.put("isBiometricSupported", implementation.isBiometricSupported(getActivity()));
-    call.resolve(res);
+    call.resolve(getBiometricStatus());
   }
 
     @Override
@@ -164,5 +161,12 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
       if (intent != null) {
         startActivityForResult(call, intent, "biometricResult");
       }
+    }
+
+    private JSObject getBiometricStatus() {
+      JSObject res = new JSObject();
+      res.put("isBiometricEnabled", implementation.isBiometricEnabled(getActivity()));
+      res.put("isBiometricSupported", implementation.isBiometricSupported(getActivity()));
+      return res;
     }
 }
