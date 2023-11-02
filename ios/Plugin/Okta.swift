@@ -61,6 +61,7 @@ import OktaStorage
             return
         }
 
+        if (promptLogin) { urlParams["prompt"] = "login" }
         self.signInWithBrowser(vc: vc, params: urlParams) { authState, error in
             if error != nil {
                 return callback(nil, error)
