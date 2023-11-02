@@ -5,9 +5,9 @@ import OktaStorage
 
 @objc public class Okta: NSObject {
 
-    private static let KEYCHAIN_GROUP_KEY = "secureshare"
-    private static let KEYCHAIN_DATA_KEY = "okta_user"
-    private static let KEYCHAIN_BIOMETRIC_KEY = "okta_user_biometric"
+    private static let BUNDLE_ID = Bundle.main.bundleIdentifier ?? ""
+    private static let KEYCHAIN_DATA_KEY = BUNDLE_ID + "okta_user"
+    private static let KEYCHAIN_BIOMETRIC_KEY = BUNDLE_ID + "okta_user_biometric"
 
     var authStateDelegate: OktaAuthStateDelegate?
 
