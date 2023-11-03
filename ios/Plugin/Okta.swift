@@ -106,8 +106,15 @@ import OktaStorage
             return callback(["":false], NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "No auth state manager"]))
         }
 
-        setBiometric(value: true)
-        self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
+        LAContext().evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
+                                   localizedReason: "Acceso biométrico") {
+            success, authenticationError in
+            if (success) {
+                self.setBiometric(value: true)
+                self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
+            }
+        }
+
         callback(self.getBiometricStatus(), nil)
     }
 
@@ -268,16 +275,8 @@ import OktaStorage
             let alert = UIAlertController(title: "Acceso biométrico", message: "¿Quieres utilizar el biométrico para futuros accesos?", preferredStyle: UIAlertController.Style.alert)
 
         alert.addAction(UIAlertAction(title: "Aceptar", style: .default, handler: { (action: UIAlertAction!) in
-            LAContext().evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
-                                       localizedReason: "Acceso biométrico") {
-                success, authenticationError in
-                if (success) {
-                    self.enableBiometric { success, error in }
-                    return
-                }
-                self.disableBiometric { success, error in }
-            }
-        }))
+                self.enableBiometric { success, error in }
+            }))
 
             alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: { (action: UIAlertAction!) in
                 self.disableBiometric { success, error in }
