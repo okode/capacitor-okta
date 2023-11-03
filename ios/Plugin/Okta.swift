@@ -113,9 +113,8 @@ import OktaStorage
                 self.setBiometric(value: true)
                 self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
             }
+            callback(self.getBiometricStatus(), nil)
         }
-
-        callback(self.getBiometricStatus(), nil)
     }
 
     @objc public func disableBiometric(callback: @escaping (([String:Bool], _ error: Error?) -> Void)) {
