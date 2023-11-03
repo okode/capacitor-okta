@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 import OktaOidc
 import Capacitor
 import OktaStorage
@@ -266,9 +267,17 @@ import OktaStorage
     private func showBiometricDialog(vc: UIViewController?, secureStorage: OktaSecureStorage, authStateManager: OktaOidcStateManager?) {
             let alert = UIAlertController(title: "Acceso biométrico", message: "¿Quieres utilizar el biométrico para futuros accesos?", preferredStyle: UIAlertController.Style.alert)
 
-            alert.addAction(UIAlertAction(title: "Aceptar", style: .default, handler: { (action: UIAlertAction!) in
-                self.enableBiometric { success, error in }
-            }))
+        alert.addAction(UIAlertAction(title: "Aceptar", style: .default, handler: { (action: UIAlertAction!) in
+            LAContext().evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
+                                       localizedReason: "Acceso biométrico") {
+                success, authenticationError in
+                if (success) {
+                    self.enableBiometric { success, error in }
+                    return
+                }
+                self.disableBiometric { success, error in }
+            }
+        }))
 
             alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: { (action: UIAlertAction!) in
                 self.disableBiometric { success, error in }
