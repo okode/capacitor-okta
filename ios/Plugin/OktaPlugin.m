@@ -12,4 +12,5 @@ CAP_PLUGIN(OktaPlugin, "Okta",
            CAP_PLUGIN_METHOD(disableBiometric, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(resetBiometric, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(getBiometricStatus, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(configure, CAPPluginReturnPromise);
 )

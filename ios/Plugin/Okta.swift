@@ -16,8 +16,8 @@ import OktaStorage
     private var authStateManager: OktaOidcStateManager? = nil
     private var secureStorage: OktaSecureStorage? = nil
 
-    @objc public func configureSDK(callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) -> Void {
-        guard let config = try? OktaOidcConfig.default(),
+    @objc public func configureSDK(config: [String : String], callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) -> Void {
+        guard let config = try? OktaOidcConfig(with: ["scopes":config["scopes"]!, "redirectUri":config["redirectUri"]!, "clientId":config["clientId"]!, "issuer":config["uri"]!, "logoutRedirectUri":config["endSessionUri"]!]),
           let oktaAuth = try? OktaOidc(configuration: config) else {
             // Fatal error as the configuration isn't editable in this app.
             return callback(nil, NSError(domain: "com.okode.okta", code: 404, userInfo: [NSLocalizedDescriptionKey: "Error configuring SDK. Check config"]))

@@ -12,14 +12,13 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
 
     private let implementation = Okta()
 
-    override public func load() {
-        super.load()
+    @objc public func configure(_ call: CAPPluginCall) {
         implementation.authStateDelegate = self
-        implementation.configureSDK { authState, error in
+        implementation.configureSDK(config: call.options as! [String : String]) { authState, error in
             if error != nil {
-                return self.notifyListeners("initError", data: [
-                    "description": error?.localizedDescription ?? NSNull(),
-                ], retainUntilConsumed: true)
+                call.reject(error!.localizedDescription, nil, error)
+            } else {
+                call.resolve();
             }
         }
     }
