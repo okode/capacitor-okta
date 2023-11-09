@@ -4,6 +4,10 @@ import type { BiometricState, OktaPlugin } from './definitions';
 
 export class OktaWeb extends WebPlugin implements OktaPlugin {
 
+  configure(): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
   signIn(): Promise<void> {
     return Promise.reject('Method not implemented.');
   }

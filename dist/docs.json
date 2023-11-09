@@ -118,6 +118,24 @@
         "slug": "getbiometricstatus"
       },
       {
+        "name": "configure",
+        "signature": "(config: OktaConfig) => Promise<void>",
+        "parameters": [
+          {
+            "name": "config",
+            "docs": "",
+            "type": "OktaConfig"
+          }
+        ],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "OktaConfig"
+        ],
+        "slug": "configure"
+      },
+      {
         "name": "addListener",
         "signature": "(eventName: 'authState', listenerFunc: (data: AuthState) => void) => PluginListenerHandle",
         "parameters": [
@@ -165,6 +183,50 @@
           "docs": "",
           "complexTypes": [],
           "type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "OktaConfig",
+      "slug": "oktaconfig",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "clientId",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "uri",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "scopes",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "endSessionUri",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "redirectUri",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
         }
       ]
     },

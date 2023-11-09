@@ -1,5 +1,8 @@
 import { WebPlugin } from '@capacitor/core';
 export class OktaWeb extends WebPlugin {
+    configure() {
+        throw new Error('Method not implemented.');
+    }
     signIn() {
         return Promise.reject('Method not implemented.');
     }

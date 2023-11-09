@@ -21,6 +21,7 @@ npx cap sync
 * [`disableBiometric()`](#disablebiometric)
 * [`resetBiometric()`](#resetbiometric)
 * [`getBiometricStatus()`](#getbiometricstatus)
+* [`configure(...)`](#configure)
 * [`addListener('authState', ...)`](#addlistenerauthstate)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
@@ -122,6 +123,19 @@ getBiometricStatus() => Promise<BiometricState>
 --------------------
 
 
+### configure(...)
+
+```typescript
+configure(config: OktaConfig) => Promise<void>
+```
+
+| Param        | Type                                              |
+| ------------ | ------------------------------------------------- |
+| **`config`** | <code><a href="#oktaconfig">OktaConfig</a></code> |
+
+--------------------
+
+
 ### addListener('authState', ...)
 
 ```typescript
@@ -147,6 +161,17 @@ addListener(eventName: 'authState', listenerFunc: (data: AuthState) => void) => 
 | -------------------------- | -------------------- |
 | **`isBiometricSupported`** | <code>boolean</code> |
 | **`isBiometricEnabled`**   | <code>boolean</code> |
+
+
+#### OktaConfig
+
+| Prop                | Type                |
+| ------------------- | ------------------- |
+| **`clientId`**      | <code>string</code> |
+| **`uri`**           | <code>string</code> |
+| **`scopes`**        | <code>string</code> |
+| **`endSessionUri`** | <code>string</code> |
+| **`redirectUri`**   | <code>string</code> |
 
 
 #### PluginListenerHandle

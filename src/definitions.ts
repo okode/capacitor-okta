@@ -9,6 +9,7 @@ export interface OktaPlugin {
   disableBiometric(): Promise<BiometricState>;
   resetBiometric(): Promise<BiometricState>;
   getBiometricStatus(): Promise<BiometricState>;
+  configure(config: OktaConfig): Promise<void>;
   addListener(eventName: 'authState', listenerFunc: (data: AuthState) => void): PluginListenerHandle;
 }
 
@@ -19,4 +20,12 @@ export interface AuthState {
 export interface BiometricState {
   isBiometricSupported: boolean;
   isBiometricEnabled: boolean
+}
+
+export interface OktaConfig {
+  clientId: string;
+  uri: string;
+  scopes: string;
+  endSessionUri: string;
+  redirectUri: string
 }

@@ -9,6 +9,9 @@ const Okta = core.registerPlugin('Okta', {
 });
 
 class OktaWeb extends core.WebPlugin {
+    configure() {
+        throw new Error('Method not implemented.');
+    }
     signIn() {
         return Promise.reject('Method not implemented.');
     }

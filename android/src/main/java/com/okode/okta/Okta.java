@@ -40,7 +40,6 @@ public class Okta {
 
   private final static String FIRE_FOX = "org.mozilla.firefox";
   private final static String CHROME_BROWSER = "com.android.chrome";
-  private final static String CONFIG_FILE_NAME = "okta_oidc_config";
   private final static String BIOMETRIC_KEY = "okta_biometric";
   protected static final int REQUEST_CODE_CREDENTIALS = 1000;
 
@@ -48,13 +47,15 @@ public class Okta {
   private OktaAuthStateChangeListener authStateChangeListener;
   private EncryptedSharedPreferenceStorage sharedPreferences;
 
-  public SessionClient configureSDK(Activity activity) throws GeneralSecurityException, IOException {
+  public SessionClient configureSDK(Activity activity, String clientId, String uri, String scopes, String endSessionUri, String redirectUri) throws GeneralSecurityException, IOException {
     sharedPreferences = new EncryptedSharedPreferenceStorage(activity);
-    int configFile = activity.getResources().getIdentifier(
-      CONFIG_FILE_NAME, "raw", activity.getPackageName());
     OIDCConfig config = new OIDCConfig.Builder()
-      .withJsonFile(activity, configFile)
-      .create();
+       .clientId(clientId)
+       .discoveryUri(uri)
+       .scopes(scopes)
+       .endSessionRedirectUri(endSessionUri)
+       .redirectUri(redirectUri)
+       .create();
     webAuthClient = new com.okta.oidc.Okta.WebAuthBuilder()
       .withConfig(config)
       .withContext(activity)

@@ -22,33 +22,25 @@ import java.security.GeneralSecurityException;
 public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
     private Okta implementation = new Okta();
     private SessionClient session = null;
-    @Override
-    public void load() {
-        super.load();
-        implementation.setAuthStateChangeListener(this);
-        try {
-            session = implementation.configureSDK(getActivity());
-        } catch (GeneralSecurityException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    @ActivityCallback
-    protected void biometricResult(PluginCall call, ActivityResult result) {
-      if (call == null) { return; }
-      implementation.signInWithBiometric(call, getActivity(), result, new Okta.OktaRequestCallback<Void>() {
-        @Override
-        public void onSuccess(Void data) {
-          call.resolve();
-        }
-
-        @Override
-        public void onError(String error, Exception e) {
-          call.reject(error, e);
-        }
-      });
+    @PluginMethod
+    public void configure(PluginCall call) {
+      implementation.setAuthStateChangeListener(this);
+      String clientId = call.getString("clientId");
+      String uri = call.getString("uri");
+      String scopes = call.getString("scopes");
+      String endSessionUri = call.getString("uri");
+      String redirectUri = call.getString("uri");
+      try {
+        session = implementation.configureSDK(getActivity(), clientId, uri, scopes, endSessionUri, redirectUri);
+        call.resolve();
+      } catch (GeneralSecurityException e) {
+        call.reject(e.toString(), e);
+        throw new RuntimeException(e);
+      } catch (IOException e) {
+        call.reject(e.toString(), e);
+        throw new RuntimeException(e);
+      }
     }
 
     @PluginMethod
@@ -143,14 +135,30 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
       call.resolve(getBiometricStatus());
     }
 
-  @PluginMethod
-  public void getBiometricStatus(PluginCall call) {
-    call.resolve(getBiometricStatus());
-  }
+    @PluginMethod
+    public void getBiometricStatus(PluginCall call) {
+      call.resolve(getBiometricStatus());
+    }
 
     @Override
     public void onOktaAuthStateChange(SessionClient session) {
         notifyListeners("authState", OktaConverterHelper.convertAuthState(session), true);
+    }
+
+    @ActivityCallback
+    protected void biometricResult(PluginCall call, ActivityResult result) {
+      if (call == null) { return; }
+      implementation.signInWithBiometric(call, getActivity(), result, new Okta.OktaRequestCallback<Void>() {
+        @Override
+        public void onSuccess(Void data) {
+          call.resolve();
+        }
+
+        @Override
+        public void onError(String error, Exception e) {
+          call.reject(error, e);
+        }
+      });
     }
 
     private void showKeyguard(PluginCall call) {
