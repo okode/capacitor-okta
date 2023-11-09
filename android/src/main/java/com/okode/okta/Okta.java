@@ -143,7 +143,7 @@ public class Okta {
       this.webAuthClient.handleActivityResult(Okta.REQUEST_CODE_CREDENTIALS, result.getResultCode(), null);
       JSObject params = call.getObject("params", new JSObject());
       params.put("prompt", "login");
-      signIn(activity, params, false, callback);
+      signIn(activity, params, true, callback);
       return;
     }
     this.refreshToken(new OktaRequestCallback<Tokens>() {
@@ -154,7 +154,7 @@ public class Okta {
       }
       @Override
       public void onError(String error, Exception exception) {
-        signIn(activity, call.getData(), false, callback);
+        signIn(activity, call.getData(), true, callback);
         call.reject(error, exception);
       }
     });

@@ -14,9 +14,6 @@ import com.getcapacitor.annotation.ActivityCallback;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.okta.oidc.clients.sessions.SessionClient;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 @CapacitorPlugin(name = "Okta")
 
 public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
@@ -26,20 +23,16 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
     @PluginMethod
     public void configure(PluginCall call) {
       implementation.setAuthStateChangeListener(this);
-      String clientId = call.getString("clientId");
-      String uri = call.getString("uri");
-      String scopes = call.getString("scopes");
-      String endSessionUri = call.getString("uri");
-      String redirectUri = call.getString("uri");
       try {
+        String clientId = call.getData().getString("clientId");
+        String uri = call.getData().getString("uri");
+        String scopes = call.getData().getString("scopes");
+        String endSessionUri = call.getData().getString("endSessionUri");
+        String redirectUri = call.getData().getString("redirectUri");
         session = implementation.configureSDK(getActivity(), clientId, uri, scopes, endSessionUri, redirectUri);
         call.resolve();
-      } catch (GeneralSecurityException e) {
+      } catch (Exception e) {
         call.reject(e.toString(), e);
-        throw new RuntimeException(e);
-      } catch (IOException e) {
-        call.reject(e.toString(), e);
-        throw new RuntimeException(e);
       }
     }
 
