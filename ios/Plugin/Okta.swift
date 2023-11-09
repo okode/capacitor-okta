@@ -46,14 +46,7 @@ import OktaStorage
         if (!promptLogin && self.isBiometricEnabled()) {
             refreshToken { authState, error in
                 if error != nil {
-                    urlParams["prompt"] = "login"
-                    self.signInWithBrowser(vc: vc, params: urlParams) { authState, error in
-                        if error != nil {
-                            return callback(nil, error)
-                        }
-                        self.notifyAuthStateChange()
-                        callback(self.authStateManager, nil)
-                    }
+                    self.signIn(vc: vc, params: urlParams, promptLogin: true, callback: callback)
                     return
                 }
                 self.notifyAuthStateChange()
