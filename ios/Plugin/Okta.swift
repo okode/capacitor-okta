@@ -27,13 +27,14 @@ import OktaStorage
         self.secureStorage = OktaSecureStorage()
         // Check for an existing session
         self.authStateManager = OktaOidcStateManager.readFromSecureStorage(for: config)
+        checkBiometricStatus()
         callback(self.authStateManager, nil)
     }
 
     @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], promptLogin: Bool, refreshError: Error?, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
 
         var showLogin = promptLogin
-        let isAuthenticated = authStateManager != nil && !Okta.isTokenExpired(authStateManager?.accessToken)
+        let isAuthenticated = (!Okta.isTokenExpired(authStateManager?.accessToken) ? authStateManager?.accessToken : nil) != nil
 
         checkForForceLogin();
         if (forceLogin) { showLogin = true }
@@ -274,13 +275,13 @@ import OktaStorage
 
         alert.addAction(UIAlertAction(title: "Aceptar", style: .default, handler: { (action: UIAlertAction!) in
                 self.enableBiometric { success, error in }
-            }))
+        }))
 
-            alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: { (action: UIAlertAction!) in
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: { (action: UIAlertAction!) in
                 self.disableBiometric { success, error in }
-            }))
+        }))
 
-            vc?.present(alert, animated: true, completion: nil)
+        vc?.present(alert, animated: true, completion: nil)
     }
 
     private func getBiometricStatus() -> [String:Bool] {
@@ -305,6 +306,19 @@ import OktaStorage
             forceLogin = true;
         } else {
             forceLogin = false;
+        }
+    }
+
+    private func isBiometricLocked() -> Bool {
+        var error : NSError?
+        LAContext().canEvaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        if (error?.code == -8) { return true; }
+        return false;
+    }
+
+    private func checkBiometricStatus() {
+        if (isBiometricEnabled() && !isBiometricSupported() && !isBiometricLocked()) {
+            clearSecureStorage()
         }
     }
 
