@@ -36,7 +36,7 @@ import OktaStorage
 
         checkForForceLogin();
         if (forceLogin) { showLogin = true }
-        if (!showLogin && !self.isBiometricEnabled() && !self.isBiometricSupported() && !Okta.isTokenExpired(authStateManager?.accessToken)) {
+        if (!showLogin && !self.isBiometricEnabled() && !Okta.isTokenExpired(authStateManager?.accessToken)) {
             self.notifyAuthStateChange()
             return
         }
