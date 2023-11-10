@@ -158,7 +158,6 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
     }
 
     private void showKeyguard(PluginCall call) {
-      if (!this.session.isAuthenticated()) { return; }
       KeyguardManager keyguardManager =
         (KeyguardManager) getActivity().getSystemService(Context.KEYGUARD_SERVICE);
       Intent intent = null;
