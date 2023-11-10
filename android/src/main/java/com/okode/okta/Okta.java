@@ -46,6 +46,7 @@ public class Okta {
   private WebAuthClient webAuthClient;
   private OktaAuthStateChangeListener authStateChangeListener;
   private EncryptedSharedPreferenceStorage sharedPreferences;
+  private Boolean forceLogin = false;
 
   public SessionClient configureSDK(Activity activity, String clientId, String uri, String scopes, String endSessionUri, String redirectUri) throws GeneralSecurityException, IOException {
     sharedPreferences = new EncryptedSharedPreferenceStorage(activity);
@@ -66,7 +67,6 @@ public class Okta {
       .withTabColor(Color.parseColor("#FFFFFF"))
       .create();
     setAuthCallback(activity);
-    checkBiometric(activity);
     return webAuthClient.getSessionClient();
   }
 
@@ -75,24 +75,14 @@ public class Okta {
       callback.onError("No auth client initialized", null);
       return;
     }
-
-    try {
-      if (!promptLogin && !isBiometricEnabled(activity) && !this.getAuthState().getTokens().isAccessTokenExpired()) {
-        notifyAuthStateChange();
-        return;
-      }
-    } catch (Exception e) { }
-
-    AuthenticationPayload.Builder payload = new AuthenticationPayload.Builder();
-    try {
-      Iterator<String> keys = params.keys();
-      while (keys.hasNext()) {
-        String key = keys.next();
-        payload.addParameter(key, params.get(key).toString());
-      }
-    } catch (JSONException e) { }
-
-    webAuthClient.signIn(activity, payload.build());
+    checkForForceLogin(activity);
+    if (forceLogin) { promptLogin = true; }
+    if (!promptLogin && !isBiometricEnabled() && !isAccessTokenExpired()) {
+      notifyAuthStateChange();
+      return;
+    }
+    if (promptLogin) { params.put("prompt", "login"); }
+    webAuthClient.signIn(activity, getPayload(params));
     callback.onSuccess(null);
   }
 
@@ -140,9 +130,8 @@ public class Okta {
 
   public void signInWithBiometric(PluginCall call, Activity activity, ActivityResult result, OktaRequestCallback<Void> callback) {
     if (result.getResultCode() != RESULT_OK) {
-      this.webAuthClient.handleActivityResult(Okta.REQUEST_CODE_CREDENTIALS, result.getResultCode(), null);
       JSObject params = call.getObject("params", new JSObject());
-      params.put("prompt", "login");
+      callback.onError("BIOMETRIC_ERROR_CODE_" + result.getResultCode(), null);
       signIn(activity, params, true, callback);
       return;
     }
@@ -184,6 +173,7 @@ public class Okta {
         @Override
         public void onSuccess(@NonNull AuthorizationStatus status) {
           if (status == AuthorizationStatus.AUTHORIZED) {
+            if (forceLogin) { forceLogin = false; }
             if (!isBiometricConfigured() && isBiometricSupported(activity)) {
               activity.runOnUiThread(new Runnable() {
                 public void run() {
@@ -223,11 +213,9 @@ public class Okta {
     return keyguardManager.isKeyguardSecure();
   }
 
-  protected boolean isBiometricEnabled(Activity activity) {
+  protected boolean isBiometricEnabled() {
     try {
-      return sharedPreferences.get(BIOMETRIC_KEY).equals("true")
-        && isBiometricSupported(activity)
-        && isKeyguardSecure(activity);
+      return sharedPreferences.get(BIOMETRIC_KEY).equals("true");
     } catch (Exception e){
       return false;
     }
@@ -238,8 +226,7 @@ public class Okta {
   }
 
   protected Boolean isBiometricSupported(Activity activity) {
-    BiometricManager biometricManager = BiometricManager.from(activity);
-    return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS;
+    return isBiometricAvailable(activity) && isKeyguardSecure(activity);
   }
 
   private void showBiometricDialog(Activity activity) {
@@ -261,13 +248,39 @@ public class Okta {
     builder.create().show();
   }
 
-  private void checkBiometric(Activity activity) {
+  private Boolean isBiometricAvailable(Activity activity) {
+    BiometricManager biometricManager = BiometricManager.from(activity);
+    return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS;
+  }
+
+  private AuthenticationPayload getPayload(JSObject params) {
+    AuthenticationPayload.Builder payload = new AuthenticationPayload.Builder();
     try {
-      Boolean biometricEnabled = sharedPreferences.get(BIOMETRIC_KEY).equals("true");
-      if (!isBiometricSupported(activity) && biometricEnabled) {
-        resetBiometric();
+      Iterator<String> keys = params.keys();
+      while (keys.hasNext()) {
+        String key = keys.next();
+        payload.addParameter(key, params.get(key).toString());
       }
-    } catch (Exception e) { }
+      return payload.build();
+    } catch (JSONException e) {
+      return payload.build();
+    }
+  }
+
+  private Boolean isAccessTokenExpired() {
+    try {
+      return this.getAuthState().getTokens().isAccessTokenExpired();
+    } catch (AuthorizationException e) {
+      return true;
+    }
+  }
+
+  private void checkForForceLogin(Activity activity) {
+    if (isBiometricEnabled() && !isBiometricSupported(activity)) {
+      forceLogin = true;
+    } else {
+      forceLogin = false;
+    }
   }
 
   public interface OktaRequestCallback<T> {

@@ -3,6 +3,7 @@ package com.okode.okta;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import androidx.activity.result.ActivityResult;
 
@@ -39,11 +40,13 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
     @PluginMethod
     public void signIn(PluginCall call) {
       Boolean promptLogin = call.getBoolean("promptLogin", false);
-      if (!promptLogin && implementation.isBiometricEnabled(getActivity()) && session.isAuthenticated()) {
+      Boolean isBiometricEnabled = implementation.isBiometricEnabled();
+      Boolean isBiometricSupported = implementation.isBiometricSupported(getActivity());
+      if (!promptLogin && isBiometricEnabled && isBiometricSupported && session.isAuthenticated()) {
         this.showKeyguard(call);
+        return;
       }
       JSObject params = call.getObject("params", new JSObject());
-      if (promptLogin) { params.put("prompt", "login"); }
       implementation.signIn(getActivity(), params, promptLogin, new Okta.OktaRequestCallback<Void>() {
             @Override
             public void onSuccess(Void data) {
@@ -169,7 +172,7 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
 
     private JSObject getBiometricStatus() {
       JSObject res = new JSObject();
-      res.put("isBiometricEnabled", implementation.isBiometricEnabled(getActivity()));
+      res.put("isBiometricEnabled", implementation.isBiometricEnabled());
       res.put("isBiometricSupported", implementation.isBiometricSupported(getActivity()));
       return res;
     }

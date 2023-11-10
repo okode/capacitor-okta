@@ -15,6 +15,7 @@ import OktaStorage
     private var authSession: OktaOidc? = nil
     private var authStateManager: OktaOidcStateManager? = nil
     private var secureStorage: OktaSecureStorage? = nil
+    private var forceLogin = false
 
     @objc public func configureSDK(config: [String : String], callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) -> Void {
         guard let config = try? OktaOidcConfig(with: ["scopes":config["scopes"]!, "redirectUri":config["redirectUri"]!, "clientId":config["clientId"]!, "issuer":config["uri"]!, "logoutRedirectUri":config["endSessionUri"]!]),
@@ -27,14 +28,15 @@ import OktaStorage
         // Check for an existing session
         self.authStateManager = OktaOidcStateManager.readFromSecureStorage(for: config)
         callback(self.authStateManager, nil)
-        checkBiometric()
     }
 
-    @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], promptLogin: Bool, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
+    @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], promptLogin: Bool, refreshError: Error?, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
 
-        let accessToken = !Okta.isTokenExpired(authStateManager?.accessToken) ? authStateManager?.accessToken : nil
+        var showLogin = promptLogin
 
-        if (!promptLogin && !self.isBiometricEnabled() && accessToken != nil) {
+        checkForForceLogin();
+        if (forceLogin) { showLogin = true }
+        if (!showLogin && !self.isBiometricEnabled() && !self.isBiometricSupported() && !Okta.isTokenExpired(authStateManager?.accessToken)) {
             self.notifyAuthStateChange()
             return
         }
@@ -43,21 +45,23 @@ import OktaStorage
             return (key as! String, value as! String)
         })
 
-        if (!promptLogin && self.isBiometricEnabled()) {
+        if (!showLogin && self.isBiometricEnabled() && self.isBiometricSupported()) {
             refreshToken { authState, error in
                 if error != nil {
-                    self.signIn(vc: vc, params: urlParams, promptLogin: true, callback: callback)
+                    self.signIn(vc: vc, params: urlParams, promptLogin: true, refreshError: error, callback: callback)
                     return
                 }
-                self.notifyAuthStateChange()
                 callback(authState, nil)
             }
             return
         }
 
-        if (promptLogin) { urlParams["prompt"] = "login" }
+        if (showLogin) { urlParams["prompt"] = "login" }
         self.signInWithBrowser(vc: vc, params: urlParams) { authState, error in
             if error != nil {
+                if refreshError != nil {
+                    return callback(nil, refreshError)
+                }
                 return callback(nil, error)
             }
             callback(self.authStateManager, nil)
@@ -159,6 +163,7 @@ import OktaStorage
                     }
                     self.authStateManager = authStateManager
                     authStateManager?.writeToSecureStorage()
+                    self.notifyAuthStateChange()
                     callback(self.authStateManager, nil)
                 }
             } catch let error as NSError {
@@ -214,12 +219,12 @@ import OktaStorage
 
         do {
             let biometric = try secureStorage.get(key: Okta.KEYCHAIN_BIOMETRIC_KEY)
-            return isBiometricSupported()
-                    && biometric == "true"
+            return biometric == "true"
         } catch _ {
             return false
         }
     }
+
 
     private func isBiometricConfigured() -> Bool {
         guard let secureStorage = self.secureStorage else {
@@ -294,17 +299,12 @@ import OktaStorage
         } catch _ { }
     }
 
-    private func checkBiometric() {
-        guard let secureStorage = self.secureStorage else {
-            return
+    private func checkForForceLogin() {
+        if (isBiometricEnabled() && !isBiometricSupported()) {
+            forceLogin = true;
+        } else {
+            forceLogin = false;
         }
-
-        do {
-            let biometric = try secureStorage.get(key: Okta.KEYCHAIN_BIOMETRIC_KEY)
-            if (!isBiometricSupported() && biometric == "true") {
-                clearSecureStorage()
-            }
-        } catch _ { }
     }
 
 }

@@ -25,7 +25,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
 
     @objc public func signIn(_ call: CAPPluginCall) {
         let params = call.getAny("params") ?? ["":""]
-        implementation.signIn(vc: self.bridge?.viewController, params: params as! [AnyHashable : Any], promptLogin: call.getBool("promptLogin", false)) { authState, error in
+        implementation.signIn(vc: self.bridge?.viewController, params: params as! [AnyHashable : Any], promptLogin: call.getBool("promptLogin", false), refreshError: nil) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
@@ -37,7 +37,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
     @objc public func register(_ call: CAPPluginCall) {
         call.options["prompt"] = "login";
         call.options["t"] = "register";
-        implementation.signIn(vc: self.bridge?.viewController, params: call.options, promptLogin: true) { authState, error in
+        implementation.signIn(vc: self.bridge?.viewController, params: call.options, promptLogin: true, refreshError: nil) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
@@ -49,7 +49,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
     @objc public func recoveryPassword(_ call: CAPPluginCall) {
         call.options["prompt"] = "login";
         call.options["t"] = "resetPassWidget";
-        implementation.signIn(vc: self.bridge?.viewController, params: call.options, promptLogin: true) { authState, error in
+        implementation.signIn(vc: self.bridge?.viewController, params: call.options, promptLogin: true, refreshError: nil) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
