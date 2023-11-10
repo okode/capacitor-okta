@@ -81,8 +81,7 @@ public class Okta {
       notifyAuthStateChange();
       return;
     }
-    if (promptLogin) { params.put("prompt", "login"); }
-    webAuthClient.signIn(activity, getPayload(params));
+    signInWithBrowser(promptLogin, params, activity);
     callback.onSuccess(null);
   }
 
@@ -129,10 +128,10 @@ public class Okta {
   }
 
   public void signInWithBiometric(PluginCall call, Activity activity, ActivityResult result, OktaRequestCallback<Void> callback) {
+    JSObject params = call.getObject("params", new JSObject());
     if (result.getResultCode() != RESULT_OK) {
-      JSObject params = call.getObject("params", new JSObject());
+      signInWithBrowser(true, params, activity);
       callback.onError("BIOMETRIC_ERROR_CODE_" + result.getResultCode(), null);
-      signIn(activity, params, true, callback);
       return;
     }
     this.refreshToken(new OktaRequestCallback<Tokens>() {
@@ -143,10 +142,15 @@ public class Okta {
       }
       @Override
       public void onError(String error, Exception exception) {
-        signIn(activity, call.getData(), true, callback);
+        signInWithBrowser(true, params, activity);
         call.reject(error, exception);
       }
     });
+  }
+
+  private void signInWithBrowser(Boolean promptLogin, JSObject params, Activity activity) {
+    if (promptLogin) { params.put("prompt", "login"); }
+    webAuthClient.signIn(activity, getPayload(params));
   }
 
   private void refreshToken(OktaRequestCallback<Tokens> callback) {
@@ -270,7 +274,7 @@ public class Okta {
   private Boolean isAccessTokenExpired() {
     try {
       return this.getAuthState().getTokens().isAccessTokenExpired();
-    } catch (AuthorizationException e) {
+    } catch (Exception e) {
       return true;
     }
   }
