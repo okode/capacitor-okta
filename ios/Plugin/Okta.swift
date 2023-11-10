@@ -33,10 +33,11 @@ import OktaStorage
     @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], promptLogin: Bool, refreshError: Error?, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
 
         var showLogin = promptLogin
+        let isAuthenticated = authStateManager != nil && !Okta.isTokenExpired(authStateManager?.accessToken)
 
         checkForForceLogin();
         if (forceLogin) { showLogin = true }
-        if (!showLogin && !self.isBiometricEnabled() && !Okta.isTokenExpired(authStateManager?.accessToken)) {
+        if (!showLogin && !self.isBiometricEnabled() && isAuthenticated) {
             self.notifyAuthStateChange()
             return
         }
