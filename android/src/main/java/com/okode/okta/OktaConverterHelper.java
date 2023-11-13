@@ -30,15 +30,12 @@ public class OktaConverterHelper {
         return state;
     }
 
-    public static JSObject convertUser(UserInfo user) {
-        JSObject userJson = new JSObject();
-        if (user == null) { return userJson; }
-        try {
-            return JSObject.fromJSONObject(user.getRaw());
-        } catch (JSONException e) {
-            Log.e(TAG, "Error converting user info");
-            return userJson;
-        }
+    public static JSObject convertError(String error, String message, String code) {
+      JSObject e = new JSObject();
+      e.put("error", error);
+      e.put("message", message);
+      e.put("code", code);
+      return e;
     }
 
 }

@@ -1,9 +1,8 @@
 package com.okode.okta;
 
-import android.app.KeyguardManager;
-import android.content.Context;
+import static android.app.Activity.RESULT_OK;
+
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.activity.result.ActivityResult;
 
@@ -17,13 +16,13 @@ import com.okta.oidc.clients.sessions.SessionClient;
 
 @CapacitorPlugin(name = "Okta")
 
-public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
+public class OktaPlugin extends Plugin implements OktaListener {
     private Okta implementation = new Okta();
     private SessionClient session = null;
 
     @PluginMethod
     public void configure(PluginCall call) {
-      implementation.setAuthStateChangeListener(this);
+      implementation.setOktaListener(this);
       try {
         String clientId = call.getData().getString("clientId");
         String uri = call.getData().getString("uri");
@@ -40,10 +39,9 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
     @PluginMethod
     public void signIn(PluginCall call) {
       Boolean promptLogin = call.getBoolean("promptLogin", false);
-      Boolean isBiometricEnabled = implementation.isBiometricEnabled();
-      Boolean isBiometricSupported = implementation.isBiometricSupported(getActivity());
-      if (!promptLogin && isBiometricEnabled && isBiometricSupported && session.isAuthenticated()) {
-        this.showKeyguard(call);
+      if (!promptLogin && implementation.isBiometricEnabled() && Biometric.isAvailable(getActivity())
+        && session.isAuthenticated()) {
+        this.showBiometric(call);
         return;
       }
       JSObject params = call.getObject("params", new JSObject());
@@ -141,38 +139,37 @@ public class OktaPlugin extends Plugin implements OktaAuthStateChangeListener {
         notifyListeners("authState", OktaConverterHelper.convertAuthState(session), true);
     }
 
+    @Override
+    public void onOktaError(String error, String message, String code) {
+      notifyListeners("error", OktaConverterHelper.convertError(error, message, code), true);
+    }
+
     @ActivityCallback
     protected void biometricResult(PluginCall call, ActivityResult result) {
       if (call == null) { return; }
-      implementation.signInWithBiometric(call, getActivity(), result, new Okta.OktaRequestCallback<Void>() {
-        @Override
-        public void onSuccess(Void data) {
-          call.resolve();
-        }
-
-        @Override
-        public void onError(String error, Exception e) {
-          call.reject(error, e);
-        }
-      });
+      if (result.getResultCode() == RESULT_OK) {
+        implementation.signInWithBiometric(call, getActivity(), result);
+        return;
+      }
+      call.getData().put("promptLogin", true);
+      signIn(call);
+      Intent data = result.getData();
+      implementation.notifyError(
+        "BIOMETRIC_ERROR",
+        data.hasExtra("errorMessage") ? data.getStringExtra("errorMessage") : "",
+        data.hasExtra("errorCode") ? data.getStringExtra("errorCode") : ""
+      );
     }
 
-    private void showKeyguard(PluginCall call) {
-      KeyguardManager keyguardManager =
-        (KeyguardManager) getActivity().getSystemService(Context.KEYGUARD_SERVICE);
-      Intent intent = null;
-      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-        intent = keyguardManager.createConfirmDeviceCredentialIntent("Confirm credentials", "");
-      }
-      if (intent != null) {
-        startActivityForResult(call, intent, "biometricResult");
-      }
+    private void showBiometric(PluginCall call) {
+      Intent intent = new Intent(getContext(), Biometric.class);
+      startActivityForResult(call, intent, "biometricResult");
     }
 
     private JSObject getBiometricStatus() {
       JSObject res = new JSObject();
       res.put("isBiometricEnabled", implementation.isBiometricEnabled());
-      res.put("isBiometricSupported", implementation.isBiometricSupported(getActivity()));
+      res.put("isBiometricAvailable", Biometric.isAvailable(getActivity()));
       return res;
     }
 }

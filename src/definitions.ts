@@ -11,14 +11,21 @@ export interface OktaPlugin {
   getBiometricStatus(): Promise<BiometricState>;
   configure(config: { oktaConfig: OktaConfig }): Promise<void>;
   addListener(eventName: 'authState', listenerFunc: (data: AuthState) => void): PluginListenerHandle;
+  addListener(eventName: 'error', listenerFunc: (data: OktaError) => void): PluginListenerHandle;
 }
 
 export interface AuthState {
   accessToken?: string;
 }
 
+export interface OktaError {
+  error: string;
+  message: string;
+  code: string;
+}
+
 export interface BiometricState {
-  isBiometricSupported: boolean;
+  isBiometricAvailable: boolean;
   isBiometricEnabled: boolean
 }
 
