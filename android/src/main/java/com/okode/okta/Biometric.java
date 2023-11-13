@@ -20,7 +20,7 @@ public class Biometric extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
+    setContentView(R.layout.biometric_layout);
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
       executor = this.getMainExecutor();
     }else{
