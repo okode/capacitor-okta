@@ -38,6 +38,7 @@ public class OktaPlugin extends Plugin implements OktaListener {
 
     @PluginMethod
     public void signIn(PluginCall call) {
+      if (session == null) { call.reject("No session initialized"); }
       Boolean promptLogin = call.getBoolean("promptLogin", false);
       if (!promptLogin && implementation.isBiometricEnabled() && Biometric.isAvailable(getActivity())
         && session.isAuthenticated()) {
