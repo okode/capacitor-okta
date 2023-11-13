@@ -11,9 +11,7 @@ export interface OktaPlugin {
     disableBiometric(): Promise<BiometricState>;
     resetBiometric(): Promise<BiometricState>;
     getBiometricStatus(): Promise<BiometricState>;
-    configure(config: {
-        oktaConfig: OktaConfig;
-    }): Promise<void>;
+    configure(config: OktaConfig): Promise<void>;
     addListener(eventName: 'authState', listenerFunc: (data: AuthState) => void): PluginListenerHandle;
     addListener(eventName: 'error', listenerFunc: (data: OktaError) => void): PluginListenerHandle;
 }
