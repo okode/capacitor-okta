@@ -10,12 +10,11 @@ import OktaStorage
     private static let KEYCHAIN_DATA_KEY = BUNDLE_ID + "okta_user"
     private static let KEYCHAIN_BIOMETRIC_KEY = BUNDLE_ID + "okta_user_biometric"
 
-    var authStateDelegate: OktaAuthStateDelegate?
+    var oktaDelegate: OktaDelegate?
 
     private var authSession: OktaOidc? = nil
     private var authStateManager: OktaOidcStateManager? = nil
     private var secureStorage: OktaSecureStorage? = nil
-    private var forceLogin = false
 
     @objc public func configureSDK(config: [String : String], callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) -> Void {
         guard let config = try? OktaOidcConfig(with: ["scopes":config["scopes"]!, "redirectUri":config["redirectUri"]!, "clientId":config["clientId"]!, "issuer":config["uri"]!, "logoutRedirectUri":config["endSessionUri"]!]),
@@ -31,13 +30,12 @@ import OktaStorage
         callback(self.authStateManager, nil)
     }
 
-    @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], promptLogin: Bool, refreshError: Error?, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
+    @objc public func signIn(vc: UIViewController?, params: [AnyHashable : Any], promptLogin: Bool, callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) {
 
         var showLogin = promptLogin
         let isAuthenticated = (!Okta.isTokenExpired(authStateManager?.accessToken) ? authStateManager?.accessToken : nil) != nil
 
-        checkForForceLogin();
-        if (forceLogin) { showLogin = true }
+        if (isBiometricLocked()) { showLogin = true }
         if (!showLogin && !self.isBiometricEnabled() && isAuthenticated) {
             self.notifyAuthStateChange()
             return
@@ -50,7 +48,7 @@ import OktaStorage
         if (!showLogin && self.isBiometricEnabled() && self.isBiometricSupported()) {
             refreshToken { authState, error in
                 if error != nil {
-                    self.signIn(vc: vc, params: urlParams, promptLogin: true, refreshError: error, callback: callback)
+                    self.signIn(vc: vc, params: urlParams, promptLogin: true, callback: callback)
                     return
                 }
                 callback(authState, nil)
@@ -61,13 +59,10 @@ import OktaStorage
         if (showLogin) { urlParams["prompt"] = "login" }
         self.signInWithBrowser(vc: vc, params: urlParams) { authState, error in
             if error != nil {
-                if refreshError != nil {
-                    return callback(nil, refreshError)
-                }
                 return callback(nil, error)
             }
-            callback(self.authStateManager, nil)
             self.notifyAuthStateChange()
+            callback(self.authStateManager, nil)
         }
     }
 
@@ -160,7 +155,8 @@ import OktaStorage
                     return
                 }
                 stateManager.renew { authStateManager, error in
-                    if let error = error {
+                    if error != nil {
+                        self.notifyError(error: "REFRESH_ERROR", message: error?.localizedDescription ?? "", code: "")
                         return callback(nil, error)
                     }
                     self.authStateManager = authStateManager
@@ -169,6 +165,8 @@ import OktaStorage
                     callback(self.authStateManager, nil)
                 }
             } catch let error as NSError {
+                let e = self.getBiometricError()
+                self.notifyError(error: "BIOMETRIC_ERROR", message: e?.localizedDescription ?? error.localizedDescription, code: String(e?.code ?? 0))
                 return callback(nil, error)
             }
         }
@@ -203,7 +201,11 @@ import OktaStorage
     }
 
     private func notifyAuthStateChange() {
-        self.authStateDelegate?.onOktaAuthStateChange(authState: getAuthState())
+        self.oktaDelegate?.onOktaAuthStateChange(authState: getAuthState())
+    }
+
+    private func notifyError(error: String, message: String, code: String) {
+        self.oktaDelegate?.onOktaError(error: error, message: message, code: code)
     }
 
     private func isBiometricSupported() -> Bool {
@@ -287,7 +289,7 @@ import OktaStorage
     private func getBiometricStatus() -> [String:Bool] {
         return [
             "isBiometricEnabled":self.isBiometricEnabled(),
-            "isBiometricSupported":self.isBiometricSupported()
+            "isBiometricAvailable":self.isBiometricSupported()
         ]
     }
 
@@ -301,17 +303,8 @@ import OktaStorage
         } catch _ { }
     }
 
-    private func checkForForceLogin() {
-        if (isBiometricEnabled() && !isBiometricSupported()) {
-            forceLogin = true;
-        } else {
-            forceLogin = false;
-        }
-    }
-
     private func isBiometricLocked() -> Bool {
-        var error : NSError?
-        LAContext().canEvaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        var error = getBiometricError()
         if (error?.code == -8) { return true; }
         return false;
     }
@@ -320,6 +313,12 @@ import OktaStorage
         if (isBiometricEnabled() && !isBiometricSupported() && !isBiometricLocked()) {
             clearSecureStorage()
         }
+    }
+
+    private func getBiometricError() -> NSError? {
+        var error : NSError?
+        LAContext().canEvaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        return error;
     }
 
 }

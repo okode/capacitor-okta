@@ -8,12 +8,12 @@ import OktaOidc
  * here: https://capacitorjs.com/docs/plugins/ios
  */
 @objc(OktaPlugin)
-public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
+public class OktaPlugin: CAPPlugin, OktaDelegate {
 
     private let implementation = Okta()
 
     @objc public func configure(_ call: CAPPluginCall) {
-        implementation.authStateDelegate = self
+        implementation.oktaDelegate = self
         implementation.configureSDK(config: call.options as! [String : String]) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
@@ -25,7 +25,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
 
     @objc public func signIn(_ call: CAPPluginCall) {
         let params = call.getAny("params") ?? ["":""]
-        implementation.signIn(vc: self.bridge?.viewController, params: params as! [AnyHashable : Any], promptLogin: call.getBool("promptLogin", false), refreshError: nil) { authState, error in
+        implementation.signIn(vc: self.bridge?.viewController, params: params as! [AnyHashable : Any], promptLogin: call.getBool("promptLogin", false)) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
@@ -37,7 +37,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
     @objc public func register(_ call: CAPPluginCall) {
         call.options["prompt"] = "login";
         call.options["t"] = "register";
-        implementation.signIn(vc: self.bridge?.viewController, params: call.options, promptLogin: true, refreshError: nil) { authState, error in
+        implementation.signIn(vc: self.bridge?.viewController, params: call.options, promptLogin: true) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
@@ -49,7 +49,7 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
     @objc public func recoveryPassword(_ call: CAPPluginCall) {
         call.options["prompt"] = "login";
         call.options["t"] = "resetPassWidget";
-        implementation.signIn(vc: self.bridge?.viewController, params: call.options, promptLogin: true, refreshError: nil) { authState, error in
+        implementation.signIn(vc: self.bridge?.viewController, params: call.options, promptLogin: true) { authState, error in
             if error != nil {
                 call.reject(error!.localizedDescription, nil, error)
             } else {
@@ -110,6 +110,10 @@ public class OktaPlugin: CAPPlugin, OktaAuthStateDelegate {
 
     func onOktaAuthStateChange(authState: OktaOidcStateManager?) {
         self.notifyListeners("authState", data: OktaConverterHelper.convertAuthState(authStateManager: authState), retainUntilConsumed: true)
+    }
+
+    func onOktaError(error: String, message: String, code: String) {
+        self.notifyListeners("error", data: OktaConverterHelper.convertError(error: error, message: message, code: code), retainUntilConsumed: true)
     }
 
 }

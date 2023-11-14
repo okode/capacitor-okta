@@ -1,6 +1,7 @@
 import OktaOidc
 import OktaStorage
 
-protocol OktaAuthStateDelegate {
+protocol OktaDelegate {
     func onOktaAuthStateChange(authState: OktaOidcStateManager?)
+    func onOktaError(error: String, message: String, code: String)
 }

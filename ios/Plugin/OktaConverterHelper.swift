@@ -14,4 +14,12 @@ import OktaOidc
         ]
     }
 
+    @objc public static func convertError(error: String, message: String, code: String) -> [String:Any] {
+        return [
+            "error": error,
+            "message": message,
+            "code": code
+        ]
+    }
+
 }
