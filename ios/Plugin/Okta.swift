@@ -45,10 +45,10 @@ import OktaStorage
             return (key as! String, value as! String)
         })
 
-        if (!showLogin && self.isBiometricEnabled() && self.isBiometricSupported()) {
+        if (!showLogin && self.isBiometricEnabled() && self.isBiometricAvailable()) {
             refreshToken { authState, error in
                 if error != nil {
-                    self.signIn(vc: vc, params: urlParams, promptLogin: true, callback: callback)
+                    self.signIn(vc: vc, params: params, promptLogin: true, callback: callback)
                     return
                 }
                 callback(authState, nil)
@@ -166,7 +166,7 @@ import OktaStorage
                 }
             } catch let error as NSError {
                 let e = self.getBiometricError()
-                self.notifyError(error: "BIOMETRIC_ERROR", message: e?.localizedDescription ?? error.localizedDescription, code: String(e?.code ?? 0))
+                self.notifyError(error: "BIOMETRIC_ERROR_IOS_" + String(abs(e?.code ?? 0)), message: e?.localizedDescription ?? error.localizedDescription, code: String(e?.code ?? 0))
                 return callback(nil, error)
             }
         }
@@ -190,7 +190,7 @@ import OktaStorage
             if error != nil {
                 return callback(nil, error)
             }
-            if (!self.isBiometricConfigured() && self.isBiometricSupported()) {
+            if (!self.isBiometricConfigured() && self.isBiometricAvailable()) {
                 self.showBiometricDialog(vc: vc, secureStorage: secureStorage, authStateManager: authStateManager)
             }
             self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
@@ -208,7 +208,7 @@ import OktaStorage
         self.oktaDelegate?.onOktaError(error: error, message: message, code: code)
     }
 
-    private func isBiometricSupported() -> Bool {
+    private func isBiometricAvailable() -> Bool {
         guard let secureStorage = self.secureStorage else {
             return false
         }
@@ -289,7 +289,7 @@ import OktaStorage
     private func getBiometricStatus() -> [String:Bool] {
         return [
             "isBiometricEnabled":self.isBiometricEnabled(),
-            "isBiometricAvailable":self.isBiometricSupported()
+            "isBiometricAvailable":self.isBiometricAvailable()
         ]
     }
 
@@ -304,13 +304,13 @@ import OktaStorage
     }
 
     private func isBiometricLocked() -> Bool {
-        var error = getBiometricError()
+        let error = getBiometricError()
         if (error?.code == -8) { return true; }
         return false;
     }
 
     private func checkBiometricStatus() {
-        if (isBiometricEnabled() && !isBiometricSupported() && !isBiometricLocked()) {
+        if (isBiometricEnabled() && !isBiometricAvailable() && !isBiometricLocked()) {
             clearSecureStorage()
         }
     }
