@@ -5,6 +5,7 @@ import static android.app.Activity.RESULT_OK;
 import android.content.Intent;
 
 import androidx.activity.result.ActivityResult;
+import androidx.biometric.BiometricPrompt;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
