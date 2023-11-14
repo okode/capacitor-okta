@@ -17,7 +17,7 @@
 		50ADFFA82020EE4F00D50D53 /* OktaPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 50ADFFA72020EE4F00D50D53 /* OktaPlugin.m */; };
 		50E1A94820377CB70090CE1A /* OktaPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50E1A94720377CB70090CE1A /* OktaPlugin.swift */; };
 		F733DED328034C0A0041B6FC /* OktaConverterHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F733DED228034C0A0041B6FC /* OktaConverterHelper.swift */; };
-		F756BCAF27FDD2B6001FFBC6 /* OktaAuthStateDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F756BCAE27FDD2B6001FFBC6 /* OktaAuthStateDelegate.swift */; };
+		F756BCAF27FDD2B6001FFBC6 /* OktaDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F756BCAE27FDD2B6001FFBC6 /* OktaDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,7 +48,7 @@
 		F65BB2953ECE002E1EF3E424 /* Pods-PluginTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PluginTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-PluginTests/Pods-PluginTests.release.xcconfig"; sourceTree = "<group>"; };
 		F6753A823D3815DB436415E3 /* Pods_PluginTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PluginTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F733DED228034C0A0041B6FC /* OktaConverterHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OktaConverterHelper.swift; sourceTree = "<group>"; };
-		F756BCAE27FDD2B6001FFBC6 /* OktaAuthStateDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OktaAuthStateDelegate.swift; sourceTree = "<group>"; };
+		F756BCAE27FDD2B6001FFBC6 /* OktaDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OktaDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,7 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				F733DED228034C0A0041B6FC /* OktaConverterHelper.swift */,
-				F756BCAE27FDD2B6001FFBC6 /* OktaAuthStateDelegate.swift */,
+				F756BCAE27FDD2B6001FFBC6 /* OktaDelegate.swift */,
 				50E1A94720377CB70090CE1A /* OktaPlugin.swift */,
 				2F98D68124C9AAE400613A4C /* Okta.swift */,
 				50ADFF8B201F53D600D50D53 /* OktaPlugin.h */,
@@ -320,7 +320,7 @@
 				F733DED328034C0A0041B6FC /* OktaConverterHelper.swift in Sources */,
 				2F98D68224C9AAE500613A4C /* Okta.swift in Sources */,
 				50ADFFA82020EE4F00D50D53 /* OktaPlugin.m in Sources */,
-				F756BCAF27FDD2B6001FFBC6 /* OktaAuthStateDelegate.swift in Sources */,
+				F756BCAF27FDD2B6001FFBC6 /* OktaDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
