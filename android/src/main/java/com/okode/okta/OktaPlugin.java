@@ -155,11 +155,11 @@ public class OktaPlugin extends Plugin implements OktaListener {
       call.getData().put("promptLogin", true);
       signIn(call);
       Intent data = result.getData();
-      String code = data.hasExtra("errorCode") ? data.getStringExtra("errorCode") : "";
+      String code = ;
       implementation.notifyError(
-        "BIOMETRIC_ERROR_ANDROID_" + code,
+        "BIOMETRIC_ERROR",
         data.hasExtra("errorMessage") ? data.getStringExtra("errorMessage") : "",
-        code
+        data.hasExtra("errorCode") ? data.getStringExtra("errorCode") : ""
       );
     }
 
