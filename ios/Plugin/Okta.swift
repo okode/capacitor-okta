@@ -166,7 +166,7 @@ import OktaStorage
                 }
             } catch let error as NSError {
                 let e = self.getBiometricError()
-                self.notifyError(error: "BIOMETRIC_ERROR", message: e?.localizedDescription ?? error.localizedDescription, code: String(e?.code ?? 0))
+                self.notifyError(error: "BIOMETRIC_ERROR_IOS_" + String(abs(e?.code ?? 0)), message: e?.localizedDescription ?? error.localizedDescription, code: String(e?.code ?? 0))
                 return callback(nil, error)
             }
         }
