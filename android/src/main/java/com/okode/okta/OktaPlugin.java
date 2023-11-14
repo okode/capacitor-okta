@@ -155,6 +155,8 @@ public class OktaPlugin extends Plugin implements OktaListener {
       call.getData().put("promptLogin", true);
       signIn(call);
       Intent data = result.getData();
+      int code = data.getIntExtra("errorCode", 0);
+      if (code == BiometricPrompt.ERROR_NO_BIOMETRICS) { implementation.disableBiometric(); }
       implementation.notifyError(
         "BIOMETRIC_ERROR",
         data.hasExtra("errorMessage") ? data.getStringExtra("errorMessage") : "",

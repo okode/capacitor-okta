@@ -19,14 +19,11 @@ import OktaStorage
     @objc public func configureSDK(config: [String : String], callback: @escaping ((_ authState: OktaOidcStateManager?,_ error: Error?) -> Void)) -> Void {
         guard let config = try? OktaOidcConfig(with: ["scopes":config["scopes"]!, "redirectUri":config["redirectUri"]!, "clientId":config["clientId"]!, "issuer":config["uri"]!, "logoutRedirectUri":config["endSessionUri"]!]),
           let oktaAuth = try? OktaOidc(configuration: config) else {
-            // Fatal error as the configuration isn't editable in this app.
             return callback(nil, NSError(domain: "com.okode.okta", code: 404, userInfo: [NSLocalizedDescriptionKey: "Error configuring SDK. Check config"]))
         }
         self.authSession = oktaAuth
         self.secureStorage = OktaSecureStorage()
-        // Check for an existing session
         self.authStateManager = OktaOidcStateManager.readFromSecureStorage(for: config)
-        checkBiometricStatus()
         callback(self.authStateManager, nil)
     }
 
@@ -56,14 +53,12 @@ import OktaStorage
             return
         }
 
-        if (showLogin) { urlParams["prompt"] = "login" }
-        self.signInWithBrowser(vc: vc, params: urlParams) { authState, error in
-            if error != nil {
-                return callback(nil, error)
-            }
-            self.notifyAuthStateChange()
-            callback(self.authStateManager, nil)
+        if (self.isBiometricEnabled() && !isBiometricAvailable() && !isBiometricLocked()) {
+            clearSecureStorage()
+            setBiometric(value: false)
         }
+        if (showLogin) { urlParams["prompt"] = "login" }
+        self.signInWithBrowser(vc: vc, params: urlParams, callback: callback)
     }
 
     @objc public func signOut(vc: UIViewController?, callback: @escaping ((_ result: NSNumber?, _ error: Error?) -> Void)) {
@@ -196,6 +191,7 @@ import OktaStorage
             self.writeToSecureStorage(secureStorage: secureStorage, authStateManager: authStateManager)
             self.authStateManager = authStateManager
             authStateManager?.writeToSecureStorage()
+            self.notifyAuthStateChange()
             callback(self.authStateManager, nil)
         })
     }
@@ -305,14 +301,8 @@ import OktaStorage
 
     private func isBiometricLocked() -> Bool {
         let error = getBiometricError()
-        if (error?.code == -8) { return true; }
+        if (error?.code == LAError.Code.biometryLockout.rawValue) { return true; }
         return false;
-    }
-
-    private func checkBiometricStatus() {
-        if (isBiometricEnabled() && !isBiometricAvailable() && !isBiometricLocked()) {
-            clearSecureStorage()
-        }
     }
 
     private func getBiometricError() -> NSError? {
