@@ -143,7 +143,9 @@ import OktaStorage
             do {
                 let authStateData = try secureStorage.getData(key: Okta.KEYCHAIN_DATA_KEY)
                 guard let stateManager = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(authStateData) as? OktaOidcStateManager else {
-                    return
+                    let error = NSError(domain: "com.okode.okta", code: 412, userInfo: [NSLocalizedDescriptionKey: "Unarchived authStateDataobject error"])
+                    self.notifyError(error: "NSKEYEDUNARCHIVER_ERROR", message: error.localizedDescription, code: String(error.code))
+                    return callback(nil, error)
                 }
                 stateManager.renew { authStateManager, error in
                     if error != nil {
