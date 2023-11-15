@@ -37,6 +37,7 @@ public class Okta {
   private WebAuthClient webAuthClient;
   private OktaListener oktaListener;
   private EncryptedSharedPreferenceStorage sharedPreferences;
+  private Boolean resetBiometric = false;
 
   public SessionClient configureSDK(Activity activity, String clientId, String uri, String scopes, String endSessionUri, String redirectUri) throws GeneralSecurityException, IOException {
     sharedPreferences = new EncryptedSharedPreferenceStorage(activity);
@@ -103,9 +104,7 @@ public class Okta {
     sharedPreferences.save(BIOMETRIC_KEY, "false");
   }
 
-  public void resetBiometric() {
-    sharedPreferences.delete(BIOMETRIC_KEY);
-  }
+  public void resetBiometric() { sharedPreferences.delete(BIOMETRIC_KEY); }
 
   public SessionClient getAuthState() {
     return getSession();
@@ -113,6 +112,9 @@ public class Okta {
 
   public void setOktaListener(OktaListener listener) {
     this.oktaListener = listener;
+  }
+  public void setResetBiometric(Boolean resetBiometric) {
+    this.resetBiometric = resetBiometric;
   }
 
   public void signInWithBiometric(PluginCall call, Activity activity, ActivityResult result) {
@@ -163,11 +165,15 @@ public class Okta {
       new ResultCallback<AuthorizationStatus, AuthorizationException>() {
         @Override
         public void onSuccess(@NonNull AuthorizationStatus status) {
-          if (status != AuthorizationStatus.AUTHORIZED) { return; }
-            if (!isBiometricConfigured() && Biometric.isAvailable(activity)) {
-              showBiometricDialog(activity);
-            }
-            notifyAuthStateChange();
+          if (status != AuthorizationStatus.AUTHORIZED) {
+            notifyError("NO_AUTHORIZED", "", "");
+            return;
+          }
+          if (!isBiometricConfigured() && Biometric.isAvailable(activity)) {
+            showBiometricDialog(activity);
+          }
+          if (resetBiometric) { resetBiometric(); }
+          notifyAuthStateChange();
         }
 
         @Override

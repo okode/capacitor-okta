@@ -53,10 +53,6 @@ import OktaStorage
             return
         }
 
-        if (self.isBiometricEnabled() && !isBiometricAvailable() && !isBiometricLocked()) {
-            clearSecureStorage()
-            setBiometric(value: false)
-        }
         if (showLogin) { urlParams["prompt"] = "login" }
         self.signInWithBrowser(vc: vc, params: urlParams, callback: callback)
     }
@@ -184,6 +180,9 @@ import OktaStorage
         authSession.signInWithBrowser(from: vc, additionalParameters: params, callback: { authStateManager, error in
             if error != nil {
                 return callback(nil, error)
+            }
+            if (self.isBiometricEnabled() && !self.isBiometricAvailable() && !self.isBiometricLocked()) {
+                self.clearSecureStorage()
             }
             if (!self.isBiometricConfigured() && self.isBiometricAvailable()) {
                 self.showBiometricDialog(vc: vc, secureStorage: secureStorage, authStateManager: authStateManager)

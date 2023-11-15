@@ -60,6 +60,7 @@ public class Biometric extends AppCompatActivity {
       }
       if (errorCode != null) {
         intent.putExtra("errorCode", String.valueOf(errorCode));
+        if (!isBiometricSupported(errorCode)) { intent.putExtra("isBiometricSupported", false); }
       }
       if (errorDetails != null) {
         intent.putExtra("errorMessage", errorDetails);
@@ -70,6 +71,18 @@ public class Biometric extends AppCompatActivity {
   public static Boolean isAvailable(Activity activity) {
     BiometricManager biometricManager = BiometricManager.from(activity);
     return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS;
+  }
+
+  private static Boolean isBiometricSupported(int error) {
+    switch (error) {
+      case BiometricPrompt.ERROR_NO_BIOMETRICS:
+      case BiometricPrompt.ERROR_HW_NOT_PRESENT:
+      case BiometricPrompt.ERROR_LOCKOUT_PERMANENT:
+      case BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL:
+        return false;
+      default:
+        return true;
+    }
   }
 
 }

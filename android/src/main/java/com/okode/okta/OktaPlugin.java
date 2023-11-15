@@ -41,8 +41,7 @@ public class OktaPlugin extends Plugin implements OktaListener {
     public void signIn(PluginCall call) {
       if (session == null) { call.reject("No session initialized"); }
       Boolean promptLogin = call.getBoolean("promptLogin", false);
-      if (!promptLogin && implementation.isBiometricEnabled() && Biometric.isAvailable(getActivity())
-        && session.isAuthenticated()) {
+      if (!promptLogin && implementation.isBiometricEnabled() && session.isAuthenticated()) {
         this.showBiometric(call);
         return;
       }
@@ -154,15 +153,16 @@ public class OktaPlugin extends Plugin implements OktaListener {
         return;
       }
       call.getData().put("promptLogin", true);
-      signIn(call);
       Intent data = result.getData();
-      int code = data.getIntExtra("errorCode", 0);
-      if (code == BiometricPrompt.ERROR_NO_BIOMETRICS) { implementation.disableBiometric(); }
+      if (data.hasExtra("isBiometricSupported") && !data.getBooleanExtra("isBiometricSupported", true)) {
+        implementation.setResetBiometric(true);
+      }
       implementation.notifyError(
         "BIOMETRIC_ERROR",
         data.hasExtra("errorMessage") ? data.getStringExtra("errorMessage") : "",
         data.hasExtra("errorCode") ? data.getStringExtra("errorCode") : ""
       );
+      signIn(call);
     }
 
     private void showBiometric(PluginCall call) {
