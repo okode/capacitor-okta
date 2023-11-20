@@ -1,6 +1,5 @@
-import OktaOidc
 
 protocol OktaDelegate {
-    func onOktaAuthStateChange(authState: OktaOidcStateManager?)
+    func onOktaAuthStateChange(authState: Any)
     func onOktaError(error: String, message: String, code: String)
 }
