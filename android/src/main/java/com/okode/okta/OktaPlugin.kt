@@ -1,13 +1,9 @@
 package com.okode.okta
 
-import android.app.Activity
-import android.content.Intent
-import androidx.activity.result.ActivityResult
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
-import com.getcapacitor.annotation.ActivityCallback
 import com.getcapacitor.annotation.CapacitorPlugin
 
 @CapacitorPlugin(name = "Okta")

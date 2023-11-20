@@ -20,7 +20,7 @@ buildscript {
     }
 }
 
-apply plugin: 'kotlin-android'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 30

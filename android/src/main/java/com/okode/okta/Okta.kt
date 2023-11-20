@@ -1,7 +1,6 @@
 package com.okode.okta
 
 import android.app.Activity
-import com.getcapacitor.JSObject
 import java.io.IOException
 import java.security.GeneralSecurityException
 
