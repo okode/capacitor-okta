@@ -276,15 +276,19 @@
 				"${PODS_ROOT}/Target Support Files/Pods-PluginTests/Pods-PluginTests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Capacitor/Capacitor.framework",
 				"${BUILT_PRODUCTS_DIR}/CapacitorCordova/Cordova.framework",
-				"${BUILT_PRODUCTS_DIR}/OktaOidc/OktaOidc.framework",
+				"${BUILT_PRODUCTS_DIR}/OktaAuthFoundation/AuthFoundation.framework",
+				"${BUILT_PRODUCTS_DIR}/OktaOAuth2/OktaOAuth2.framework",
 				"${BUILT_PRODUCTS_DIR}/OktaStorage/OktaStorage.framework",
+				"${BUILT_PRODUCTS_DIR}/OktaWebAuthenticationUI/WebAuthenticationUI.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Capacitor.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cordova.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OktaOidc.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AuthFoundation.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OktaOAuth2.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OktaStorage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WebAuthenticationUI.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
