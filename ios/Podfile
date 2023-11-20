@@ -12,7 +12,6 @@ target 'Plugin' do
   capacitor_pods
   pod 'OktaOidc', '3.11.2'
   pod 'OktaStorage', '1.1.3'
-  pod 'OktaWebAuthenticationUI'
 end
 
 target 'PluginTests' do
