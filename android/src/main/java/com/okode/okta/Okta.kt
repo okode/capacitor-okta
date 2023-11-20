@@ -17,7 +17,6 @@ import com.okta.webauthenticationui.WebAuthenticationClient.Companion.createWebA
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 class Okta {
-    private var sharedPreferences: EncryptedSharedPreferenceStorage? = null
     private var credential: Credential? = null
 
     @Throws(GeneralSecurityException::class, IOException::class)
