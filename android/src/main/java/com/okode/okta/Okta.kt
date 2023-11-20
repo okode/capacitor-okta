@@ -13,13 +13,16 @@ import com.okta.authfoundation.credential.Credential
 import com.okta.authfoundation.credential.CredentialDataSource.Companion.createCredentialDataSource
 import com.okta.authfoundationbootstrap.CredentialBootstrap
 import com.okta.webauthenticationui.WebAuthenticationClient.Companion.createWebAuthenticationClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 class Okta {
     private var credential: Credential? = null
 
     @Throws(GeneralSecurityException::class, IOException::class)
-    suspend fun configureSDK(activity: Activity, clientId: String, uri: String, scopes: String, endSessionUri: String, redirectUri: String?) {
+    fun configureSDK(activity: Activity, clientId: String, uri: String, scopes: String, endSessionUri: String, redirectUri: String?) {
         AuthFoundationDefaults.cache = SharedPreferencesCache.create(activity)
         val oidcConfiguration = OidcConfiguration(
                 clientId = clientId,
@@ -27,17 +30,25 @@ class Okta {
         )
         val client = OidcClient.createFromDiscoveryUrl(oidcConfiguration, uri.toHttpUrl())
         CredentialBootstrap.initialize(client.createCredentialDataSource(activity))
-        credential= CredentialBootstrap.defaultCredential()
+        runBlocking {
+            withContext(Dispatchers.Default) {
+                credential= CredentialBootstrap.defaultCredential()
+            }
+        }
     }
 
-    suspend fun signIn(activity: Activity): String {
+    fun signIn(activity: Activity): String {
         val webAuthenticationClient = CredentialBootstrap.oidcClient.createWebAuthenticationClient()
         when (val result = webAuthenticationClient.login(activity, "com.mapfre.tarjetadesalud:/callback")) {
             is OidcClientResult.Error -> {
 
             }
             is OidcClientResult.Success -> {
-                credential?.storeToken(token = result.result)
+                runBlocking {
+                    withContext(Dispatchers.Default) {
+                        credential?.storeToken(token = result.result)
+                    }
+                }
                 return result.result.accessToken
             }
         }

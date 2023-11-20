@@ -10,7 +10,7 @@ import com.getcapacitor.annotation.CapacitorPlugin
 class OktaPlugin : Plugin() {
     private val implementation = Okta()
     @PluginMethod
-    suspend fun configure(call: PluginCall) {
+    fun configure(call: PluginCall) {
         try {
             val clientId = call.data.getString("clientId", "")
             val uri = call.data.getString("uri", "")
@@ -25,7 +25,7 @@ class OktaPlugin : Plugin() {
     }
 
     @PluginMethod
-    suspend fun signIn(call: PluginCall) {
+    fun signIn(call: PluginCall) {
         val token = implementation.signIn(activity)
         val res = JSObject()
         res.put("token", token)
