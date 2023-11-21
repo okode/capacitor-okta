@@ -1,21 +1,16 @@
 import type { PluginListenerHandle } from "@capacitor/core";
 
 export interface OktaPlugin {
-  signIn(options?: { params?: Record<string, string>, promptLogin?: boolean }): Promise<void>;
+  signIn(options?: { params?: Record<string, string>, promptLogin?: boolean }): Promise<{ token: string }>;
   signOut(): Promise<void>;
-  register(params?: Record<string, string>): Promise<void>;
-  recoveryPassword(params?: Record<string, string>): Promise<void>;
+  register(params?: Record<string, string>): Promise<{ token: string }>;
+  recoveryPassword(params?: Record<string, string>): Promise<{ token: string }>;
   enableBiometric(): Promise<BiometricState>;
   disableBiometric(): Promise<BiometricState>;
   resetBiometric(): Promise<BiometricState>;
   getBiometricStatus(): Promise<BiometricState>;
   configure(config: OktaConfig): Promise<void>;
-  addListener(eventName: 'authState', listenerFunc: (data: AuthState) => void): PluginListenerHandle;
   addListener(eventName: 'error', listenerFunc: (data: OktaError) => void): PluginListenerHandle;
-}
-
-export interface AuthState {
-  accessToken?: string;
 }
 
 export interface OktaError {
