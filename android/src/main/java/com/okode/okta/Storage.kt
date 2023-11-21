@@ -13,9 +13,8 @@ class Storage {
 
   /* Keys */
   private val BIOMETRIC_KEY = "okta_biometric"
-  private val CONFIG_KEY = "okta_biometric"
 
-  private val FILE_NAME = "com.okode.okta.storage"
+  private val FILE_NAME = "okta_storage"
   private var prefs: SharedPreferences
 
   @Throws(GeneralSecurityException::class, IOException::class)
@@ -36,21 +35,21 @@ class Storage {
   fun deleteBiometric() { delete(BIOMETRIC_KEY) }
 
   private fun save(key: String, value: String) {
-    try {
-      prefs.edit().putString(key, value).commit()
-    } catch (e: Exception) { }
+    with(prefs.edit()) {
+      putString(key, value)
+      apply()
+    }
   }
 
   private operator fun get(key: String): String? {
-    try {
-      return prefs.getString(key, null)
-    } catch (e: Exception) { }
-    return null
+    return prefs.getString(key, null)
   }
 
   private fun delete(key: String) {
-    try {
-      prefs.edit().remove(key).commit()
-    } catch (e: Exception) { }
+    with(prefs.edit()) {
+      remove(key)
+      apply()
+    }
   }
+
 }

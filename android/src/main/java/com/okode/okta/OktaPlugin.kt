@@ -1,18 +1,22 @@
 package com.okode.okta
 
 import android.app.Activity.RESULT_OK
-
 import android.content.Intent
 import android.util.Log
+
 import androidx.activity.result.ActivityResult
+
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.ActivityCallback
 import com.getcapacitor.annotation.CapacitorPlugin
+
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.IOException
+import java.security.GeneralSecurityException
 
 
 @CapacitorPlugin(name = "Okta")
@@ -37,42 +41,37 @@ class OktaPlugin : Plugin() {
 
   @PluginMethod
   fun signIn(call: PluginCall) {
+    var promptLogin = call.getBoolean("promptLogin") ?: false
+    if (!promptLogin && implementation.hasRefreshToken() && implementation.isBiometricEnabled()) {
+      verifyIdentity(call)
+      return
+    }
+    signInWithBrowser(call, call.getObject("params") ?: JSObject(), promptLogin)
+  }
+
+  @PluginMethod
+  fun signOut(call: PluginCall) {
     GlobalScope.launch {
       try {
-        var promptLogin = call.getBoolean("promptLogin") ?: false
-        if (!promptLogin && implementation.hasRefreshToken() && implementation.isBiometricEnabled()) {
-          verifyIdentity(call)
-          return@launch
-        }
-        var params = call.getObject("params") ?: JSObject()
-        val token = implementation.signIn(activity, params, promptLogin)
-        call.resolve(Helper.convertTokenResponse(token))
+        implementation.signOut(activity)
+        call.resolve()
       } catch (e: Exception) { call.reject(e.toString(), e) }
     }
   }
 
+
   @PluginMethod
   fun register(call: PluginCall) {
-    GlobalScope.launch {
-      try {
-        var params = call.getObject("params") ?: JSObject()
-        params.put("t", "register");
-        val token = implementation.signIn(activity, params, true)
-        call.resolve(Helper.convertTokenResponse(token))
-      } catch (e: Exception) { call.reject(e.toString(), e) }
-    }
+    var params = call.getObject("params") ?: JSObject()
+    params.put("t", "register");
+    signInWithBrowser(call, params, true)
   }
 
   @PluginMethod
   fun recoveryPassword(call: PluginCall) {
-    GlobalScope.launch {
-      try {
-        var params = call.getObject("params") ?: JSObject()
-        params.put("t", "resetPassWidget");
-        val token = implementation.signIn(activity, params, true)
-        call.resolve(Helper.convertTokenResponse(token))
-      } catch (e: Exception) { call.reject(e.toString(), e) }
-    }
+    var params = call.getObject("params") ?: JSObject()
+    params.put("t", "resetPassWidget");
+    signInWithBrowser(call, params, true)
   }
 
   @PluginMethod
@@ -99,27 +98,40 @@ class OktaPlugin : Plugin() {
   }
 
   @ActivityCallback
-  private fun biometricResult(call: PluginCall?, result: ActivityResult) {
+  private fun biometricResult(call: PluginCall, result: ActivityResult) {
     GlobalScope.launch {
-      if (call == null) { return@launch }
-      if (result.getResultCode() === RESULT_OK) {
-        try {
-          val token = implementation.refreshToken()
-          call.resolve(Helper.convertTokenResponse(token))
-        } catch (e: Exception) {
-          call.data.put("promptLogin", true);
-          signIn(call)
-        }
+      if (result.resultCode !== RESULT_OK) {
+        signInWithBrowser(call, call.getObject("params") ?: JSObject(), true)
         return@launch
       }
-      call.data.put("promptLogin", true);
-      signIn(call)
+      signInWithRefresh(call)
+    }
+  }
+
+  private fun signInWithBrowser(call: PluginCall, params: JSObject, promptLogin: Boolean) {
+    GlobalScope.launch {
+      try {
+        if (promptLogin) { params.put("promptLogin", "login") }
+        val token = implementation.signIn(activity, params, promptLogin)
+        call.resolve(Helper.convertTokenResponse(token))
+      } catch (e: Exception) { call.reject(e.toString(), e) }
     }
   }
 
   private fun verifyIdentity(call: PluginCall) {
     val intent = Intent(context, Biometric::class.java)
     startActivityForResult(call, intent, "biometricResult")
+  }
+
+  private fun signInWithRefresh(call: PluginCall) {
+    GlobalScope.launch {
+      try {
+        val token = implementation.refreshToken()
+        call.resolve(Helper.convertTokenResponse(token))
+      } catch (e: Exception) {
+        signInWithBrowser(call, call.getObject("params") ?: JSObject(), false)
+      }
+    }
   }
 
 }

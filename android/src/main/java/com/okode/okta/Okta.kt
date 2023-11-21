@@ -2,7 +2,9 @@ package com.okode.okta
 
 import android.app.Activity
 import android.content.DialogInterface
+
 import com.getcapacitor.JSObject
+
 import com.okta.authfoundation.AuthFoundationDefaults
 import com.okta.authfoundation.client.OidcClient
 import com.okta.authfoundation.client.OidcClientResult
@@ -12,7 +14,9 @@ import com.okta.authfoundation.credential.Credential
 import com.okta.authfoundation.credential.CredentialDataSource.Companion.createCredentialDataSource
 import com.okta.authfoundationbootstrap.CredentialBootstrap
 import com.okta.webauthenticationui.WebAuthenticationClient.Companion.createWebAuthenticationClient
+
 import okhttp3.HttpUrl.Companion.toHttpUrl
+
 import java.io.IOException
 import java.security.GeneralSecurityException
 
@@ -42,17 +46,32 @@ class Okta {
 
   suspend fun signIn(activity: Activity, params: JSObject, promptLogin: Boolean): String? {
     var token: String? = null
-    if (promptLogin) { params.put("promptLogin", "login") }
+    if (!promptLogin && credential?.getAccessTokenIfValid() != null) {
+      return credential?.token?.accessToken
+    }
     when (val result = CredentialBootstrap.oidcClient.createWebAuthenticationClient().login(activity, redirectUri, Helper.convertParams(params))) {
       is OidcClientResult.Error -> {
         throw Exception(result.exception)
       }
       is OidcClientResult.Success -> {
         showBiometricDialog(activity);
+        credential?.storeToken(result.result)
         token = result.result.accessToken
       }
     }
     return token
+  }
+
+  suspend fun signOut(activity: Activity) {
+    when (val result = CredentialBootstrap.oidcClient.createWebAuthenticationClient().logoutOfBrowser(activity, endSessionUri, credential?.token?.idToken ?: "")
+    ) {
+      is OidcClientResult.Error -> {
+        throw Exception(result.exception)
+      }
+      is OidcClientResult.Success -> {
+      }
+    }
+    return
   }
 
   fun enableBiometric() {
