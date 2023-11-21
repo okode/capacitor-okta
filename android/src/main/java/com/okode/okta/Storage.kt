@@ -35,13 +35,6 @@ class Storage {
   fun getBiometric(): Boolean? { return get(BIOMETRIC_KEY)?.toBoolean() }
   fun deleteBiometric() { delete(BIOMETRIC_KEY) }
 
-  /* Config */
-  fun setOktaConfig(value: JSONObject) { save(CONFIG_KEY, value.toString()) }
-  fun getOktaConfig(): JSONObject? {
-    val res = get(CONFIG_KEY) ?: return JSONObject()
-    return JSONObject(res)
-  }
-
   private fun save(key: String, value: String) {
     try {
       prefs.edit().putString(key, value).commit()

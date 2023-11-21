@@ -40,7 +40,6 @@ class OktaPlugin : Plugin() {
     GlobalScope.launch {
       try {
         var promptLogin = call.getBoolean("promptLogin") ?: false
-        Log.d("My Okta Activity", promptLogin.toString())
         if (!promptLogin && implementation.hasRefreshToken() && implementation.isBiometricEnabled()) {
           verifyIdentity(call)
           return@launch
@@ -79,20 +78,24 @@ class OktaPlugin : Plugin() {
   @PluginMethod
   fun enableBiometric(call: PluginCall) {
     implementation.enableBiometric()
+    getBiometricStatus(call)
   }
 
   @PluginMethod
   fun disableBiometric(call: PluginCall) {
     implementation.disableBiometric()
+    getBiometricStatus(call)
   }
 
   @PluginMethod
   fun resetBiometric(call: PluginCall) {
     implementation.resetBiometric()
+    getBiometricStatus(call)
   }
 
   @PluginMethod
   fun getBiometricStatus(call: PluginCall) {
+    call.resolve(Helper.convertBiometricStatus(implementation.isBiometricEnabled(), Biometric.isAvailable(activity)))
   }
 
   @ActivityCallback

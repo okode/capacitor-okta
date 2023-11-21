@@ -18,20 +18,16 @@ class Helper {
       return urlParams
     }
 
-    fun configToJSON(clientId: String, uri: String, scopes: String,
-                     endSessionUri: String, redirectUri: String): JSONObject {
-      val json = JSONObject()
-      json.put("clientId", clientId)
-      json.put("uri", uri)
-      json.put("scopes", scopes)
-      json.put("endSessionUri", endSessionUri)
-      json.put("redirectUri", redirectUri)
-      return json
-    }
-
     fun convertTokenResponse(token: String?): JSObject {
       val res = JSObject()
       res.put("token", token)
+      return res
+    }
+
+    fun convertBiometricStatus(isBiometricEnabled: Boolean, isBiometricAvailable: Boolean): JSObject {
+      val res = JSObject()
+      res.put("isBiometricEnabled", isBiometricEnabled)
+      res.put("isBiometricAvailable", isBiometricAvailable)
       return res
     }
 

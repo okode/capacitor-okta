@@ -59,8 +59,8 @@ class Biometric : AppCompatActivity() {
 
     companion object {
         @JvmStatic
-        fun isAvailable(activity: Activity?): Boolean {
-            val biometricManager = BiometricManager.from(activity!!)
+        fun isAvailable(activity: Activity): Boolean {
+            val biometricManager = BiometricManager.from(activity)
             return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS
         }
 

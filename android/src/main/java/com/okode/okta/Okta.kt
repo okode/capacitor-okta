@@ -21,6 +21,8 @@ class Okta {
 
   private var credential: Credential? = null
   private var storage: Storage? = null
+  private var endSessionUri: String = ""
+  private var redirectUri: String = ""
 
   @Throws(GeneralSecurityException::class, IOException::class)
   suspend fun configureSDK(activity: Activity, clientId: String, uri: String, scopes: String, endSessionUri: String, redirectUri: String) {
@@ -34,12 +36,12 @@ class Okta {
     CredentialBootstrap.initialize(client.createCredentialDataSource(activity))
     credential = CredentialBootstrap.defaultCredential()
     storage = Storage(activity)
-    storage?.setOktaConfig(Helper.configToJSON(clientId, uri, scopes, endSessionUri, redirectUri))
+    this.endSessionUri = endSessionUri
+    this.redirectUri = redirectUri
   }
 
   suspend fun signIn(activity: Activity, params: JSObject, promptLogin: Boolean): String? {
     var token: String? = null
-    val redirectUri = storage?.getOktaConfig()?.getString("redirectUri") ?: ""
     if (promptLogin) { params.put("promptLogin", "login") }
     when (val result = CredentialBootstrap.oidcClient.createWebAuthenticationClient().login(activity, redirectUri, Helper.convertParams(params))) {
       is OidcClientResult.Error -> {
@@ -51,6 +53,18 @@ class Okta {
       }
     }
     return token
+  }
+
+  fun enableBiometric() {
+    storage?.setBiometric(true)
+  }
+
+  fun disableBiometric() {
+    storage?.setBiometric(false)
+  }
+
+  fun resetBiometric() {
+    storage?.deleteBiometric()
   }
 
   suspend fun refreshToken(): String? {
@@ -70,23 +84,11 @@ class Okta {
   }
 
   fun isBiometricEnabled(): Boolean {
-    return storage?.getBiometric() != null && storage?.getBiometric()!!;
+    return storage?.getBiometric() ?: false
   }
 
   fun hasRefreshToken(): Boolean {
     return credential?.token?.refreshToken != null
-  }
-
-  fun enableBiometric() {
-    storage?.setBiometric(true)
-  }
-
-  fun disableBiometric() {
-    storage?.setBiometric(false)
-  }
-
-  fun resetBiometric() {
-    storage?.deleteBiometric()
   }
 
   private fun showBiometricDialog(activity: Activity) {
