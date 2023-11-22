@@ -5,32 +5,26 @@ import Capacitor
 
 @objc public class Okta: NSObject {
 
-    var webAuthentication: WebAuthentication?
+    let auth = WebAuthentication.shared
 
     @objc public func configureSDK(config: [String : String]) -> Void {
         let issuer = URL.init(string: config["uri"]!)
         let redirectUri = URL.init(string: config["redirectUri"]!)
-        webAuthentication = WebAuthentication(issuer: issuer!, clientId: config["clientId"]!, scopes: config["scopes"]!, redirectUri: redirectUri!)
-        }
+        WebAuthentication(issuer: issuer!, clientId: config["clientId"]!, scopes: config["scopes"]!, redirectUri: redirectUri!)
+    }
 
     @objc public func signIn(vc: UIViewController, params: [AnyHashable : Any], promptLogin: Bool, callback: @escaping((_ result: String?, _ error: Error?) -> Void)) {
 
-        let credential = getCredential()
-        if (!promptLogin && credential != nil && credential!.token.isValid) {
-            Task {
-                do {
-                    try await refreshToken()
-                    callback(getCredential()?.token.accessToken, nil)
-                } catch _ {
-                    signIn(vc: vc, params: params, promptLogin: true, callback: callback)
-                }
-            }
-            return
-        }
-
         Task {
+            let credential = getCredential()
+            if (credential != nil && credential?.token.isValid ?? false) {
+                callback(credential?.token.accessToken, nil)
+                return
+            }
+
             do {
-                let token = try await signInWithBrowser(vc: vc, params: params, promptLogin: promptLogin)
+                let token = try await auth?.signIn(from: vc.view.window)
+                storeToken(token: token)
                 callback(token?.accessToken, nil)
             } catch let error {
                 callback(nil, error)
@@ -76,24 +70,17 @@ import Capacitor
     }
 
     private func getCredential() -> Credential? {
-        if let credential = Credential.default {
-            return credential
+        do {
+            return try Credential.find(where: { $0.tags["tag"] == "t2" }).first
+        } catch let error {
+            return nil
         }
-        return nil
     }
 
     private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], promptLogin: Bool) async throws -> Token? {
         var options: [WebAuthentication.Option]? = []
-        if (promptLogin) { options?.append(.prompt(.login)) }
-
-        /*
-        params.compactMap { (key: AnyHashable, value: Any) in
-            options?.append(.custom(key: key as! String, value: value as! String))
-        }
-        */
-
-        let token = try await webAuthentication?.signIn(from: vc.view.window, options: options)
-        storeToken(token: token)
+        let token = try await auth?.signIn(from: vc.view.window, options: options)
+        try Credential.store(token!)
         return token
     }
 
@@ -120,9 +107,13 @@ import Capacitor
     private func storeToken(token: Token?) {
         if (token == nil) { return }
         do {
-            try Credential.store(token!)
+            let security: [Credential.Security] = [
+                .accessibility(.unlockedThisDeviceOnly),
+                .accessControl(.applicationPassword)
+            ]
+            let credential = try Credential.store(token!, tags: ["tag": "t2"], security: security)
         } catch let error {
-            print(error)
+            print("STORE ERROR", error)
         }
     }
 
