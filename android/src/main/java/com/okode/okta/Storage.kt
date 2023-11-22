@@ -13,7 +13,6 @@ class Storage {
 
   /* Keys */
   private val BIOMETRIC_ENABLED_KEY = "okta_biometric_enabled"
-  private val BIOMETRIC_ERROR_KEY = "okta_biometric_error"
 
   private val FILE_NAME = "okta_storage"
   private var prefs: SharedPreferences
@@ -34,9 +33,6 @@ class Storage {
   fun setBiometric(enabled: Boolean) { save(BIOMETRIC_ENABLED_KEY, enabled.toString()) }
   fun getBiometric(): Boolean? { return get(BIOMETRIC_ENABLED_KEY)?.toBoolean() }
   fun deleteBiometric() { delete(BIOMETRIC_ENABLED_KEY) }
-  fun setBiometricError(error: String) { save(BIOMETRIC_ERROR_KEY, error.toString()) }
-  fun getBiometricError(): String? { return get(BIOMETRIC_ERROR_KEY) }
-  fun deleteBiometricError() { delete(BIOMETRIC_ERROR_KEY) }
 
   private fun save(key: String, value: String) {
     with(prefs.edit()) {

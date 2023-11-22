@@ -115,6 +115,8 @@ class Okta {
     return credential?.token?.refreshToken != null
   }
 
+  /* UI */
+
   private fun showBiometricDialog(activity: Activity) {
     if (storage?.getBiometric() != null || !Biometric.isAvailable(activity)) { return }
     val builder: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(activity)
@@ -131,10 +133,9 @@ class Okta {
     activity.runOnUiThread { builder.create().show() }
   }
 
-  fun showToast(activity: Activity, text: String) {
-    val duration = Toast.LENGTH_SHORT
+  private fun showToast(activity: Activity, text: String) {
+    val duration = Toast.LENGTH_LONG
     activity.runOnUiThread { Toast.makeText(activity, text, duration).show() }
-
   }
 
 }
