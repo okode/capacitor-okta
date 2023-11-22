@@ -2,6 +2,7 @@ package com.okode.okta
 
 import android.app.Activity
 import android.content.DialogInterface
+import android.widget.Toast
 
 import com.getcapacitor.JSObject
 
@@ -54,6 +55,10 @@ class Okta {
         throw Exception(result.exception)
       }
       is OidcClientResult.Success -> {
+        if (!Biometric.isAvailable(activity) && isBiometricEnabled()) {
+          disableBiometric()
+          showToast(activity, "El acceso biométrico se ha deshabilitado")
+        }
         showBiometricDialog(activity);
         credential?.storeToken(result.result)
         token = result.result.accessToken
@@ -111,7 +116,7 @@ class Okta {
   }
 
   private fun showBiometricDialog(activity: Activity) {
-    if (storage?.getBiometric() != null) { return }
+    if (storage?.getBiometric() != null || !Biometric.isAvailable(activity)) { return }
     val builder: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(activity)
     builder.setTitle("Acceso biométrico")
     builder.setMessage("¿Quieres utilizar el biométrico para futuros accesos?")
@@ -126,6 +131,10 @@ class Okta {
     activity.runOnUiThread { builder.create().show() }
   }
 
+  fun showToast(activity: Activity, text: String) {
+    val duration = Toast.LENGTH_SHORT
+    activity.runOnUiThread { Toast.makeText(activity, text, duration).show() }
 
+  }
 
 }

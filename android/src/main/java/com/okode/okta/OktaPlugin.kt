@@ -1,22 +1,17 @@
 package com.okode.okta
 
+import android.R
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.util.Log
-
 import androidx.activity.result.ActivityResult
-
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.ActivityCallback
 import com.getcapacitor.annotation.CapacitorPlugin
-
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.IOException
-import java.security.GeneralSecurityException
 
 
 @CapacitorPlugin(name = "Okta")
@@ -100,7 +95,14 @@ class OktaPlugin : Plugin() {
   @ActivityCallback
   private fun biometricResult(call: PluginCall, result: ActivityResult) {
     GlobalScope.launch {
+      var forceLogin = false
       if (result.resultCode !== RESULT_OK) {
+        val data = result.data
+        notifyError(
+          "BIOMETRIC_ERROR",
+          data?.getStringExtra("errorMessage") ?: "",
+          data?.getStringExtra("errorCode") ?: ""
+        )
         signInWithBrowser(call, call.getObject("params") ?: JSObject(), true)
         return@launch
       }
@@ -111,16 +113,11 @@ class OktaPlugin : Plugin() {
   private fun signInWithBrowser(call: PluginCall, params: JSObject, promptLogin: Boolean) {
     GlobalScope.launch {
       try {
-        if (promptLogin) { params.put("promptLogin", "login") }
+        if (promptLogin) { params.put("prompt", "login") }
         val token = implementation.signIn(activity, params, promptLogin)
         call.resolve(Helper.convertTokenResponse(token))
       } catch (e: Exception) { call.reject(e.toString(), e) }
     }
-  }
-
-  private fun verifyIdentity(call: PluginCall) {
-    val intent = Intent(context, Biometric::class.java)
-    startActivityForResult(call, intent, "biometricResult")
   }
 
   private fun signInWithRefresh(call: PluginCall) {
@@ -129,9 +126,19 @@ class OktaPlugin : Plugin() {
         val token = implementation.refreshToken()
         call.resolve(Helper.convertTokenResponse(token))
       } catch (e: Exception) {
+        notifyError("REFRESH_ERROR", e.localizedMessage, "")
         signInWithBrowser(call, call.getObject("params") ?: JSObject(), false)
       }
     }
+  }
+
+  private fun verifyIdentity(call: PluginCall) {
+    val intent = Intent(context, Biometric::class.java)
+    startActivityForResult(call, intent, "biometricResult")
+  }
+
+  private fun notifyError(error: String, message: String, code: String) {
+    notifyListeners("error", Helper.convertError(error, message, code), true)
   }
 
 }

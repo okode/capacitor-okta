@@ -1,7 +1,6 @@
 package com.okode.okta
 
 import com.getcapacitor.JSObject
-import org.json.JSONObject
 
 class Helper {
 
@@ -31,6 +30,13 @@ class Helper {
       return res
     }
 
+    fun convertError(error: String?, message: String?, code: String?): JSObject? {
+      val e = JSObject()
+      e.put("error", error)
+      e.put("message", message)
+      e.put("code", code)
+      return e
+    }
   }
 
 }

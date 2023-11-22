@@ -47,9 +47,6 @@ class Biometric : AppCompatActivity() {
         }
         if (errorCode != null) {
             intent.putExtra("errorCode", errorCode.toString())
-            if (!isBiometricSupported(errorCode)) {
-                intent.putExtra("isBiometricSupported", false)
-            }
         }
         if (errorDetails != null) {
             intent.putExtra("errorMessage", errorDetails)
@@ -62,13 +59,6 @@ class Biometric : AppCompatActivity() {
         fun isAvailable(activity: Activity): Boolean {
             val biometricManager = BiometricManager.from(activity)
             return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS
-        }
-
-        private fun isBiometricSupported(error: Int): Boolean {
-            return when (error) {
-                BiometricPrompt.ERROR_NO_BIOMETRICS, BiometricPrompt.ERROR_HW_NOT_PRESENT, BiometricPrompt.ERROR_LOCKOUT_PERMANENT, BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL -> false
-                else -> true
-            }
         }
     }
 }
