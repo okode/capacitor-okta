@@ -24,6 +24,7 @@ import java.security.GeneralSecurityException
 
 class Okta {
 
+  private var configured: Boolean = false
   private var credential: Credential? = null
   private var storage: Storage? = null
   private var endSessionUri: String = ""
@@ -31,6 +32,7 @@ class Okta {
 
   @Throws(GeneralSecurityException::class, IOException::class)
   suspend fun configureSDK(activity: Activity, clientId: String, uri: String, scopes: String, endSessionUri: String, redirectUri: String) {
+    if (configured) { return }
     AuthFoundationDefaults.cache = SharedPreferencesCache.create(activity)
     val oidcConfiguration = OidcConfiguration(
       clientId = clientId,
@@ -43,13 +45,16 @@ class Okta {
     storage = Storage(activity)
     this.endSessionUri = endSessionUri
     this.redirectUri = redirectUri
+    configured = true
   }
 
   suspend fun signIn(activity: Activity, params: JSObject, promptLogin: Boolean): String? {
     var token: String? = null
+
     if (!promptLogin && credential?.getAccessTokenIfValid() != null) {
       return credential?.token?.accessToken
     }
+
     when (val result = CredentialBootstrap.oidcClient.createWebAuthenticationClient().login(activity, redirectUri, Helper.convertParams(params))) {
       is OidcClientResult.Error -> {
         throw Exception(result.exception)
@@ -69,9 +74,10 @@ class Okta {
 
   suspend fun signOut(activity: Activity, signOutOfBrowser: Boolean, resetBiometric: Boolean) {
     val idToken = credential?.token?.idToken ?: ""
-    credential?.revokeAllTokens()
+    credential?.delete()
     if (resetBiometric) { resetBiometric() }
     if (!signOutOfBrowser) { return }
+
     when (val result = CredentialBootstrap.oidcClient.createWebAuthenticationClient().logoutOfBrowser(activity, endSessionUri, idToken)
     ) {
       is OidcClientResult.Error -> {
