@@ -6,7 +6,10 @@ export interface OktaPlugin {
     }): Promise<{
         token: string;
     }>;
-    signOut(): Promise<void>;
+    signOut(options?: {
+        signOutOfBrowser?: boolean;
+        resetBiometric?: boolean;
+    }): Promise<void>;
     register(params?: Record<string, string>): Promise<{
         token: string;
     }>;

@@ -46,9 +46,11 @@ class OktaPlugin : Plugin() {
 
   @PluginMethod
   fun signOut(call: PluginCall) {
+    var signOutOfBrowser = call.getBoolean("signOutOfBrowser") ?: false
+    var resetBiometric = call.getBoolean("resetBiometric") ?: false
     GlobalScope.launch {
       try {
-        implementation.signOut(activity)
+        implementation.signOut(activity, signOutOfBrowser, resetBiometric)
         call.resolve()
       } catch (e: Exception) { call.reject(e.toString(), e) }
     }

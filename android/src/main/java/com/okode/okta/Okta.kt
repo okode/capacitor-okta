@@ -67,8 +67,12 @@ class Okta {
     return token
   }
 
-  suspend fun signOut(activity: Activity) {
-    when (val result = CredentialBootstrap.oidcClient.createWebAuthenticationClient().logoutOfBrowser(activity, endSessionUri, credential?.token?.idToken ?: "")
+  suspend fun signOut(activity: Activity, signOutOfBrowser: Boolean, resetBiometric: Boolean) {
+    val idToken = credential?.token?.idToken ?: ""
+    credential?.revokeAllTokens()
+    if (resetBiometric) { resetBiometric() }
+    if (!signOutOfBrowser) { return }
+    when (val result = CredentialBootstrap.oidcClient.createWebAuthenticationClient().logoutOfBrowser(activity, endSessionUri, idToken)
     ) {
       is OidcClientResult.Error -> {
         throw Exception(result.exception)
