@@ -5,12 +5,12 @@ import Capacitor
 
 @objc public class Okta: NSObject {
 
-    let auth = WebAuthentication.shared
+    var webAuth: WebAuthentication? = nil
 
     @objc public func configureSDK(config: [String : String]) -> Void {
         let issuer = URL.init(string: config["uri"]!)
         let redirectUri = URL.init(string: config["redirectUri"]!)
-        WebAuthentication(issuer: issuer!, clientId: config["clientId"]!, scopes: config["scopes"]!, redirectUri: redirectUri!)
+        webAuth = WebAuthentication(issuer: issuer!, clientId: config["clientId"]!, scopes: config["scopes"]!, redirectUri: redirectUri!)
     }
 
     @objc public func signIn(vc: UIViewController, params: [AnyHashable : Any], promptLogin: Bool, callback: @escaping((_ result: String?, _ error: Error?) -> Void)) {
@@ -23,7 +23,7 @@ import Capacitor
             }
 
             do {
-                let token = try await auth?.signIn(from: vc.view.window)
+                let token = try await webAuth?.signIn(from: vc.view.window)
                 storeToken(token: token)
                 callback(token?.accessToken, nil)
             } catch let error {
@@ -71,7 +71,7 @@ import Capacitor
 
     private func getCredential() -> Credential? {
         do {
-            return try Credential.find(where: { $0.tags["tag"] == "t2" }).first
+            return try Credential.find(where: { $0.tags["111"] == "t2" }).first
         } catch let error {
             return nil
         }
@@ -79,7 +79,7 @@ import Capacitor
 
     private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], promptLogin: Bool) async throws -> Token? {
         var options: [WebAuthentication.Option]? = []
-        let token = try await auth?.signIn(from: vc.view.window, options: options)
+        let token = try await webAuth?.signIn(from: vc.view.window, options: options)
         try Credential.store(token!)
         return token
     }
@@ -107,7 +107,8 @@ import Capacitor
     private func storeToken(token: Token?) {
         if (token == nil) { return }
         do {
-            let credential = try Credential.store(token!, tags: ["tag": "t2"])
+            let security: [Credential.Security] = []
+            let credential = try Credential.store(token!, tags: ["111": "t2"], security: security)
         } catch let error {
             print("STORE ERROR", error)
         }
