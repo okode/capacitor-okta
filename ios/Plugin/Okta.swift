@@ -107,11 +107,7 @@ import Capacitor
     private func storeToken(token: Token?) {
         if (token == nil) { return }
         do {
-            let security: [Credential.Security] = [
-                .accessibility(.unlockedThisDeviceOnly),
-                .accessControl(.applicationPassword)
-            ]
-            let credential = try Credential.store(token!, tags: ["tag": "t2"], security: security)
+            let credential = try Credential.store(token!, tags: ["tag": "t2"])
         } catch let error {
             print("STORE ERROR", error)
         }
