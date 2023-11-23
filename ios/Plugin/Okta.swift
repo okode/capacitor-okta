@@ -2,9 +2,9 @@ import Foundation
 import LocalAuthentication
 import WebAuthenticationUI
 import Capacitor
+import Security
 
 @objc public class Okta: NSObject {
-
 
     @objc public func configureSDK(config: [String : String]) -> Void {
         let issuer = URL.init(string: config["uri"]!)
@@ -15,9 +15,10 @@ import Capacitor
     @objc public func signIn(vc: UIViewController, params: [AnyHashable : Any], promptLogin: Bool, callback: @escaping((_ result: String?, _ error: Error?) -> Void)) {
 
         Task {
-            let credential = getCredential()
-            if (credential != nil && credential?.token.isValid ?? false) {
-                callback(credential?.token.accessToken, nil)
+            let token = await getTokens()
+
+            if (token?.isValid == true) {
+                callback(token?.accessToken, nil)
                 return
             }
 
@@ -95,7 +96,9 @@ import Capacitor
     private func verifyIdentity() async -> Bool {
         return await withCheckedContinuation { continuation in
             DispatchQueue.global().async {
-                LAContext().evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
+                let context = LAContext()
+                context.localizedFallbackTitle = ""
+                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
                                            localizedReason: "Acceso biométrico") { success, authenticationError in
                     continuation.resume(returning: success)
                 }
@@ -106,10 +109,45 @@ import Capacitor
     private func storeToken(token: Token?) {
         if (token == nil) { return }
         do {
-            let security: [Credential.Security] = []
-            let credential = try Credential.store(token!, tags: ["111": "t2"], security: security)
+            let data = try JSONEncoder().encode(token)
+            let attributes: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrAccount as String: "okta_tokens_storage",
+                kSecValueData as String: data
+            ]
+            if SecItemAdd(attributes as CFDictionary, nil) == noErr {
+                print("User saved successfully in the keychain")
+            } else {
+                print("Something went wrong trying to save the user in the keychain")
+            }
         } catch let error {
             print("STORE ERROR", error)
+        }
+    }
+
+    private func getTokens() async -> Token? {
+        let verified = await verifyIdentity()
+        if (!verified) { return nil }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: "okta_tokens_storage",
+            kSecMatchLimit as String: kSecMatchLimitOne,
+            kSecReturnAttributes as String: true,
+            kSecReturnData as String: true,
+        ]
+        var item: CFTypeRef?
+        do {
+            if SecItemCopyMatching(query as CFDictionary, &item) == noErr {
+                let existingItem = item as? [String: Any]
+                if (existingItem == nil) { return nil }
+                let data = existingItem?[kSecValueData as String] as? Data
+                let token = try JSONDecoder().decode(Token.self, from: data!) as Token
+                return token
+            } else {
+                return nil
+            }
+        } catch let error {
+            return nil
         }
     }
 
