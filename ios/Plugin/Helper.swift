@@ -7,11 +7,19 @@ public class Helper: NSObject {
             return (key as! String, value as! String)
         })
     }
-    
+
     public static func getBiometricStatus() -> [String:Bool] {
         return [
             "isBiometricAvailable": Biometric.isAvailable(),
             "isBiometricEnabled": Storage.getBiometric() == true
+        ]
+    }
+
+    public static func convertError(error: String, message: String, code: String) -> [String:Any] {
+        return [
+            "error": error,
+            "message": message,
+            "code": code
         ]
     }
 

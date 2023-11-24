@@ -9,6 +9,7 @@ import AuthFoundation
 
     /* Tokens */
     public static func setTokens(token: Token?) {
+        deleteToken()
         do {
             let data = try JSONEncoder().encode(token)
             Storage.save(key: Storage.TOKENS_KEY, data: data)
@@ -18,6 +19,7 @@ import AuthFoundation
     public static func getTokens() -> Token? {
         do {
             let data = Storage.get(key: Storage.TOKENS_KEY)
+            if (data == nil) { return nil }
             return try JSONDecoder().decode(Token.self, from: data!) as Token
         } catch _ {
             return nil
@@ -30,6 +32,7 @@ import AuthFoundation
 
     /* Biometric */
     public static func setBiometric(value: Bool) {
+        deleteBiometric()
         do {
             let data = try JSONEncoder().encode(value)
             Storage.save(key: Storage.BIOMETRIC_KEY, data: data)
@@ -39,6 +42,7 @@ import AuthFoundation
     public static func getBiometric() -> Bool? {
         do {
             let data = Storage.get(key: Storage.BIOMETRIC_KEY)
+            if (data == nil) { return nil }
             return try JSONDecoder().decode(Bool.self, from: data!) as Bool
         } catch _ {
             return nil
