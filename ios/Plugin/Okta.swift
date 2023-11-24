@@ -85,26 +85,15 @@ import Security
     }
 
     @available(iOS 13.0.0, *)
-    private func showBiometricDialog(vc: UIViewController?) {
-            let alert = UIAlertController(title: "Acceso biométrico", message: "¿Quieres utilizar el biométrico para futuros accesos?", preferredStyle: UIAlertController.Style.alert)
-
-        alert.addAction(UIAlertAction(title: "Aceptar", style: .default, handler: { (action: UIAlertAction!) in
-            self.enableBiometric() { }
-        }))
-
-        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: { (action: UIAlertAction!) in
-            self.disableBiometric()
-        }))
-        DispatchQueue.main.async {
-            vc?.present(alert, animated: true, completion: nil)
-        }
-    }
-
-    @available(iOS 13.0.0, *)
     private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], promptLogin: Bool) async throws -> Token? {
         var options: [WebAuthentication.Option]? = []
         if (promptLogin) { options?.append(.prompt(.login)) }
         let token = try await getWebAuth().signIn(from: vc.view.window, options: options)
+        let isBiometricAvailable = Biometric.isAvailable()
+        if (isBiometricEnabled() && !isBiometricAvailable && Biometric.errorCode != LAError.Code.biometryLockout.rawValue) {
+            showBiometricWarning(vc: vc)
+            disableBiometric()
+        }
         if (!isBiometricConfigured() && Biometric.isAvailable()) { showBiometricDialog(vc: vc) }
         Storage.setTokens(token: token)
         return token
@@ -150,6 +139,28 @@ import Security
 
     private func getWebAuth() -> WebAuthentication {
         return WebAuthentication(issuer: issuer!, clientId: clientId, scopes: scopes, redirectUri: redirectUri!, logoutRedirectUri: logoutRedirectUri)
+    }
+
+    @available(iOS 13.0.0, *)
+    private func showBiometricDialog(vc: UIViewController?) {
+        let alert = UIAlertController(title: "Acceso biométrico", message: "¿Quieres utilizar el biométrico para futuros accesos?", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Aceptar", style: .default, handler: { (action: UIAlertAction!) in
+            self.enableBiometric() { }
+        }))
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: { (action: UIAlertAction!) in
+            self.disableBiometric()
+        }))
+        DispatchQueue.main.async {
+            vc?.present(alert, animated: true, completion: nil)
+        }
+    }
+
+    private func showBiometricWarning(vc: UIViewController?) {
+        let alert = UIAlertController(title: "Acceso biométrico", message: "El acceso biométrico se ha deshabilitado", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Aceptar", style: .default))
+        DispatchQueue.main.async {
+            vc?.present(alert, animated: true, completion: nil)
+        }
     }
 
 }
