@@ -10,12 +10,14 @@ import Security
 
     var issuer: URL?
     var redirectUri: URL?
+    var logoutRedirectUri: URL?
     var clientId = ""
     var scopes = ""
 
     @objc public func configureSDK(config: [String : String]) -> Void {
         issuer = URL.init(string: config["uri"]!)
         redirectUri = URL.init(string: config["redirectUri"]!)
+        logoutRedirectUri = URL.init(string: config["endSessionUri"]!)
         scopes = config["scopes"]!
         clientId = config["clientId"]!
     }
@@ -50,14 +52,19 @@ import Security
         }
     }
 
-    @objc public func signOut(vc: UIViewController?, signOutOfBrowser: Bool, resetBiometric: Bool, callback: @escaping (() -> Void)) {
-        let token = Storage.getTokens()
-        if (token == nil) { callback() }
-        Storage.deleteToken()
-        if (resetBiometric) { Storage.deleteBiometric() }
-        if (!signOutOfBrowser) { callback(); return }
-        getWebAuth().signOut(token: token!, completion: { _ in })
-        callback()
+    @objc public func signOut(vc: UIViewController?, signOutOfBrowser: Bool, resetBiometric: Bool, callback: @escaping ((_ error: Error?) -> Void)) {
+        Task {
+            let token = Storage.getTokens()
+            if (token == nil) { callback(nil) }
+            Storage.deleteToken()
+            if (resetBiometric) { Storage.deleteBiometric() }
+            if (!signOutOfBrowser) { callback(nil); return }
+            do {
+                try await getWebAuth().signOut(from: vc?.view.window, token: token!)
+            } catch let error {
+                callback(error)
+            }
+        }
     }
 
     @available(iOS 13.0.0, *)
@@ -142,7 +149,7 @@ import Security
     }
 
     private func getWebAuth() -> WebAuthentication {
-        return WebAuthentication(issuer: issuer!, clientId: clientId, scopes: scopes, redirectUri: redirectUri!)
+        return WebAuthentication(issuer: issuer!, clientId: clientId, scopes: scopes, redirectUri: redirectUri!, logoutRedirectUri: logoutRedirectUri)
     }
 
 }

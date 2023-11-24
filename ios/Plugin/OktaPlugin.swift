@@ -55,8 +55,13 @@ public class OktaPlugin: CAPPlugin {
     }
 
     @objc public func signOut(_ call: CAPPluginCall) {
-        implementation.signOut(vc: self.bridge?.viewController, signOutOfBrowser: call.getBool("signOutOfBrowser") ?? false, resetBiometric: call.getBool("resetBiometric") ?? false) { call.resolve() }
+        implementation.signOut(vc: self.bridge?.viewController, signOutOfBrowser: call.getBool("signOutOfBrowser") ?? false, resetBiometric: call.getBool("resetBiometric") ?? false) { error in
+            if error != nil {
+                call.reject(error?.localizedDescription ?? "")
+            }
+            call.resolve()
         }
+    }
 
     @available(iOS 13.0.0, *)
     @objc public func enableBiometric(_ call: CAPPluginCall) {
