@@ -8,10 +8,10 @@ public class Helper: NSObject {
         })
     }
 
-    public static func getBiometricStatus() -> [String:Bool] {
+    public static func getBiometricStatus(isBiometricAvailable: Bool, isBiometricEnabled: Bool) -> [String:Bool] {
         return [
-            "isBiometricAvailable": Biometric.isAvailable(),
-            "isBiometricEnabled": Storage.getBiometric() == true
+            "isBiometricAvailable": isBiometricAvailable,
+            "isBiometricEnabled": isBiometricEnabled
         ]
     }
 

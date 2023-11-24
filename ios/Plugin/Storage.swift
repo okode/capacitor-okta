@@ -7,18 +7,24 @@ import AuthFoundation
     static let TOKENS_KEY = "okta_tokens_storage"
     static let BIOMETRIC_KEY = "okta_biometric_storage"
 
+    static var clientId = ""
+
+    public static func setClientId(clientId: String) {
+        self.clientId = clientId
+    }
+
     /* Tokens */
     public static func setTokens(token: Token?) {
         deleteToken()
         do {
             let data = try JSONEncoder().encode(token)
-            Storage.save(key: Storage.TOKENS_KEY, data: data)
+            Storage.save(key: Storage.TOKENS_KEY + clientId, data: data)
         } catch _ { }
     }
 
     public static func getTokens() -> Token? {
         do {
-            let data = Storage.get(key: Storage.TOKENS_KEY)
+            let data = Storage.get(key: Storage.TOKENS_KEY + clientId)
             if (data == nil) { return nil }
             return try JSONDecoder().decode(Token.self, from: data!) as Token
         } catch _ {
@@ -27,7 +33,7 @@ import AuthFoundation
     }
 
     public static func deleteToken() {
-        delete(key: Storage.TOKENS_KEY)
+        delete(key: Storage.TOKENS_KEY + clientId)
     }
 
     /* Biometric */
@@ -35,13 +41,13 @@ import AuthFoundation
         deleteBiometric()
         do {
             let data = try JSONEncoder().encode(value)
-            Storage.save(key: Storage.BIOMETRIC_KEY, data: data)
+            Storage.save(key: Storage.BIOMETRIC_KEY + clientId, data: data)
         } catch _ { }
     }
 
     public static func getBiometric() -> Bool? {
         do {
-            let data = Storage.get(key: Storage.BIOMETRIC_KEY)
+            let data = Storage.get(key: Storage.BIOMETRIC_KEY + clientId)
             if (data == nil) { return nil }
             return try JSONDecoder().decode(Bool.self, from: data!) as Bool
         } catch _ {
@@ -50,7 +56,7 @@ import AuthFoundation
     }
 
     public static func deleteBiometric() {
-        delete(key: Storage.BIOMETRIC_KEY)
+        delete(key: Storage.BIOMETRIC_KEY + clientId)
     }
 
     private static func save(key: String, data: Data) {

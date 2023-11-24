@@ -66,22 +66,22 @@ public class OktaPlugin: CAPPlugin {
     @available(iOS 13.0.0, *)
     @objc public func enableBiometric(_ call: CAPPluginCall) {
         implementation.enableBiometric {
-            call.resolve(Helper.getBiometricStatus())
+            call.resolve(self.implementation.getBiometricStatus())
         }
     }
 
     @objc public func disableBiometric(_ call: CAPPluginCall) {
         implementation.disableBiometric()
-        call.resolve(Helper.getBiometricStatus())
+        call.resolve(implementation.getBiometricStatus())
     }
 
     @objc public func resetBiometric(_ call: CAPPluginCall) {
         implementation.resetBiometric()
-        call.resolve(Helper.getBiometricStatus())
+        call.resolve(implementation.getBiometricStatus())
     }
 
     @objc public func getBiometricStatus(_ call: CAPPluginCall) {
-        call.resolve(Helper.getBiometricStatus())
+        call.resolve(implementation.getBiometricStatus())
     }
 
 }

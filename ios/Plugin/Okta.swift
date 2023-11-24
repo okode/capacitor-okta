@@ -20,6 +20,7 @@ import Security
         logoutRedirectUri = URL.init(string: config["endSessionUri"] ?? "")
         scopes = config["scopes"] ?? ""
         clientId = config["clientId"] ?? ""
+        Storage.setClientId(clientId: clientId)
     }
 
     @available(iOS 13.0.0, *)
@@ -84,6 +85,10 @@ import Security
         Storage.deleteBiometric()
     }
 
+    @objc public func getBiometricStatus() -> [String:Bool]  {
+        return Helper.getBiometricStatus(isBiometricAvailable: Biometric.isAvailable(), isBiometricEnabled: Storage.getBiometric() == true)
+    }
+
     @available(iOS 13.0.0, *)
     private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], promptLogin: Bool) async throws -> Token? {
         var options: [WebAuthentication.Option]? = []
@@ -139,7 +144,7 @@ import Security
 
     private func getWebAuth() -> WebAuthentication? {
         if (issuer == nil || redirectUri == nil) { return nil }
-        return WebAuthentication(issuer: issuer!, clientId: clientId, scopes: scopes, redirectUri: redirectUri!, logoutRedirectUri: logoutRedirectUri)
+        return WebAuthentication(issuer: issuer!, clientId: clientId , scopes: scopes, redirectUri: redirectUri!, logoutRedirectUri: logoutRedirectUri)
     }
 
     @available(iOS 13.0.0, *)
