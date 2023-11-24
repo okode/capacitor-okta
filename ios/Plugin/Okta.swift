@@ -7,12 +7,17 @@ import Security
 @objc public class Okta: NSObject {
 
     var listener: CAPPlugin?
-    var webAuth: WebAuthentication?
+
+    var issuer: URL?
+    var redirectUri: URL?
+    var clientId = ""
+    var scopes = ""
 
     @objc public func configureSDK(config: [String : String]) -> Void {
-        let issuer = URL.init(string: config["uri"]!)
-        let redirectUri = URL.init(string: config["redirectUri"]!)
-        webAuth = WebAuthentication(issuer: issuer!, clientId: config["clientId"]!, scopes: config["scopes"]!, redirectUri: redirectUri!)
+        issuer = URL.init(string: config["uri"]!)
+        redirectUri = URL.init(string: config["redirectUri"]!)
+        scopes = config["scopes"]!
+        clientId = config["clientId"]!
     }
 
     @available(iOS 13.0.0, *)
@@ -51,7 +56,7 @@ import Security
         Storage.deleteToken()
         if (resetBiometric) { Storage.deleteBiometric() }
         if (!signOutOfBrowser) { callback(); return }
-        webAuth?.signOut(token: token!, completion: { _ in })
+        getWebAuth().signOut(token: token!, completion: { _ in })
         callback()
     }
 
@@ -92,7 +97,7 @@ import Security
     private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], promptLogin: Bool) async throws -> Token? {
         var options: [WebAuthentication.Option]? = []
         if (promptLogin) { options?.append(.prompt(.login)) }
-        let token = try await webAuth?.signIn(from: vc.view.window, options: options)
+        let token = try await getWebAuth().signIn(from: vc.view.window, options: options)
         if (!isBiometricConfigured() && Biometric.isAvailable()) { showBiometricDialog(vc: vc) }
         Storage.setTokens(token: token)
         return token
@@ -134,6 +139,10 @@ import Security
 
     private func notifyError(error: String, message: String, code: String) {
         listener?.notifyListeners("error", data: Helper.convertError(error: error, message: message, code: code), retainUntilConsumed: true)
+    }
+
+    private func getWebAuth() -> WebAuthentication {
+        return WebAuthentication(issuer: issuer!, clientId: clientId, scopes: scopes, redirectUri: redirectUri!)
     }
 
 }
