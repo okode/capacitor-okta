@@ -2,7 +2,7 @@ import Foundation
 import AuthFoundation
 
 @objc public class Storage: NSObject {
-    
+
     static let SERVICE_NAME = "com.okode.okta.keychain.storage"
     static let TOKENS_KEY = "okta_tokens_storage"
     static let BIOMETRIC_KEY = "okta_biometric_storage"
@@ -14,7 +14,7 @@ import AuthFoundation
             Storage.save(key: Storage.TOKENS_KEY, data: data)
         } catch _ { }
     }
-    
+
     public static func getTokens() -> Token? {
         do {
             let data = Storage.get(key: Storage.TOKENS_KEY)
@@ -23,11 +23,11 @@ import AuthFoundation
             return nil
         }
     }
-    
+
     public static func deleteToken() {
         delete(key: Storage.TOKENS_KEY)
     }
-    
+
     /* Biometric */
     public static func setBiometric(value: Bool) {
         do {
@@ -35,7 +35,7 @@ import AuthFoundation
             Storage.save(key: Storage.BIOMETRIC_KEY, data: data)
         } catch _ { }
     }
-    
+
     public static func getBiometric() -> Bool? {
         do {
             let data = Storage.get(key: Storage.BIOMETRIC_KEY)
@@ -44,11 +44,11 @@ import AuthFoundation
             return nil
         }
     }
-    
+
     public static func deleteBiometric() {
         delete(key: Storage.BIOMETRIC_KEY)
     }
-    
+
     private static func save(key: String, data: Data) {
         let attributes: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -79,7 +79,7 @@ import AuthFoundation
             return nil
         }
     }
-    
+
     private static func delete(key: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -88,5 +88,5 @@ import AuthFoundation
         ]
         SecItemDelete(query as CFDictionary)
     }
-    
+
 }

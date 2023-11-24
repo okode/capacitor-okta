@@ -26,7 +26,7 @@ public class OktaPlugin: CAPPlugin {
             call.resolve(["token": result])
         })
     }
-    
+
     @available(iOS 13.0.0, *)
     public func register(_ call: CAPPluginCall) {
         let params = call.getAny("params") ?? ["":""]
