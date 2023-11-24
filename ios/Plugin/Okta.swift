@@ -15,18 +15,17 @@ import Security
     var scopes = ""
 
     @objc public func configureSDK(config: [String : String]) -> Void {
-        issuer = URL.init(string: config["uri"]!)
-        redirectUri = URL.init(string: config["redirectUri"]!)
-        logoutRedirectUri = URL.init(string: config["endSessionUri"]!)
-        scopes = config["scopes"]!
-        clientId = config["clientId"]!
+        issuer = URL.init(string: config["uri"] ?? "")
+        redirectUri = URL.init(string: config["redirectUri"] ?? "")
+        logoutRedirectUri = URL.init(string: config["endSessionUri"] ?? "")
+        scopes = config["scopes"] ?? ""
+        clientId = config["clientId"] ?? ""
     }
 
     @available(iOS 13.0.0, *)
     @objc public func signIn(vc: UIViewController, params: [String:String], promptLogin: Bool, callback: @escaping((_ result: String?, _ error: Error?) -> Void)) {
 
         Task {
-
             let token = Storage.getTokens()
             if (!promptLogin && token != nil && isBiometricEnabled() == true) {
                 do {
@@ -60,7 +59,7 @@ import Security
             if (resetBiometric) { Storage.deleteBiometric() }
             if (!signOutOfBrowser) { callback(nil); return }
             do {
-                try await getWebAuth().signOut(from: vc?.view.window, token: token!)
+                try await getWebAuth()?.signOut(from: vc?.view.window, token: token!)
             } catch let error {
                 callback(error)
             }
@@ -69,6 +68,7 @@ import Security
 
     @available(iOS 13.0.0, *)
     @objc public func enableBiometric(callback: @escaping (() -> Void)) {
+        if (!Biometric.isAvailable()) { callback(); return }
         Task {
             let verified = await Biometric.verifyIdentity()
             if (verified) { Storage.setBiometric(value: true) }
@@ -88,7 +88,7 @@ import Security
     private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], promptLogin: Bool) async throws -> Token? {
         var options: [WebAuthentication.Option]? = []
         if (promptLogin) { options?.append(.prompt(.login)) }
-        let token = try await getWebAuth().signIn(from: vc.view.window, options: options)
+        let token = try await getWebAuth()?.signIn(from: vc.view.window, options: options)
         let isBiometricAvailable = Biometric.isAvailable()
         if (isBiometricEnabled() && !isBiometricAvailable && Biometric.errorCode != LAError.Code.biometryLockout.rawValue) {
             showBiometricWarning(vc: vc)
@@ -116,7 +116,7 @@ import Security
             throw NSError()
         }
         do {
-            token = try await Token.from(refreshToken: token!.refreshToken!, using: client)
+            token = try await Token.from(refreshToken: token?.refreshToken ?? "", using: client)
         } catch let error {
             notifyError(error: "REFRESH_ERROR", message: error.localizedDescription, code: "")
             throw NSError()
@@ -137,7 +137,8 @@ import Security
         listener?.notifyListeners("error", data: Helper.convertError(error: error, message: message, code: code), retainUntilConsumed: true)
     }
 
-    private func getWebAuth() -> WebAuthentication {
+    private func getWebAuth() -> WebAuthentication? {
+        if (issuer == nil || redirectUri == nil) { return nil }
         return WebAuthentication(issuer: issuer!, clientId: clientId, scopes: scopes, redirectUri: redirectUri!, logoutRedirectUri: logoutRedirectUri)
     }
 
@@ -156,7 +157,7 @@ import Security
     }
 
     private func showBiometricWarning(vc: UIViewController?) {
-        let alert = UIAlertController(title: "Acceso biométrico", message: "El acceso biométrico se ha deshabilitado", preferredStyle: UIAlertController.Style.alert)
+        let alert = UIAlertController(title: "El acceso biométrico se ha deshabilitado", message: "", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "Aceptar", style: .default))
         DispatchQueue.main.async {
             vc?.present(alert, animated: true, completion: nil)
