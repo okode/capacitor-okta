@@ -93,7 +93,7 @@ class Okta {
     storage?.setBiometric(true)
   }
 
-  fun disableBiometric() {
+  suspend fun disableBiometric() {
     credential?.delete()
     storage?.setBiometric(false)
   }
