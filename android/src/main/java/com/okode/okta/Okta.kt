@@ -109,6 +109,7 @@ class Okta {
         throw Exception(result.exception)
       }
       is OidcClientResult.Success -> {
+        credential?.storeToken(result.result)
         token = result.result.accessToken
       }
       else -> {
