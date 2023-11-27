@@ -56,14 +56,17 @@ import Security
         Task {
             let token = Storage.getTokens()
             if (token == nil) { callback(nil) }
+            if (signOutOfBrowser) {
+                do {
+                    try await getWebAuth()?.signOut(from: vc?.view.window, token: token!)
+                } catch let error {
+                    callback(error)
+                    return
+                }
+            }
             Storage.deleteToken()
             if (resetBiometric) { Storage.deleteBiometric() }
-            if (!signOutOfBrowser) { callback(nil); return }
-            do {
-                try await getWebAuth()?.signOut(from: vc?.view.window, token: token!)
-            } catch let error {
-                callback(error)
-            }
+            callback(nil)
         }
     }
 
