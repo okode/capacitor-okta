@@ -36,12 +36,12 @@ class OktaPlugin : Plugin() {
 
   @PluginMethod
   fun signIn(call: PluginCall) {
-    var promptLogin = call.getBoolean("promptLogin") ?: false
-    if (!promptLogin && implementation.hasRefreshToken() && implementation.isBiometricEnabled()) {
+    var signInInBrowser = call.getBoolean("signInInBrowser") ?: false
+    if (!signInInBrowser && implementation.hasRefreshToken() && implementation.isBiometricEnabled()) {
       verifyIdentity(call)
       return
     }
-    signInWithBrowser(call, call.getObject("params") ?: JSObject(), promptLogin)
+    signInWithBrowser(call, call.getObject("params") ?: JSObject(), signInInBrowser)
   }
 
   @PluginMethod
@@ -112,11 +112,11 @@ class OktaPlugin : Plugin() {
     }
   }
 
-  private fun signInWithBrowser(call: PluginCall, params: JSObject, promptLogin: Boolean) {
+  private fun signInWithBrowser(call: PluginCall, params: JSObject, signInInBrowser: Boolean) {
     GlobalScope.launch {
       try {
-        if (promptLogin) { params.put("prompt", "login") }
-        val token = implementation.signIn(activity, params, promptLogin)
+        if (signInInBrowser) { params.put("prompt", "login") }
+        val token = implementation.signIn(activity, params, signInInBrowser)
         call.resolve(Helper.convertTokenResponse(token))
       } catch (e: Exception) { call.reject(e.toString(), e) }
     }

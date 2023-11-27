@@ -24,27 +24,27 @@ import Security
     }
 
     @available(iOS 13.0.0, *)
-    @objc public func signIn(vc: UIViewController, params: [String:String], promptLogin: Bool, callback: @escaping((_ result: String?, _ error: Error?) -> Void)) {
+    @objc public func signIn(vc: UIViewController, params: [String:String], signInInBrowser: Bool, callback: @escaping((_ result: String?, _ error: Error?) -> Void)) {
 
         Task {
             let token = Storage.getTokens()
-            if (!promptLogin && token != nil && isBiometricEnabled() == true) {
+            if (!signInInBrowser && token != nil && isBiometricEnabled() == true) {
                 do {
                     let token = try await signInWithRefresh()
                     callback(token?.accessToken, nil)
                 } catch _ {
-                    signIn(vc: vc, params: params, promptLogin: true, callback: callback)
+                    signIn(vc: vc, params: params, signInInBrowser: true, callback: callback)
                 }
                 return
             }
 
-            if (!promptLogin && !isBiometricEnabled() && token?.isValid == true) {
+            if (!signInInBrowser && !isBiometricEnabled() && token?.isValid == true) {
                 callback(token?.accessToken, nil)
                 return
             }
 
             do {
-                let t = try await signInWithBrowser(vc: vc, params: params, promptLogin: promptLogin)
+                let t = try await signInWithBrowser(vc: vc, params: params, signInInBrowser: signInInBrowser)
                 callback(t?.accessToken, nil)
             } catch let error {
                 callback(nil, error)
@@ -78,6 +78,7 @@ import Security
     }
 
     @objc public func disableBiometric() {
+        Storage.deleteToken()
         Storage.setBiometric(value: false)
     }
 
@@ -90,9 +91,9 @@ import Security
     }
 
     @available(iOS 13.0.0, *)
-    private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], promptLogin: Bool) async throws -> Token? {
+    private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], signInInBrowser: Bool) async throws -> Token? {
         var options: [WebAuthentication.Option]? = []
-        if (promptLogin) { options?.append(.prompt(.login)) }
+        if (signInInBrowser) { options?.append(.prompt(.login)) }
         let token = try await getWebAuth()?.signIn(from: vc.view.window, options: options)
         let isBiometricAvailable = Biometric.isAvailable()
         if (isBiometricEnabled() && !isBiometricAvailable && Biometric.errorCode != LAError.Code.biometryLockout.rawValue) {

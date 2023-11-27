@@ -48,10 +48,10 @@ class Okta {
     configured = true
   }
 
-  suspend fun signIn(activity: Activity, params: JSObject, promptLogin: Boolean): String? {
+  suspend fun signIn(activity: Activity, params: JSObject, signInInBrowser: Boolean): String? {
     var token: String? = null
 
-    if (!promptLogin && credential?.getAccessTokenIfValid() != null) {
+    if (!signInInBrowser && credential?.getAccessTokenIfValid() != null) {
       return credential?.token?.accessToken
     }
 
@@ -94,6 +94,7 @@ class Okta {
   }
 
   fun disableBiometric() {
+    credential?.delete()
     storage?.setBiometric(false)
   }
 
