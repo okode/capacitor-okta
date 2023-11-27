@@ -115,7 +115,7 @@ import Security
             notifyError(error: "REFRESH_ERROR", message: "refreshToken not available", code: "");
             throw NSError()
         }
-        guard let client = WebAuthentication.shared?.signInFlow.client else {
+        guard let client = getWebAuth()?.signInFlow.client else {
             notifyError(error: "REFRESH_ERROR", message: "client not available", code: "");
             throw NSError()
         }
