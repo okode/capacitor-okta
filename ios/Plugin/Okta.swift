@@ -93,6 +93,9 @@ import Security
     @available(iOS 13.0.0, *)
     private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], signInInBrowser: Bool) async throws -> Token? {
         var options: [WebAuthentication.Option]? = []
+        Helper.convertParams(params: params).forEach { (key: String, value: String) in
+            options?.append(.custom(key: key, value: value))
+        }
         if (signInInBrowser) { options?.append(.prompt(.login)) }
         let token = try await getWebAuth()?.signIn(from: vc.view.window, options: options)
         let isBiometricAvailable = Biometric.isAvailable()
