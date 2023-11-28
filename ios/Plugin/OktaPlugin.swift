@@ -19,8 +19,7 @@ public class OktaPlugin: CAPPlugin {
     @available(iOS 13.0.0, *)
     @objc public func signIn(_ call: CAPPluginCall) {
         let params = call.getAny("params") ?? ["":""]
-        let urlParams = Helper.convertParams(params: params as! [AnyHashable : Any])
-        implementation.signIn(vc: self.bridge!.viewController!, params: urlParams, signInInBrowser: call.getBool("signInInBrowser", false), document: call.getString("document"), callback: { result, error in
+        implementation.signIn(vc: self.bridge!.viewController!, params: params as! [String:String], signInInBrowser: call.getBool("signInInBrowser", false), document: call.getString("document"), callback: { result, error in
             if (error != nil) {
                 call.reject(error?.localizedDescription ?? "")
             }
@@ -30,10 +29,9 @@ public class OktaPlugin: CAPPlugin {
 
     @available(iOS 13.0.0, *)
     @objc public func register(_ call: CAPPluginCall) {
-        let params = call.getAny("params") ?? ["":""]
-        var urlParams = Helper.convertParams(params: params as! [AnyHashable : Any])
-        urlParams["t"]="register"
-        implementation.signIn(vc: self.bridge!.viewController!, params: urlParams, signInInBrowser: true, document: nil, callback: { result, error in
+        var params = (call.getAny("params") ?? ["":""]) as! [String:String]
+        params["t"]="register"
+        implementation.signIn(vc: self.bridge!.viewController!, params: params , signInInBrowser: true, document: nil, callback: { result, error in
             if (error != nil) {
                 call.reject(error?.localizedDescription ?? "")
             }
@@ -43,10 +41,9 @@ public class OktaPlugin: CAPPlugin {
 
     @available(iOS 13.0.0, *)
     @objc public func recoveryPassword(_ call: CAPPluginCall) {
-        let params = call.getAny("params") ?? ["":""]
-        var urlParams = Helper.convertParams(params: params as! [AnyHashable : Any])
-        urlParams["t"] = "resetPassWidget";
-        implementation.signIn(vc: self.bridge!.viewController!, params: urlParams, signInInBrowser: true, document: nil, callback: { result, error in
+        var params = (call.getAny("params") ?? ["":""]) as! [String:String]
+        params["t"] = "resetPassWidget";
+        implementation.signIn(vc: self.bridge!.viewController!, params: params, signInInBrowser: true, document: nil, callback: { result, error in
             if (error != nil) {
                 call.reject(error?.localizedDescription ?? "")
             }

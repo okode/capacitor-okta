@@ -44,7 +44,7 @@ import Security
             }
 
             do {
-                let t = try await signInWithBrowser(vc: vc, params: params, signInInBrowser: signInInBrowser)
+                let t = try await signInWithBrowser(vc: vc, params: params, signInInBrowser: signInInBrowser, document: document)
                 callback(t?.accessToken, nil)
             } catch let error {
                 callback(nil, error)
