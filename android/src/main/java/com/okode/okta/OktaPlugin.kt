@@ -118,7 +118,9 @@ class OktaPlugin : Plugin() {
     GlobalScope.launch {
       try {
         if (signInInBrowser) { params.put("prompt", "login") }
-        val token = implementation.signIn(activity, params, signInInBrowser)
+        val document = call.data.getString("document")
+        if (document != null) { params.put("login_hint", document) }
+          val token = implementation.signIn(activity, params, signInInBrowser)
         call.resolve(Helper.convertTokenResponse(token))
       } catch (e: Exception) { call.reject(e.toString(), e) }
     }

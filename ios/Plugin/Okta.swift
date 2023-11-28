@@ -24,7 +24,7 @@ import Security
     }
 
     @available(iOS 13.0.0, *)
-    @objc public func signIn(vc: UIViewController, params: [String:String], signInInBrowser: Bool, callback: @escaping((_ result: String?, _ error: Error?) -> Void)) {
+    @objc public func signIn(vc: UIViewController, params: [String:String], signInInBrowser: Bool, document: String?, callback: @escaping((_ result: String?, _ error: Error?) -> Void)) {
 
         Task {
             let token = Storage.getTokens()
@@ -33,7 +33,7 @@ import Security
                     let token = try await signInWithRefresh()
                     callback(token?.accessToken, nil)
                 } catch _ {
-                    signIn(vc: vc, params: params, signInInBrowser: true, callback: callback)
+                    signIn(vc: vc, params: params, signInInBrowser: true, document: document, callback: callback)
                 }
                 return
             }
@@ -94,12 +94,10 @@ import Security
     }
 
     @available(iOS 13.0.0, *)
-    private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], signInInBrowser: Bool) async throws -> Token? {
-        var options: [WebAuthentication.Option]? = []
-        Helper.convertParams(params: params).forEach { (key: String, value: String) in
-            options?.append(.custom(key: key, value: value))
-        }
-        if (signInInBrowser) { options?.append(.prompt(.login)) }
+    private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], signInInBrowser: Bool, document: String?) async throws -> Token? {
+        var options: [WebAuthentication.Option] = Helper.getOptions(params: params)
+        if (signInInBrowser) { options.append(.prompt(.login)) }
+        if (document != nil) { options.append(.login(hint: document ?? "")) }
         let token = try await getWebAuth()?.signIn(from: vc.view.window, options: options)
         let isBiometricAvailable = Biometric.isAvailable()
         if (isBiometricEnabled() && !isBiometricAvailable && Biometric.errorCode != LAError.Code.biometryLockout.rawValue) {

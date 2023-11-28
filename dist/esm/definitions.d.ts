@@ -3,6 +3,7 @@ export interface OktaPlugin {
     signIn(options?: {
         params?: Record<string, string>;
         signInInBrowser?: boolean;
+        document?: string;
     }): Promise<{
         token: string;
     }>;

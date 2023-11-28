@@ -20,7 +20,7 @@ public class OktaPlugin: CAPPlugin {
     @objc public func signIn(_ call: CAPPluginCall) {
         let params = call.getAny("params") ?? ["":""]
         let urlParams = Helper.convertParams(params: params as! [AnyHashable : Any])
-        implementation.signIn(vc: self.bridge!.viewController!, params: urlParams, signInInBrowser: call.getBool("signInInBrowser", false), callback: { result, error in
+        implementation.signIn(vc: self.bridge!.viewController!, params: urlParams, signInInBrowser: call.getBool("signInInBrowser", false), document: call.getString("document"), callback: { result, error in
             if (error != nil) {
                 call.reject(error?.localizedDescription ?? "")
             }
@@ -33,7 +33,7 @@ public class OktaPlugin: CAPPlugin {
         let params = call.getAny("params") ?? ["":""]
         var urlParams = Helper.convertParams(params: params as! [AnyHashable : Any])
         urlParams["t"]="register"
-        implementation.signIn(vc: self.bridge!.viewController!, params: urlParams, signInInBrowser: true, callback: { result, error in
+        implementation.signIn(vc: self.bridge!.viewController!, params: urlParams, signInInBrowser: true, document: nil, callback: { result, error in
             if (error != nil) {
                 call.reject(error?.localizedDescription ?? "")
             }
@@ -46,7 +46,7 @@ public class OktaPlugin: CAPPlugin {
         let params = call.getAny("params") ?? ["":""]
         var urlParams = Helper.convertParams(params: params as! [AnyHashable : Any])
         urlParams["t"] = "resetPassWidget";
-        implementation.signIn(vc: self.bridge!.viewController!, params: urlParams, signInInBrowser: true, callback: { result, error in
+        implementation.signIn(vc: self.bridge!.viewController!, params: urlParams, signInInBrowser: true, document: nil, callback: { result, error in
             if (error != nil) {
                 call.reject(error?.localizedDescription ?? "")
             }
