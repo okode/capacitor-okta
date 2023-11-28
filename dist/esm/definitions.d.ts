@@ -1,9 +1,9 @@
 import type { PluginListenerHandle } from "@capacitor/core";
 export interface OktaPlugin {
     signIn(options?: {
-        params?: Record<string, string>;
         signInInBrowser?: boolean;
         document?: string;
+        params?: Record<string, string>;
     }): Promise<{
         token: string;
     }>;

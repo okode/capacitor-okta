@@ -74,7 +74,7 @@ class Okta {
 
   suspend fun signOut(activity: Activity, signOutOfBrowser: Boolean, resetBiometric: Boolean) {
     val idToken = credential?.token?.idToken ?: ""
-    credential?.delete()
+    credential?.storeToken(null)
     if (resetBiometric) { resetBiometric() }
     if (!signOutOfBrowser) { return }
 
