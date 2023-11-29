@@ -80,7 +80,7 @@ class OktaPlugin : Plugin() {
   @PluginMethod
   fun disableBiometric(call: PluginCall) {
     GlobalScope.launch {
-      implementation.disableBiometric()
+      implementation.disableBiometric(true)
       getBiometricStatus(call)
     }
   }

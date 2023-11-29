@@ -68,7 +68,7 @@ public class OktaPlugin: CAPPlugin {
     }
 
     @objc public func disableBiometric(_ call: CAPPluginCall) {
-        implementation.disableBiometric()
+        implementation.disableBiometric(deleteTokens: true)
         call.resolve(implementation.getBiometricStatus())
     }
 

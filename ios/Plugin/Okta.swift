@@ -80,8 +80,8 @@ import Security
         }
     }
 
-    @objc public func disableBiometric() {
-        Storage.deleteToken()
+    @objc public func disableBiometric(deleteTokens: Bool) {
+        if (deleteTokens) { Storage.deleteToken() }
         Storage.setBiometric(value: false)
     }
 
@@ -102,7 +102,7 @@ import Security
         let isBiometricAvailable = Biometric.isAvailable()
         if (isBiometricEnabled() && !isBiometricAvailable && Biometric.errorCode != LAError.Code.biometryLockout.rawValue) {
             showBiometricWarning(vc: vc)
-            disableBiometric()
+            disableBiometric(deleteTokens: false)
         }
         if (!isBiometricConfigured() && Biometric.isAvailable()) { showBiometricDialog(vc: vc) }
         Storage.setTokens(token: token)

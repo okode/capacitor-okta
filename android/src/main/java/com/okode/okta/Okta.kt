@@ -61,7 +61,7 @@ class Okta {
       }
       is OidcClientResult.Success -> {
         if (!Biometric.isAvailable(activity) && isBiometricEnabled()) {
-          disableBiometric()
+          disableBiometric(false)
           showToast(activity, "El acceso biométrico se ha deshabilitado")
         }
         showBiometricDialog(activity);
@@ -93,8 +93,8 @@ class Okta {
     storage?.setBiometric(true)
   }
 
-  suspend fun disableBiometric() {
-    credential?.delete()
+  suspend fun disableBiometric(deleteTokens: Boolean) {
+    if (deleteTokens) { credential?.storeToken(null) }
     storage?.setBiometric(false)
   }
 
