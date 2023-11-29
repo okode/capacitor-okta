@@ -140,7 +140,7 @@ class Okta {
       })
       .setNegativeButton("Cancelar", DialogInterface.OnClickListener { dialog, id ->
         storage?.setBiometric(false)
-        dialog.dismiss(false)
+        dialog.dismiss()
       })
     activity.runOnUiThread { builder.create().show() }
   }
