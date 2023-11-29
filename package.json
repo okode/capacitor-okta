@@ -1,6 +1,6 @@
 {
   "name": "capacitor-okta",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "Okta plugin",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
