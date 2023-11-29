@@ -159,7 +159,7 @@ import Security
             self.enableBiometric() { }
         }))
         alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: { (action: UIAlertAction!) in
-            self.disableBiometric()
+            self.disableBiometric(deleteTokens: false)
         }))
         DispatchQueue.main.async {
             vc?.present(alert, animated: true, completion: nil)
