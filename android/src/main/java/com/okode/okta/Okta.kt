@@ -2,6 +2,7 @@ package com.okode.okta
 
 import android.app.Activity
 import android.content.DialogInterface
+import android.hardware.biometrics.BiometricPrompt
 import android.widget.Toast
 
 import com.getcapacitor.JSObject
@@ -60,7 +61,7 @@ class Okta {
         throw Exception(result.exception)
       }
       is OidcClientResult.Success -> {
-        if (!Biometric.isAvailable(activity) && isBiometricEnabled()) {
+        if (!Biometric.isAvailable(activity) && isBiometricEnabled() && Biometric.errorCode != BiometricPrompt.BIOMETRIC_ERROR_LOCKOUT) {
           disableBiometric(false)
           showToast(activity, "El acceso biométrico se ha deshabilitado")
         }

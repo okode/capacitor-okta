@@ -12,7 +12,9 @@ import androidx.biometric.BiometricPrompt.PromptInfo
 import java.util.concurrent.Executor
 
 class Biometric : AppCompatActivity() {
+
     private var executor: Executor? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.biometric_layout)
@@ -46,6 +48,7 @@ class Biometric : AppCompatActivity() {
             setResult(Activity.RESULT_OK, intent)
         }
         if (errorCode != null) {
+            Biometric.errorCode = errorCode
             intent.putExtra("errorCode", errorCode.toString())
         }
         if (errorDetails != null) {
@@ -55,10 +58,15 @@ class Biometric : AppCompatActivity() {
     }
 
     companion object {
+
+        @JvmStatic
+        var errorCode: Int? = null
+
         @JvmStatic
         fun isAvailable(activity: Activity): Boolean {
             val biometricManager = BiometricManager.from(activity)
             return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS
         }
+
     }
 }
