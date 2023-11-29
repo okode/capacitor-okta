@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.source_files = 'ios/Plugin/**/*.{swift,h,m,c,cc,mm,cpp}'
   s.ios.deployment_target  = '12.0'
   s.dependency 'Capacitor'
-  s.dependency 'OktaOidc', '3.11.1'
+  s.dependency 'OktaWebAuthenticationUI'
   s.dependency 'OktaStorage', '1.1.3'
   s.swift_version = '5.1'
 end

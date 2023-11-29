@@ -2,24 +2,26 @@ PODS:
   - Capacitor (4.8.1):
     - CapacitorCordova
   - CapacitorCordova (4.8.1)
-  - OktaOidc (3.11.2):
-    - OktaOidc/AppAuth (= 3.11.2)
-    - OktaOidc/Okta (= 3.11.2)
-  - OktaOidc/AppAuth (3.11.2)
-  - OktaOidc/Okta (3.11.2):
-    - OktaOidc/AppAuth
+  - OktaAuthFoundation (1.4.3)
+  - OktaOAuth2 (1.4.3):
+    - OktaAuthFoundation (= 1.4.3)
   - OktaStorage (1.1.3)
+  - OktaWebAuthenticationUI (1.4.3):
+    - OktaAuthFoundation (= 1.4.3)
+    - OktaOAuth2 (= 1.4.3)
 
 DEPENDENCIES:
   - "Capacitor (from `../node_modules/@capacitor/ios`)"
   - "CapacitorCordova (from `../node_modules/@capacitor/ios`)"
-  - OktaOidc (= 3.11.2)
   - OktaStorage (= 1.1.3)
+  - OktaWebAuthenticationUI
 
 SPEC REPOS:
   https://cdn.cocoapods.org/:
-    - OktaOidc
+    - OktaAuthFoundation
+    - OktaOAuth2
     - OktaStorage
+    - OktaWebAuthenticationUI
 
 EXTERNAL SOURCES:
   Capacitor:
@@ -30,9 +32,11 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Capacitor: 308aae8142159bfe8ec799fe2bca2342929d7cd9
   CapacitorCordova: 99ca4a6de99c9719a440b4534e4496d284c37503
-  OktaOidc: 15fb3d494103d4f07ba8a523b3347d02c4d30486
+  OktaAuthFoundation: 5ac1fd93cf428078d82d4fda08cbbe3f4979c6ce
+  OktaOAuth2: d063c4e91ab2ad7927fdf95a8f9454019d91eb47
   OktaStorage: d5b39f93156832a1baed052be537e9e79b3adf7a
+  OktaWebAuthenticationUI: 1dd167e623e169e83fd8783682feef02c594d110
 
-PODFILE CHECKSUM: c6f7448a7261ab15af47b3193d8f5e9dd02ec1a2
+PODFILE CHECKSUM: 9e5b4e71fe6ea67e7714e74996eb9b2aabe10ac4
 
 COCOAPODS: 1.11.2

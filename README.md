@@ -34,12 +34,12 @@ npx cap sync
 ### signIn(...)
 
 ```typescript
-signIn(options?: { params?: Record<string, string> | undefined; promptLogin?: boolean | undefined; } | undefined) => Promise<void>
+signIn(options?: { params?: Record<string, string> | undefined; signInInBrowser?: boolean | undefined; } | undefined) => Promise<void>
 ```
 
 | Param         | Type                                                                                                 |
 | ------------- | ---------------------------------------------------------------------------------------------------- |
-| **`options`** | <code>{ params?: <a href="#record">Record</a>&lt;string, string&gt;; promptLogin?: boolean; }</code> |
+| **`options`** | <code>{ params?: <a href="#record">Record</a>&lt;string, string&gt;; signInInBrowser?: boolean; }</code> |
 
 --------------------
 
@@ -195,6 +195,8 @@ addListener(eventName: 'authState', listenerFunc: (data: AuthState) => void) => 
 
 Construct a type with a set of properties K of type T
 
-<code>{ [P in K]: T; }</code>
+<code>{
+ [P in K]: T;
+ }</code>
 
 </docgen-api>
