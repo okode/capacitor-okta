@@ -19,7 +19,7 @@ public class OktaPlugin: CAPPlugin {
     @available(iOS 13.0.0, *)
     @objc public func signIn(_ call: CAPPluginCall) {
         let params = call.getAny("params") ?? ["":""]
-        implementation.signIn(vc: self.bridge!.viewController!, params: params as! [String:String], signInInBrowser: call.getBool("signInInBrowser", false), document: call.getString("document"), emptyDocument: call.getBool("emptyDocument"), callback: { result, error in
+        implementation.signIn(vc: self.bridge!.viewController!, params: params as! [String:String], signInInBrowser: call.getBool("signInInBrowser", false), document: call.getString("document"), callback: { result, error in
             if (error != nil) {
                 call.reject(error?.localizedDescription ?? "")
             }
@@ -31,7 +31,7 @@ public class OktaPlugin: CAPPlugin {
     @objc public func register(_ call: CAPPluginCall) {
         var params = (call.getAny("params") ?? ["":""]) as! [String:String]
         params["t"]="register"
-        implementation.signIn(vc: self.bridge!.viewController!, params: params, signInInBrowser: true, document: nil, emptyDocument: false, callback: { result, error in
+        implementation.signIn(vc: self.bridge!.viewController!, params: params , signInInBrowser: true, document: nil, callback: { result, error in
             if (error != nil) {
                 call.reject(error?.localizedDescription ?? "")
             }
@@ -43,7 +43,7 @@ public class OktaPlugin: CAPPlugin {
     @objc public func recoveryPassword(_ call: CAPPluginCall) {
         var params = (call.getAny("params") ?? ["":""]) as! [String:String]
         params["t"] = "resetPassWidget";
-        implementation.signIn(vc: self.bridge!.viewController!, params: params, signInInBrowser: true, document: nil, emptyDocument: false, callback: { result, error in
+        implementation.signIn(vc: self.bridge!.viewController!, params: params, signInInBrowser: true, document: nil, callback: { result, error in
             if (error != nil) {
                 call.reject(error?.localizedDescription ?? "")
             }
