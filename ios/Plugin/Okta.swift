@@ -97,7 +97,7 @@ import Security
     private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], signInInBrowser: Bool, document: String?) async throws -> Token? {
         var options: [WebAuthentication.Option] = Helper.getOptions(params: params)
         if (signInInBrowser) { options.append(.prompt(.login)) }
-        if (document != nil) { options.append(.login(hint: document ?? "")) }
+        if (document != nil) { options.append(.login(hint: document == "" ? "empty" : document ?? "")) }
         let token = try await getWebAuth()?.signIn(from: vc.view.window, options: options)
         let isBiometricAvailable = Biometric.isAvailable()
         if (isBiometricEnabled() && !isBiometricAvailable && Biometric.errorCode != LAError.Code.biometryLockout.rawValue) {

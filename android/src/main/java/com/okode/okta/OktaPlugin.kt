@@ -119,8 +119,8 @@ class OktaPlugin : Plugin() {
       try {
         if (signInInBrowser) { params.put("prompt", "login") }
         val document = call.data.getString("document")
-        if (document != null) { params.put("login_hint", document) }
-          val token = implementation.signIn(activity, params, signInInBrowser)
+        if (document != null) { params.put("login_hint", if (document == "") "empty" else document) }
+        val token = implementation.signIn(activity, params, signInInBrowser)
         call.resolve(Helper.convertTokenResponse(token))
       } catch (e: Exception) { call.reject(e.toString(), e) }
     }
