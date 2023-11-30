@@ -24,7 +24,7 @@ import Security
     }
 
     @available(iOS 13.0.0, *)
-    @objc public func signIn(vc: UIViewController, params: [String:String], signInInBrowser: Bool, document: String?, callback: @escaping((_ result: String?, _ error: Error?) -> Void)) {
+    public func signIn(vc: UIViewController, params: [String:String], signInInBrowser: Bool, document: String?, emptyDocument: Bool?, callback: @escaping((_ result: String?, _ error: Error?) -> Void)) {
 
         Task {
             let token = Storage.getTokens()
@@ -33,7 +33,7 @@ import Security
                     let token = try await signInWithRefresh()
                     callback(token?.accessToken, nil)
                 } catch _ {
-                    signIn(vc: vc, params: params, signInInBrowser: true, document: document, callback: callback)
+                    signIn(vc: vc, params: params, signInInBrowser: true, document: document, emptyDocument: emptyDocument, callback: callback)
                 }
                 return
             }
@@ -44,7 +44,7 @@ import Security
             }
 
             do {
-                let t = try await signInWithBrowser(vc: vc, params: params, signInInBrowser: signInInBrowser, document: document)
+                let t = try await signInWithBrowser(vc: vc, params: params, signInInBrowser: signInInBrowser, document: document, emptyDocument: emptyDocument)
                 callback(t?.accessToken, nil)
             } catch let error {
                 callback(nil, error)
@@ -94,10 +94,10 @@ import Security
     }
 
     @available(iOS 13.0.0, *)
-    private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], signInInBrowser: Bool, document: String?) async throws -> Token? {
+    private func signInWithBrowser(vc: UIViewController, params: [AnyHashable : Any], signInInBrowser: Bool, document: String?, emptyDocument: Bool?) async throws -> Token? {
         var options: [WebAuthentication.Option] = Helper.getOptions(params: params)
         if (signInInBrowser) { options.append(.prompt(.login)) }
-        if (document != nil) { options.append(.login(hint: document ?? "")) }
+        if (document != nil || emptyDocument == true) { options.append(.login(hint: emptyDocument == true ? "empty" : document ?? "")) }
         let token = try await getWebAuth()?.signIn(from: vc.view.window, options: options)
         let isBiometricAvailable = Biometric.isAvailable()
         if (isBiometricEnabled() && !isBiometricAvailable && Biometric.errorCode != LAError.Code.biometryLockout.rawValue) {
@@ -151,6 +151,8 @@ import Security
         if (issuer == nil || redirectUri == nil) { return nil }
         return WebAuthentication(issuer: issuer!, clientId: clientId , scopes: scopes, redirectUri: redirectUri!, logoutRedirectUri: logoutRedirectUri)
     }
+
+    /* UI */
 
     @available(iOS 13.0.0, *)
     private func showBiometricDialog(vc: UIViewController?) {
