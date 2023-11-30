@@ -14,13 +14,17 @@ import Security
     var clientId = ""
     var scopes = ""
 
-    @objc public func configureSDK(config: [String : String]) -> Void {
-        issuer = URL.init(string: config["uri"] ?? "")
-        redirectUri = URL.init(string: config["redirectUri"] ?? "")
-        logoutRedirectUri = URL.init(string: config["endSessionUri"] ?? "")
-        scopes = config["scopes"] ?? ""
-        clientId = config["clientId"] ?? ""
+    @objc public func configureSDK(clientId: String, uri: String, scopes: String, endSessionUri: String, redirectUri: String, clearStorage: Bool) -> Void {
+        issuer = URL.init(string: uri)
+        self.redirectUri = URL.init(string: redirectUri)
+        logoutRedirectUri = URL.init(string: endSessionUri)
+        self.scopes = scopes
+        self.clientId = clientId
         Storage.setClientId(clientId: clientId)
+        if (clearStorage) {
+            Storage.deleteToken()
+            resetBiometric()
+        }
     }
 
     @available(iOS 13.0.0, *)
@@ -52,6 +56,7 @@ import Security
         }
     }
 
+    @available(iOS 13.0, *)
     @objc public func signOut(vc: UIViewController?, signOutOfBrowser: Bool, resetBiometric: Bool, callback: @escaping ((_ error: Error?) -> Void)) {
         Task {
             let token = Storage.getTokens()

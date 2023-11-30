@@ -32,7 +32,9 @@ class Okta {
   private var redirectUri: String = ""
 
   @Throws(GeneralSecurityException::class, IOException::class)
-  suspend fun configureSDK(activity: Activity, clientId: String, uri: String, scopes: String, endSessionUri: String, redirectUri: String) {
+  suspend fun configureSDK(activity: Activity, clientId: String, uri: String,
+                           scopes: String, endSessionUri: String, redirectUri: String,
+                           cleanStorage: Boolean) {
     if (configured) { return }
     AuthFoundationDefaults.cache = SharedPreferencesCache.create(activity)
     val oidcConfiguration = OidcConfiguration(
@@ -46,6 +48,10 @@ class Okta {
     storage = Storage(activity)
     this.endSessionUri = endSessionUri
     this.redirectUri = redirectUri
+    if (cleanStorage) {
+      resetBiometric()
+      credential?.storeToken(null)
+    }
     configured = true
   }
 

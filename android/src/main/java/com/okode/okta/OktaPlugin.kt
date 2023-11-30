@@ -23,12 +23,14 @@ class OktaPlugin : Plugin() {
   fun configure(call: PluginCall) {
     GlobalScope.launch {
       try {
-        val clientId = call.data.getString("clientId") ?: ""
-        val uri = call.data.getString("uri", "") ?: ""
-        val scopes = call.data.getString("scopes", "") ?: ""
-        val endSessionUri = call.data.getString("endSessionUri", "") ?: ""
-        val redirectUri = call.data.getString("redirectUri", "") ?: ""
-        implementation.configureSDK(activity, clientId, uri, scopes, endSessionUri, redirectUri)
+        val config = call.getObject("config")
+        val clientId = config?.getString("clientId") ?: ""
+        val uri = config?.getString("uri") ?: ""
+        val scopes = config?.getString("scopes") ?: ""
+        val endSessionUri = config?.getString("endSessionUri") ?: ""
+        val redirectUri = config?.getString("redirectUri") ?: ""
+        val cleanStorage = call.getBoolean("cleanStorage") ?: false
+        implementation.configureSDK(activity, clientId, uri, scopes, endSessionUri, redirectUri, cleanStorage)
         call.resolve()
       } catch (e: Exception) { call.reject(e.toString(), e) }
     }

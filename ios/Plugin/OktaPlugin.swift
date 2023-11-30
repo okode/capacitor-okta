@@ -12,7 +12,14 @@ public class OktaPlugin: CAPPlugin {
 
     @objc public func configure(_ call: CAPPluginCall) {
         implementation.listener = self
-        implementation.configureSDK(config: call.options as! [String : String])
+        let config = call.getObject("config") ?? JSObject()
+        let clientId = config["clientId"] as? String ?? ""
+        let uri = config["uri"] as? String ?? ""
+        let scopes = config["scopes"] as? String ?? ""
+        let endSessionUri = config["endSessionUri"] as? String ?? ""
+        let redirectUri = config["redirectUri"] as? String ?? ""
+        let cleanStorage = call.getBool("cleanStorage") ?? false
+        implementation.configureSDK(clientId: clientId, uri: uri, scopes: scopes, endSessionUri: endSessionUri, redirectUri: redirectUri, clearStorage: cleanStorage)
         call.resolve()
     }
 

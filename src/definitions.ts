@@ -9,7 +9,7 @@ export interface OktaPlugin {
   disableBiometric(): Promise<BiometricState>;
   resetBiometric(): Promise<BiometricState>;
   getBiometricStatus(): Promise<BiometricState>;
-  configure(config: OktaConfig): Promise<void>;
+  configure(options: { config: OktaConfig, cleanStorage?: boolean }): Promise<void>;
   addListener(eventName: 'error', listenerFunc: (data: OktaError) => void): PluginListenerHandle;
 }
 
