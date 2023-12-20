@@ -45,7 +45,9 @@ class Okta {
     val client = OidcClient.createFromDiscoveryUrl(oidcConfiguration, url.toHttpUrl())
     CredentialBootstrap.initialize(client.createCredentialDataSource(activity))
     credential = CredentialBootstrap.defaultCredential()
-    storage = Storage(activity)
+    try {
+      storage = Storage(activity)
+    } catch (e: Exception) { }
     this.endSessionUri = endSessionUri
     this.redirectUri = redirectUri
     if (cleanStorage) {

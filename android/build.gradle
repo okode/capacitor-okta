@@ -53,6 +53,11 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.security:security-crypto:1.1.0-alpha02'
+    }
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -63,7 +68,7 @@ dependencies {
     implementation('com.okta.kotlin:oauth2')
     implementation('com.okta.kotlin:web-authentication-ui')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
-    implementation 'androidx.security:security-crypto:1.0.0'
+    implementation 'androidx.security:security-crypto:1.1.0-alpha02'
     implementation 'androidx.biometric:biometric:1.1.0'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     testImplementation "junit:junit:$junitVersion"
