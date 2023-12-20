@@ -55,7 +55,7 @@ repositories {
 
 configurations.all {
     resolutionStrategy {
-        force 'androidx.security:security-crypto:1.1.0-alpha04'
+        force 'androidx.security:security-crypto:1.1.0-alpha06'
     }
 }
 
@@ -68,7 +68,7 @@ dependencies {
     implementation('com.okta.kotlin:oauth2')
     implementation('com.okta.kotlin:web-authentication-ui')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
-    implementation 'androidx.security:security-crypto:1.1.0-alpha04'
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
     implementation 'androidx.biometric:biometric:1.1.0'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     testImplementation "junit:junit:$junitVersion"
