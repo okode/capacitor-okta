@@ -20,7 +20,6 @@ import Security
         logoutRedirectUri = URL.init(string: endSessionUri)
         self.scopes = scopes
         self.clientId = clientId
-        Storage.setClientId(clientId: clientId)
         if (clearStorage) {
             Storage.deleteToken()
             resetBiometric()
