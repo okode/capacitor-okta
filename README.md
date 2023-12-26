@@ -200,3 +200,8 @@ Construct a type with a set of properties K of type T
  }</code>
 
 </docgen-api>
+
+## CHANGELOG
+
+- 1.1.0 Capacitor 5
+- 1.0.0 ... 1.0.9 Capacitor 4
