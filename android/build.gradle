@@ -63,7 +63,7 @@ configurations.all {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':capacitor-android')
-    implementation(platform('com.okta.kotlin:bom:1.2.0'))
+    implementation(platform('com.okta.kotlin:bom:1.2.1'))
     implementation('com.okta.kotlin:auth-foundation')
     implementation('com.okta.kotlin:auth-foundation-bootstrap')
     implementation('com.okta.kotlin:oauth2')
